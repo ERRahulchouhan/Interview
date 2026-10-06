@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Fine-Tuning Roadmap — Beginner to Production</title>
+<style>
+:root{
+  --bg:#0b1020; --card:#121a2d; --card2:#18233b; --text:#eef3ff;
+  --muted:#aab7d4; --accent:#69a7ff; --accent2:#7ee2c3;
+  --border:#293653; --danger:#ff9d9d;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;line-height:1.6}
+.container{max-width:1200px;margin:auto;padding:28px 18px 60px}
+.hero{padding:34px;border:1px solid var(--border);border-radius:20px;background:linear-gradient(135deg,#121a2d,#18233b);margin-bottom:24px}
+h1{font-size:clamp(30px,5vw,52px);margin:0 0 10px}
+h2{margin-top:0;font-size:26px}
+h3{color:var(--accent2);margin-bottom:8px}
+p,li{color:var(--muted)}
+.badge{display:inline-block;padding:5px 10px;border:1px solid var(--border);border-radius:999px;margin:4px 5px 4px 0;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px}
+.card ul{padding-left:20px}
+.priority{font-size:12px;color:var(--accent);font-weight:700}
+.flow{background:#0f1729;border:1px solid var(--border);padding:18px;border-radius:14px;overflow:auto;white-space:pre-wrap;font-family:monospace;color:#dce7ff}
+table{width:100%;border-collapse:collapse;background:var(--card);border-radius:14px;overflow:hidden}
+th,td{padding:12px;border-bottom:1px solid var(--border);text-align:left}
+th{color:var(--accent2);background:var(--card2)}
+.checklist label{display:block;padding:8px 0;color:var(--muted)}
+.checklist input{margin-right:10px}
+.progress{height:9px;background:#222d45;border-radius:99px;overflow:hidden;margin:12px 0}
+.bar{height:100%;width:0;background:var(--accent2);transition:.2s}
+button{background:var(--accent);border:0;color:#07101f;padding:10px 15px;border-radius:9px;font-weight:700;cursor:pointer}
+.small{font-size:13px;color:var(--muted)}
+footer{text-align:center;color:var(--muted);padding-top:30px}
+code{color:#dce7ff}
+</style>
+</head>
+<body>
+<div class="container">
+
+<section class="hero">
+  <div class="badge">Beginner → Advanced → Production</div>
+  <div class="badge">40 Topics</div>
+  <div class="badge">Hands-on + Interview</div>
+  <h1>LLM Fine-Tuning Complete Roadmap</h1>
+  <p>Learn LLM fine-tuning from fundamentals to production deployment: PyTorch, Hugging Face, SFT, LoRA, QLoRA, DPO, evaluation, vLLM, FastAPI, Docker, Kubernetes, AWS, MLflow and monitoring.</p>
+</section>
+
+<section class="card">
+<h2>🎯 Master Path</h2>
+<div class="flow">Python
+  ↓
+PyTorch
+  ↓
+Deep Learning + Transformers
+  ↓
+Tokenization + Causal LLM
+  ↓
+Hugging Face
+  ↓
+Dataset Engineering
+  ↓
+SFT
+  ↓
+Full Fine-Tuning concepts
+  ↓
+PEFT
+  ↓
+LoRA ⭐
+  ↓
+QLoRA ⭐
+  ↓
+Quantization
+  ↓
+Training Optimization
+  ↓
+Evaluation ⭐
+  ↓
+DPO
+  ↓
+RLHF / GRPO
+  ↓
+Advanced Data + Multi-LoRA
+  ↓
+Distributed Training
+  ↓
+vLLM
+  ↓
+FastAPI
+  ↓
+Docker
+  ↓
+Kubernetes
+  ↓
+AWS
+  ↓
+MLflow + Model Registry
+  ↓
+CI/CD + Monitoring + Security
+  ↓
+Fine-Tuning + RAG
+  ↓
+Continuous Fine-Tuning</div>
+</section>
+
+<br>
+
+<h2>📚 Complete Roadmap</h2>
+<div class="grid">
+
+<div class="card"><span class="priority">LEVEL 0</span><h3>1. Python</h3><p><b>Learn:</b> functions, OOP, typing, dataclasses, async, exceptions, logging, JSON, NumPy, Pandas.</p><p><b>Why:</b> Most LLM training tooling is Python-based.</p></div>
+
+<div class="card"><span class="priority">LEVEL 0</span><h3>2. PyTorch</h3><p><b>Learn:</b> tensors, Dataset, DataLoader, model, forward pass, loss, backward pass, optimizer, CUDA, GPU, mixed precision.</p><p><b>Why:</b> Understand what actually happens during training.</p></div>
+
+<div class="card"><span class="priority">LEVEL 0</span><h3>3. Deep Learning</h3><p>Weights, bias, activation, loss, gradient descent, backpropagation, optimizer, learning rate, batch, epoch, overfitting and regularization.</p></div>
+
+<div class="card"><span class="priority">LEVEL 1</span><h3>4. Transformer</h3><p>Attention, Q/K/V, multi-head attention, causal attention, residual connections, LayerNorm, FFN and transformer blocks.</p></div>
+
+<div class="card"><span class="priority">LEVEL 1</span><h3>5. Tokenization</h3><p>BPE, WordPiece, SentencePiece, token IDs, special tokens, BOS/EOS/PAD/UNK and attention masks.</p></div>
+
+<div class="card"><span class="priority">LEVEL 1</span><h3>6. Causal LLM</h3><p>Understand next-token prediction and decoder-only architectures such as Llama/Qwen/Mistral/GPT-style models.</p></div>
+
+<div class="card"><span class="priority">LEVEL 2</span><h3>7. Hugging Face</h3><p><code>transformers</code>, <code>datasets</code>, <code>tokenizers</code>, <code>peft</code>, <code>trl</code>, <code>accelerate</code>, <code>bitsandbytes</code>, <code>evaluate</code>.</p></div>
+
+<div class="card"><span class="priority">LEVEL 3</span><h3>8. Dataset Engineering ⭐⭐⭐⭐⭐</h3><p>Raw data → cleaning → PII removal → deduplication → quality filtering → formatting → train/validation/test.</p></div>
+
+<div class="card"><span class="priority">LEVEL 3</span><h3>9. Dataset Formats</h3><p>Instruction-response datasets, conversational <code>messages</code> format and model-specific chat templates.</p></div>
+
+<div class="card"><span class="priority">LEVEL 4</span><h3>10. Full Fine-Tuning</h3><p>Understand updating most/all model parameters, optimizer state, memory requirements and why large models make this expensive.</p></div>
+
+<div class="card"><span class="priority">LEVEL 4</span><h3>11. SFT ⭐⭐⭐⭐⭐</h3><p>Supervised Fine-Tuning using input + expected output. Learn causal LM loss, teacher forcing, labels, masking, padding and checkpoints.</p></div>
+
+<div class="card"><span class="priority">LEVEL 5</span><h3>12. PEFT</h3><p>Parameter-Efficient Fine-Tuning. Learn LoRA, QLoRA, adapters, prefix tuning, prompt tuning and IA3.</p></div>
+
+<div class="card"><span class="priority">LEVEL 6</span><h3>13. LoRA ⭐⭐⭐⭐⭐</h3><p>Learn low-rank adaptation: <code>W' = W + ΔW</code>, <code>ΔW = A × B</code>, rank, alpha, dropout and target modules.</p></div>
+
+<div class="card"><span class="priority">LEVEL 7</span><h3>14. QLoRA ⭐⭐⭐⭐⭐</h3><p>Quantized base model + LoRA. Learn 4-bit loading, NF4, double quantization and memory-efficient fine-tuning.</p></div>
+
+<div class="card"><span class="priority">LEVEL 7</span><h3>15. Quantization</h3><p>FP32, FP16, BF16, INT8, INT4; understand training-time versus inference-time quantization, GPTQ, AWQ and bitsandbytes.</p></div>
+
+<div class="card"><span class="priority">LEVEL 10</span><h3>16. Training Optimization</h3><p>Gradient accumulation, gradient checkpointing, mixed precision, Flash Attention, sequence packing and CPU offloading.</p></div>
+
+<div class="card"><span class="priority">LEVEL 11</span><h3>17. Hyperparameters</h3><p>Learning rate, batch size, epochs, warmup, scheduler, weight decay, max sequence length, LoRA rank/alpha/dropout.</p></div>
+
+<div class="card"><span class="priority">LEVEL 11</span><h3>18. Training Diagnosis</h3><p>Underfitting, overfitting, unstable training, slow convergence and catastrophic forgetting.</p></div>
+
+<div class="card"><span class="priority">LEVEL 12</span><h3>19. Evaluation ⭐⭐⭐⭐⭐</h3><p>Validation loss, perplexity, exact match, task-specific metrics, human evaluation, LLM-as-judge, hallucination, safety and instruction-following evaluation.</p></div>
+
+<div class="card"><span class="priority">LEVEL 13</span><h3>20. DPO ⭐⭐⭐⭐</h3><p>Direct Preference Optimization using prompt + chosen answer + rejected answer. Learn preference data and preference loss.</p></div>
+
+<div class="card"><span class="priority">LEVEL 13</span><h3>21. ORPO / KTO</h3><p>Learn alternative preference/post-training approaches after becoming comfortable with SFT and DPO.</p></div>
+
+<div class="card"><span class="priority">LEVEL 13</span><h3>22. RLHF</h3><p>SFT → reward model → RL optimization. Learn reward model, policy, reference model, PPO and KL penalty conceptually.</p></div>
+
+<div class="card"><span class="priority">LEVEL 13</span><h3>23. GRPO</h3><p>Learn group sampling, rewards, relative advantage and policy optimization, especially for reasoning/reward-verifiable tasks.</p></div>
+
+<div class="card"><span class="priority">LEVEL 14</span><h3>24. Advanced Data</h3><p>Synthetic data, data augmentation, self-instruction, distillation, hard negatives, preference data, curriculum and data mixtures.</p></div>
+
+<div class="card"><span class="priority">LEVEL 14</span><h3>25. Catastrophic Forgetting</h3><p>Learn why narrow fine-tuning can degrade general capabilities and how data mixing, regularization, lower learning rates and evaluation help.</p></div>
+
+<div class="card"><span class="priority">LEVEL 14</span><h3>26. Multi-LoRA ⭐⭐⭐⭐</h3><p>One base model with multiple domain/customer adapters. Useful for multi-tenant and domain-specific systems.</p></div>
+
+<div class="card"><span class="priority">LEVEL 14</span><h3>27. Model Merging</h3><p>Understand adapter merging, <code>merge_and_unload</code>, compatibility and when keeping adapters separate is better.</p></div>
+
+<div class="card"><span class="priority">LEVEL 15</span><h3>28. Distributed Training</h3><p>Data parallelism, tensor parallelism, pipeline parallelism, FSDP, DeepSpeed and ZeRO.</p></div>
+
+<div class="card"><span class="priority">LEVEL 15</span><h3>29. GPU Optimization</h3><p>CUDA basics, VRAM, GPU utilization, OOM debugging, memory fragmentation, throughput, tokens/sec and offloading.</p></div>
+
+<div class="card"><span class="priority">LEVEL 16</span><h3>30. Experiment Tracking</h3><p>MLflow, Weights & Biases and TensorBoard. Track model, dataset version, hyperparameters, loss, evaluation and checkpoints.</p></div>
+
+<div class="card"><span class="priority">LEVEL 16</span><h3>31. Model Registry</h3><p>Experiment → evaluation → candidate → registry → staging → production. Version every production model.</p></div>
+
+<div class="card"><span class="priority">LEVEL 17</span><h3>32. Inference</h3><p>Learn Transformers inference, vLLM, TGI, NVIDIA Triton and Ollama. Prioritize vLLM for production LLM serving.</p></div>
+
+<div class="card"><span class="priority">LEVEL 17</span><h3>33. vLLM ⭐⭐⭐⭐⭐</h3><p>Continuous batching, KV cache, PagedAttention, streaming, tensor parallelism and OpenAI-compatible serving.</p></div>
+
+<div class="card"><span class="priority">LEVEL 18</span><h3>34. FastAPI</h3><p>Build <code>/chat</code>, <code>/generate</code>, <code>/health</code>, <code>/metrics</code>. Add authentication, rate limiting, validation, timeouts, retries and logging.</p></div>
+
+<div class="card"><span class="priority">LEVEL 18</span><h3>35. Docker</h3><p>Package FastAPI, vLLM, model dependencies and runtime into reproducible containers.</p></div>
+
+<div class="card"><span class="priority">LEVEL 18</span><h3>36. Kubernetes</h3><p>Pods, Deployments, Services, Ingress, ConfigMaps, Secrets, HPA, GPU scheduling and persistent storage.</p></div>
+
+<div class="card"><span class="priority">LEVEL 19</span><h3>37. Cloud — AWS</h3><p>S3, ECR, EC2 GPU, EKS, SageMaker, CloudWatch, IAM and VPC. Then learn Azure/GCP equivalents.</p></div>
+
+<div class="card"><span class="priority">LEVEL 19</span><h3>38. CI/CD</h3><p>Git → tests → data validation → training → evaluation → safety tests → registry → Docker → deployment.</p></div>
+
+<div class="card"><span class="priority">LEVEL 20</span><h3>39. Monitoring + Security</h3><p>Monitor P50/P95/P99 latency, TTFT, tokens/sec, GPU, cost, quality, hallucinations and errors. Learn PII, data poisoning, jailbreaks and leakage risks.</p></div>
+
+<div class="card"><span class="priority">LEVEL 20</span><h3>40. Fine-Tuning + RAG + Continuous Learning</h3><p>Use fine-tuning for behavior/task adaptation and RAG for external knowledge. Build feedback → review → dataset version → retraining → evaluation → canary deployment.</p></div>
+
+</div>
+
+<br>
+<section class="card">
+<h2>🧪 Hands-on Projects</h2>
+<ol>
+<li><b>Beginner:</b> Small LLM + instruction dataset + SFT + evaluation.</li>
+<li><b>Intermediate:</b> 7B/8B model + 4-bit QLoRA + customer-support dataset.</li>
+<li><b>Advanced:</b> SFT model + chosen/rejected preference dataset + DPO.</li>
+<li><b>Production:</b> Dataset → QLoRA → evaluation → MLflow → registry → vLLM → FastAPI → Docker → Kubernetes → AWS.</li>
+<li><b>Enterprise:</b> Fine-tuned LLM + Qdrant RAG + vLLM + FastAPI + Kubernetes + monitoring + CI/CD + continuous evaluation.</li>
+</ol>
+</section>
+
+<br>
+<section class="card">
+<h2>🏆 Production Architecture</h2>
+<div class="flow">                         USER
+                           ↓
+                     API Gateway
+                           ↓
+                        FastAPI
+                           ↓
+                       AI Router
+                      /         \
+                     ↓           ↓
+                   RAG       Fine-tuned LLM
+                     ↓           ↑
+                  Qdrant ────────┘
+                     ↓
+               Company Documents
+
+TRAINING PIPELINE
+
+Raw Data
+   ↓
+Cleaning → PII Removal → Deduplication → Quality Filtering
+   ↓
+Train / Validation / Test
+   ↓
+SFT
+   ↓
+LoRA / QLoRA
+   ↓
+Evaluation
+   ↓
+DPO (if needed)
+   ↓
+MLflow / Model Registry
+   ↓
+vLLM
+   ↓
+Docker
+   ↓
+Kubernetes / AWS
+   ↓
+Monitoring + Feedback
+   ↓
+New reviewed training data
+   ↺</div>
+</section>
+
+<br>
+<section class="card">
+<h2>🎯 Priority Table</h2>
+<table>
+<thead><tr><th>Topic</th><th>Priority</th></tr></thead>
+<tbody>
+<tr><td>PyTorch</td><td>⭐⭐⭐⭐⭐</td></tr>
+<tr><td>Hugging Face</td><td>⭐⭐⭐⭐⭐</td></tr>
+<tr><td>Dataset Engineering</td><td>⭐⭐⭐⭐⭐</td></tr>
+<tr><td>SFT</td><td>⭐⭐⭐⭐⭐</td></tr>
+<tr><td>LoRA</td><td>⭐⭐⭐⭐⭐</td></tr>
+<tr><td>QLoRA</td><td>⭐⭐⭐⭐⭐</td></tr>
+<tr><td>Evaluation</td><td>⭐⭐⭐⭐⭐</td></tr>
+<tr><td>vLLM</td><td>⭐⭐⭐⭐⭐</td></tr>
+<tr><td>DPO</td><td>⭐⭐⭐⭐</td></tr>
+<tr><td>Quantization</td><td>⭐⭐⭐⭐</td></tr>
+<tr><td>FastAPI / Docker / Kubernetes</td><td>⭐⭐⭐⭐</td></tr>
+<tr><td>MLflow / Registry / Monitoring</td><td>⭐⭐⭐⭐</td></tr>
+<tr><td>Distributed Training</td><td>⭐⭐⭐</td></tr>
+<tr><td>RLHF / GRPO</td><td>⭐⭐⭐</td></tr>
+</tbody>
+</table>
+</section>
+
+<br>
+<section class="card checklist">
+<h2>✅ Progress Tracker</h2>
+<div id="checks"></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<p id="progressText">0 / 40 completed</p>
+<button onclick="resetProgress()">Reset Progress</button>
+</section>
+
+<footer>
+<p>LLM Fine-Tuning Roadmap • Beginner → Advanced → Production</p>
+</footer>
+</div>
+
+<script>
+const topics = [
+"Python","PyTorch","Deep Learning","Transformer","Tokenization","Causal LLM",
+"Hugging Face","Dataset Engineering","Dataset Formats","Full Fine-Tuning",
+"SFT","PEFT","LoRA","QLoRA","Quantization","Training Optimization",
+"Hyperparameters","Training Diagnosis","Evaluation","DPO","ORPO / KTO","RLHF",
+"GRPO","Advanced Data","Catastrophic Forgetting","Multi-LoRA","Model Merging",
+"Distributed Training","GPU Optimization","Experiment Tracking","Model Registry",
+"Inference","vLLM","FastAPI","Docker","Kubernetes","AWS","CI/CD",
+"Monitoring + Security","Fine-Tuning + RAG + Continuous Learning"
+];
+const box=document.getElementById("checks");
+topics.forEach((t,i)=>{
+  const label=document.createElement("label");
+  const input=document.createElement("input");
+  input.type="checkbox";
+  input.checked=localStorage.getItem("ft_"+i)==="1";
+  input.onchange=()=>{localStorage.setItem("ft_"+i,input.checked?"1":"0");update()};
+  label.appendChild(input); label.append(" "+(i+1)+". "+t); box.appendChild(label);
+});
+function update(){
+ const done=topics.filter((_,i)=>localStorage.getItem("ft_"+i)==="1").length;
+ document.getElementById("bar").style.width=(done/topics.length*100)+"%";
+ document.getElementById("progressText").textContent=done+" / "+topics.length+" completed";
+}
+function resetProgress(){
+ topics.forEach((_,i)=>localStorage.removeItem("ft_"+i));
+ document.querySelectorAll("input[type=checkbox]").forEach(x=>x.checked=false);
+ update();
+}
+update();
+</script>
+</body>
+</html>

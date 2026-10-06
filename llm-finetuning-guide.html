@@ -1,0 +1,2376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fine-Tuning LLMs — A Practical, Interview-Ready Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDF0F5;
+  --surface:#FFFFFF;
+  --surface-2:#F5F7FA;
+  --ink:#1B2434;
+  --ink-soft:#4A566B;
+  --ink-faint:#7C879B;
+  --rule:#D3DAE5;
+  --accent:#3B2FD9;
+  --accent-soft:#E7E5FB;
+  --good:#0E7C6B;
+  --good-soft:#DCF0EC;
+  --warn:#9A4A0B;
+  --warn-soft:#FBEADA;
+  --code-bg:#151A26;
+  --code-ink:#DDE3EF;
+  --code-key:#9AA8FF;
+  --code-str:#7FD8B4;
+  --code-com:#7A879F;
+  --radius:10px;
+  --maxw:74ch;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light dark;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F131C;
+    --surface:#151B26;
+    --surface-2:#1B2230;
+    --ink:#E4E9F2;
+    --ink-soft:#A9B4C6;
+    --ink-faint:#7B879B;
+    --rule:#2A3242;
+    --accent:#9AA5FF;
+    --accent-soft:#242A4A;
+    --good:#5FD3BC;
+    --good-soft:#12302C;
+    --warn:#E8A56A;
+    --warn-soft:#33241442;
+    --code-bg:#0A0E16;
+    --code-ink:#D6DDEB;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F131C;--surface:#151B26;--surface-2:#1B2230;--ink:#E4E9F2;--ink-soft:#A9B4C6;
+  --ink-faint:#7B879B;--rule:#2A3242;--accent:#9AA5FF;--accent-soft:#242A4A;--good:#5FD3BC;
+  --good-soft:#12302C;--warn:#E8A56A;--warn-soft:#332414;--code-bg:#0A0E16;--code-ink:#D6DDEB;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px);-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+  font-size:17.5px;line-height:1.66;
+  font-variant-numeric:tabular-nums;
+}
+h1,h2,h3,h4,.ui{font-family:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;font-weight:700;letter-spacing:-.015em;line-height:1.14}
+a{color:var(--accent);text-underline-offset:3px;text-decoration-thickness:1px}
+a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{outline:2.5px solid var(--accent);outline-offset:3px;border-radius:3px}
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:sticky;top:0;z-index:60;
+  padding-top:env(safe-area-inset-top,0px);
+  background:color-mix(in srgb,var(--paper) 88%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);
+}
+.topbar-in{display:flex;align-items:center;gap:14px;padding:10px 18px;max-width:1360px;margin:0 auto}
+.brand{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:15px;letter-spacing:-.02em;margin-right:auto}
+.brand span{color:var(--ink-faint);font-weight:500}
+.tb-btn{
+  font-family:"Bricolage Grotesque",sans-serif;font-size:13.5px;font-weight:600;
+  background:var(--surface);color:var(--ink);border:1px solid var(--rule);
+  border-radius:99px;padding:7px 14px;cursor:pointer;
+}
+.tb-btn:hover{border-color:var(--accent);color:var(--accent)}
+#navToggle{display:none}
+@media (max-width:1023px){#navToggle{display:inline-block}}
+
+/* ---------- layout ---------- */
+.shell{max-width:1360px;margin:0 auto;display:grid;grid-template-columns:288px minmax(0,1fr);gap:48px;padding:0 18px}
+@media (max-width:1023px){.shell{grid-template-columns:minmax(0,1fr);gap:0}}
+
+nav.toc{
+  position:sticky;top:calc(env(safe-area-inset-top,0px) + 58px);
+  align-self:start;max-height:calc(100vh - 100px);overflow-y:auto;
+  padding:30px 8px 60px 0;font-family:"Bricolage Grotesque",sans-serif;font-size:13.5px;
+}
+nav.toc ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+nav.toc li{counter-increment:toc}
+nav.toc a{
+  display:grid;grid-template-columns:26px 1fr;gap:6px;align-items:baseline;
+  padding:6px 10px;border-radius:7px;color:var(--ink-soft);text-decoration:none;font-weight:500;line-height:1.3;
+}
+nav.toc a::before{content:counter(toc,decimal-leading-zero);color:var(--ink-faint);font-size:11px;font-variant-numeric:tabular-nums}
+nav.toc a:hover{background:var(--surface);color:var(--ink)}
+nav.toc a.active{background:var(--accent-soft);color:var(--accent);font-weight:700}
+nav.toc .toc-head{font-size:11px;font-weight:700;color:var(--ink-faint);padding:0 10px 10px;letter-spacing:.06em}
+@media (max-width:1023px){
+  nav.toc{position:fixed;inset:0;top:0;z-index:70;background:var(--paper);display:none;
+    max-height:none;padding:calc(env(safe-area-inset-top,0px) + 66px) 18px 40px;font-size:15px}
+  nav.toc.open{display:block}
+  nav.toc a{padding:10px}
+}
+
+main{padding:0 0 90px;min-width:0}
+.wrap{max-width:var(--maxw)}
+
+/* ---------- hero ---------- */
+.hero{padding:56px 0 40px;max-width:900px}
+.hero h1{font-size:clamp(2.35rem,6.4vw,4.05rem);font-weight:800;margin:0 0 .5em;letter-spacing:-.035em}
+.hero h1 em{font-style:normal;display:block;color:var(--ink-faint)}
+.lede{font-size:clamp(1.05rem,2.4vw,1.28rem);color:var(--ink-soft);max-width:60ch;margin:0 0 30px}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px;font-family:"Bricolage Grotesque",sans-serif;font-size:12.5px;font-weight:600}
+.chip{background:var(--surface);border:1px solid var(--rule);border-radius:99px;padding:6px 13px;color:var(--ink-soft)}
+
+/* hero decomposition figure */
+.decomp{
+  margin:42px 0 8px;background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);
+  padding:26px 22px;display:grid;gap:20px;
+}
+.decomp-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.mx{display:grid;gap:2px}
+.mx-label{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink-faint);margin-top:8px}
+.cell{width:9px;height:9px;border-radius:1.5px;background:var(--rule)}
+.cell.train{background:var(--accent)}
+.op{font-family:"Bricolage Grotesque",sans-serif;font-size:24px;color:var(--ink-faint)}
+.decomp-note{font-size:15px;color:var(--ink-soft);border-top:1px solid var(--rule);padding-top:16px;margin:0}
+
+/* ---------- sections ---------- */
+section{padding:52px 0 8px;scroll-margin-top:80px}
+section+section{border-top:1px solid var(--rule)}
+.sec-num{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);display:block;margin-bottom:10px}
+h2{font-size:clamp(1.7rem,4vw,2.35rem);margin:0 0 .55em;font-weight:800;letter-spacing:-.03em}
+h3{font-size:1.24rem;margin:2.1em 0 .6em;font-weight:700}
+h4{font-size:1.02rem;margin:1.7em 0 .4em;font-weight:700;color:var(--ink-soft);font-family:"Bricolage Grotesque",sans-serif}
+p{margin:0 0 1.05em;max-width:var(--maxw)}
+ul,ol{max-width:var(--maxw);padding-left:1.25em;margin:0 0 1.15em}
+li{margin-bottom:.45em}
+li>ul,li>ol{margin-top:.4em}
+strong{font-weight:600}
+.k{font-family:"JetBrains Mono",monospace;font-size:.86em;background:var(--surface-2);border:1px solid var(--rule);border-radius:5px;padding:.08em .34em}
+
+/* ---------- callouts ---------- */
+.note{border-left:3px solid var(--accent);background:var(--surface);padding:16px 18px;border-radius:0 var(--radius) var(--radius) 0;margin:1.5em 0;max-width:var(--maxw)}
+.note.do{border-color:var(--good);background:var(--good-soft)}
+.note.dont{border-color:var(--warn);background:var(--warn-soft)}
+.note p:last-child{margin-bottom:0}
+.note-t{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:13px;display:block;margin-bottom:5px}
+.note.do .note-t{color:var(--good)}
+.note.dont .note-t{color:var(--warn)}
+.note .note-t{color:var(--accent)}
+
+/* ---------- tables ---------- */
+.tw{overflow-x:auto;margin:1.5em 0;border:1px solid var(--rule);border-radius:var(--radius);background:var(--surface);-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-family:"Bricolage Grotesque",sans-serif;font-size:14px;min-width:520px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:700;background:var(--surface-2);font-size:12.5px;color:var(--ink-soft)}
+tr:last-child td{border-bottom:none}
+td code,th code{font-family:"JetBrains Mono",monospace;font-size:12.5px}
+
+/* ---------- code ---------- */
+figure.code{margin:1.5em 0;max-width:min(100%,86ch)}
+figure.code figcaption{
+  font-family:"Bricolage Grotesque",sans-serif;font-size:12px;font-weight:600;color:var(--ink-faint);
+  display:flex;justify-content:space-between;align-items:center;gap:12px;padding:0 2px 7px;
+}
+.copy{font-family:inherit;font-size:11.5px;font-weight:600;background:none;border:1px solid var(--rule);color:var(--ink-faint);border-radius:6px;padding:3px 9px;cursor:pointer}
+.copy:hover{color:var(--accent);border-color:var(--accent)}
+pre{
+  background:var(--code-bg);color:var(--code-ink);border-radius:var(--radius);
+  padding:18px;overflow-x:auto;margin:0;font-size:13px;line-height:1.62;
+  font-family:"JetBrains Mono",ui-monospace,monospace;-webkit-overflow-scrolling:touch;
+}
+pre .c{color:var(--code-com)}
+pre .s{color:var(--code-str)}
+pre .kw{color:var(--code-key)}
+.ascii{background:var(--surface);border:1px solid var(--rule);color:var(--ink-soft);font-size:12.2px;border-radius:var(--radius);padding:18px;overflow-x:auto;font-family:"JetBrains Mono",monospace;line-height:1.5;margin:1.5em 0}
+
+/* ---------- Q&A ---------- */
+details.qa{border:1px solid var(--rule);border-radius:var(--radius);background:var(--surface);margin:10px 0;max-width:var(--maxw)}
+details.qa summary{
+  cursor:pointer;padding:14px 16px;font-family:"Bricolage Grotesque",sans-serif;font-weight:600;font-size:15.5px;
+  list-style:none;display:flex;gap:11px;align-items:flex-start;line-height:1.35;
+}
+details.qa summary::-webkit-details-marker{display:none}
+details.qa summary::before{content:"+";color:var(--accent);font-weight:700;font-size:17px;line-height:1.2}
+details.qa[open] summary::before{content:"–"}
+.qa-body{padding:0 16px 16px 43px;border-top:1px solid var(--rule);margin-top:-1px;padding-top:14px}
+.qa-body p{margin-bottom:.8em}
+.ans{font-size:16.5px}
+.ans::before{content:"Say this: ";font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:12px;color:var(--good)}
+.deep::before{content:"Why: ";font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:12px;color:var(--ink-faint)}
+.fu{font-size:15px;color:var(--ink-soft);border-top:1px dashed var(--rule);padding-top:10px}
+.fu::before{content:"Follow-up: ";font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:12px;color:var(--accent)}
+.level{display:inline-block;font-family:"Bricolage Grotesque",sans-serif;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent);margin:2.2em 0 .8em}
+
+/* ---------- calculator ---------- */
+.calc{background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);padding:22px;margin:1.8em 0;max-width:var(--maxw)}
+.calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:18px;margin-bottom:18px}
+.calc label{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:7px}
+.calc input[type=range]{width:100%;accent-color:var(--accent)}
+.calc select{width:100%;font-family:inherit;font-size:15px;padding:7px;border-radius:7px;border:1px solid var(--rule);background:var(--surface-2);color:var(--ink)}
+.calc-out{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:14px;border-top:1px solid var(--rule);padding-top:18px}
+.stat b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
+.stat span{font-size:12.5px;color:var(--ink-faint);font-family:"Bricolage Grotesque",sans-serif}
+.bar{height:7px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin-top:14px}
+.bar i{display:block;height:100%;background:var(--accent);width:2%}
+
+/* ---------- cheat sheet ---------- */
+.cheat{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;margin:1.6em 0}
+.cheat div{background:var(--surface);padding:16px 18px}
+.cheat h4{margin:0 0 6px;color:var(--accent);font-size:13.5px}
+.cheat p{font-size:14.5px;margin:0;color:var(--ink-soft)}
+footer{border-top:1px solid var(--rule);padding:30px 0 10px;color:var(--ink-faint);font-size:14px;max-width:var(--maxw)}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="topbar-in">
+  <div class="brand">Fine-Tuning LLMs <span>· practical guide</span></div>
+  <button class="tb-btn" id="themeToggle" aria-label="Switch colour theme">Dark</button>
+  <button class="tb-btn" id="navToggle" aria-expanded="false">Contents</button>
+</div></div>
+
+<div class="shell">
+<nav class="toc" id="toc" aria-label="Table of contents">
+  <div class="toc-head ui">17 sections</div>
+  <ol>
+    <li><a href="#s1">Introduction</a></li>
+    <li><a href="#s2">Types of fine-tuning</a></li>
+    <li><a href="#s3">Architecture &amp; pipeline</a></li>
+    <li><a href="#s4">Dataset preparation</a></li>
+    <li><a href="#s5">Tokenization</a></li>
+    <li><a href="#s6">Full fine-tuning code</a></li>
+    <li><a href="#s7">LoRA deep dive</a></li>
+    <li><a href="#s8">QLoRA</a></li>
+    <li><a href="#s9">Training parameters</a></li>
+    <li><a href="#s10">Evaluation</a></li>
+    <li><a href="#s11">Common problems</a></li>
+    <li><a href="#s12">Fine-tuning vs RAG</a></li>
+    <li><a href="#s13">Production deployment</a></li>
+    <li><a href="#s14">End-to-end project</a></li>
+    <li><a href="#s15">Interview questions</a></li>
+    <li><a href="#s16">Coding questions</a></li>
+    <li><a href="#s17">Cheat sheet</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Fine-tuning is teaching a model a skill<em>not handing it a fact</em></h1>
+  <p class="lede">A complete path from first principles to production LoRA pipelines, written for engineers who need to build it on Monday and explain it in an interview on Tuesday.</p>
+  <div class="hero-meta">
+    <span class="chip">Hugging Face Transformers + PEFT</span>
+    <span class="chip">LoRA · QLoRA · DPO</span>
+    <span class="chip">30 interview Q&amp;A</span>
+    <span class="chip">5 coding problems</span>
+  </div>
+
+  <div class="decomp">
+    <div class="decomp-row">
+      <div>
+        <div class="mx" id="mxW" aria-hidden="true"></div>
+        <div class="mx-label">W &nbsp;frozen &nbsp;d×d</div>
+      </div>
+      <div class="op">+</div>
+      <div>
+        <div class="mx" id="mxB" aria-hidden="true"></div>
+        <div class="mx-label">B &nbsp;d×r</div>
+      </div>
+      <div class="op">×</div>
+      <div>
+        <div class="mx" id="mxA" aria-hidden="true"></div>
+        <div class="mx-label">A &nbsp;r×d</div>
+      </div>
+    </div>
+    <p class="decomp-note">Every grey square is a weight you leave alone. Every indigo square is a weight you actually train. That ratio — usually well under 1% — is the whole reason fine-tuning a 7B model fits on one consumer GPU.</p>
+  </div>
+</header>
+
+<section id="s1"><div class="wrap">
+<span class="sec-num">Section 01</span>
+<h2>Introduction to LLM fine-tuning</h2>
+
+<h3>What is fine-tuning?</h3>
+<p>A base LLM has already been trained on a very large corpus of text and has learned grammar, reasoning patterns, and a broad map of world knowledge. Fine-tuning takes that finished model and continues training it on a much smaller, carefully chosen dataset so the weights shift toward one behaviour, format, tone, or domain.</p>
+<p>The mechanics are identical to pre-training: feed in tokens, predict the next token, compute cross-entropy loss, backpropagate, update weights. What changes is the scale and the intent. Pre-training uses trillions of tokens to build general capability; fine-tuning uses thousands to millions of tokens to specialise it.</p>
+
+<div class="note"><span class="note-t">The mental model interviewers want to hear</span>
+<p>Fine-tuning changes <em>behaviour</em> — how the model responds. Retrieval changes <em>context</em> — what the model can see. If your problem is "it doesn't know our October pricing", that is a context problem. If your problem is "it won't stop writing five-paragraph essays when I need a JSON object", that is a behaviour problem.</p></div>
+
+<h3>Why is fine-tuning needed?</h3>
+<ul>
+  <li><strong>Consistent output format.</strong> A prompt asking for JSON works 95% of the time; a fine-tuned model can push that to 99.9%, which matters when a parser sits downstream.</li>
+  <li><strong>Domain vocabulary and reasoning style.</strong> Medical coding, legal drafting, and chip-design notation all have conventions that generic instruction models approximate badly.</li>
+  <li><strong>Shorter prompts, lower cost.</strong> Behaviour baked into weights doesn't need 2,000 tokens of instructions and few-shot examples on every single call.</li>
+  <li><strong>Latency and model size.</strong> A fine-tuned 7B model often beats a general 70B model on one narrow task, at a fraction of the serving cost.</li>
+  <li><strong>Privacy and control.</strong> An open-weights model fine-tuned in your VPC never sends customer data to a third party.</li>
+  <li><strong>Alignment to preferences.</strong> RLHF and DPO teach the model which of two plausible answers humans actually prefer.</li>
+</ul>
+
+<h3>Fine-tuning vs prompting vs RAG</h3>
+<div class="tw"><table>
+<thead><tr><th>Dimension</th><th>Prompt engineering</th><th>RAG</th><th>Fine-tuning</th></tr></thead>
+<tbody>
+<tr><td>What it changes</td><td>The instruction</td><td>The context supplied at runtime</td><td>The model weights</td></tr>
+<tr><td>Setup time</td><td>Minutes</td><td>Days</td><td>Days to weeks</td></tr>
+<tr><td>Upfront cost</td><td>~zero</td><td>Vector DB + embedding compute</td><td>GPU hours + labelling</td></tr>
+<tr><td>Per-request cost</td><td>High (long prompts)</td><td>High (retrieved chunks in context)</td><td>Low (short prompts)</td></tr>
+<tr><td>Best for</td><td>Exploration, prototypes</td><td>Facts that change</td><td>Behaviour, format, style, domain skill</td></tr>
+<tr><td>Updating knowledge</td><td>Edit the prompt</td><td>Re-index documents — minutes</td><td>Retrain — hours to days</td></tr>
+<tr><td>Traceability</td><td>None</td><td>Strong — you can cite the chunk</td><td>Weak — knowledge is diffuse in weights</td></tr>
+</tbody></table></div>
+<p>They are not rivals. The strongest production systems use all three: a fine-tuned model that reliably follows your house format, fed retrieved documents, wrapped in a compact system prompt.</p>
+
+<h3>Pre-training vs fine-tuning vs instruction tuning</h3>
+<div class="ascii">PRE-TRAINING          →   FINE-TUNING (SFT)        →   PREFERENCE TUNING
+ ~1-15T tokens             1k - 1M examples             10k - 200k pairs
+ raw web/code/books        (prompt, response) pairs      (chosen, rejected) pairs
+ objective: next token     objective: next token         objective: prefer better answer
+ output: a base model      output: a helpful assistant   output: an aligned assistant
+ cost: $1M - $100M+        cost: $10 - $5,000            cost: $100 - $50,000
+</div>
+<ul>
+  <li><strong>Pre-training</strong> produces a <em>base</em> model. It completes text; it does not follow instructions. Ask <span class="k">meta-llama/Llama-3.1-8B</span> a question and it may well continue with more questions.</li>
+  <li><strong>Instruction tuning</strong> is a specific flavour of supervised fine-tuning where the dataset is broad and varied — thousands of different task types — so the model learns the general habit of doing what it is told. Its output is an <em>Instruct</em> model.</li>
+  <li><strong>Task fine-tuning</strong> is narrow SFT on one job: classify this ticket, extract these fields, answer in this voice.</li>
+</ul>
+<p>In practice you almost always start from an <span class="k">-Instruct</span> checkpoint, because it already has the instruction-following habit and you only need to add your specialisation.</p>
+
+<h3>When fine-tuning is the right call</h3>
+<ul>
+  <li>You need a rigid output schema or a distinctive voice that prompting can't hold reliably.</li>
+  <li>You have 500+ high-quality examples of the exact behaviour you want.</li>
+  <li>The task is stable — the definition of "a good answer" is not changing weekly.</li>
+  <li>You want to distil a large expensive model's behaviour into a small cheap one.</li>
+  <li>Prompting genuinely plateaued: you measured it, and quality stalled below target.</li>
+  <li>Domain language is far from the pre-training distribution (clinical notes, proprietary DSLs, non-English dialects).</li>
+</ul>
+
+<h3>When fine-tuning is the wrong call</h3>
+<div class="note dont"><span class="note-t">Don't fine-tune when</span>
+<ul style="margin-bottom:0">
+  <li><strong>You want to inject facts.</strong> Weights are a lossy, unverifiable store. The model will confidently blend facts together. Use RAG.</li>
+  <li><strong>The knowledge changes often.</strong> Retraining nightly to track a price list is absurd when re-indexing takes 90 seconds.</li>
+  <li><strong>You have under ~100 examples.</strong> You'll mostly teach the model to memorise them.</li>
+  <li><strong>You haven't tried prompting properly.</strong> Most "fine-tuning problems" are actually unclear-prompt problems. Establish a prompted baseline with real numbers first.</li>
+  <li><strong>You need citations or auditability.</strong> Fine-tuned knowledge can't be traced to a source.</li>
+  <li><strong>You have no evaluation set.</strong> Without one you can't tell improvement from regression, and you will ship the latter.</li>
+</ul></div>
+
+<h3>Real-world use cases</h3>
+<ul>
+  <li><strong>Customer support:</strong> a model that answers in company tone, escalates correctly, and always emits a structured ticket object.</li>
+  <li><strong>Structured extraction:</strong> invoices, lab reports, contracts to strict JSON with reliably-named keys.</li>
+  <li><strong>Code assistants for internal frameworks:</strong> trained on a monorepo so it uses your ORM, not the public one.</li>
+  <li><strong>Classification and routing:</strong> intent, sentiment, PII detection, content moderation at scale.</li>
+  <li><strong>Distillation:</strong> a 70B teacher generates data; a 7B student learns it and serves 20× cheaper.</li>
+  <li><strong>Language and dialect adaptation:</strong> improving low-resource language performance.</li>
+  <li><strong>Medical/legal scribes:</strong> clinical note summarisation in SOAP format, contract clause classification.</li>
+</ul>
+</div></section>
+
+<section id="s2"><div class="wrap">
+<span class="sec-num">Section 02</span>
+<h2>Types of fine-tuning</h2>
+<p>Memory figures below assume a 7B-parameter model and are the numbers people expect you to know roughly, not to the gigabyte. The rule of thumb: full fine-tuning in mixed precision costs about <strong>16–20 bytes per parameter</strong> once you count weights, gradients, and the Adam optimiser's two moment estimates.</p>
+
+<h3>Full fine-tuning</h3>
+<p><strong>How it works.</strong> Every weight in the network is trainable. Forward pass, loss, backward pass, optimiser step over all 7 billion parameters.</p>
+<div class="ascii">7B params, bf16 mixed precision, AdamW
+  weights (bf16)            7B × 2 bytes  =  14 GB
+  gradients (bf16)          7B × 2 bytes  =  14 GB
+  Adam m + v (fp32)         7B × 8 bytes  =  56 GB
+  fp32 master weights       7B × 4 bytes  =  28 GB
+  activations               batch-dependent, 5-30 GB
+  ------------------------------------------------
+  total                     ≈ 112 GB+   → 2× A100 80GB minimum
+</div>
+<ul>
+  <li><strong>Advantages:</strong> maximum capacity to change behaviour; best possible ceiling on quality; can genuinely shift the model into a new domain.</li>
+  <li><strong>Disadvantages:</strong> very expensive; high catastrophic-forgetting risk; every task needs a full model copy (14 GB each just to store); slow iteration.</li>
+  <li><strong>Use when:</strong> you are a lab with a cluster, the domain is far from pre-training data, and you have millions of tokens of quality data.</li>
+</ul>
+
+<h3>Supervised fine-tuning (SFT)</h3>
+<p><strong>How it works.</strong> This describes the <em>objective</em>, not the parameter strategy — you can do SFT fully or with LoRA. You provide labelled (prompt, ideal response) pairs and minimise cross-entropy on the response tokens. Crucially, you normally <strong>mask the prompt tokens</strong> from the loss so the model is graded only on what it should generate, not on reproducing the user's question.</p>
+<div class="ascii">tokens : [ &lt;|user|&gt; How do I reset my password? &lt;|assistant|&gt; Go to Settings → Security … ]
+labels : [ -100    -100 -100 ... -100              -100          Go to Settings → Security … ]
+                    ↑ masked, no gradient                        ↑ this is what we actually train on
+</div>
+<ul>
+  <li><strong>Advantages:</strong> simple, stable, well-understood; the workhorse of practically every production fine-tune.</li>
+  <li><strong>Disadvantages:</strong> only as good as your labels; teaches the model one "correct" answer rather than a ranking over answers.</li>
+  <li><strong>Memory:</strong> whatever the parameter strategy costs — full (~112 GB) or LoRA (~16 GB).</li>
+  <li><strong>Use when:</strong> you can write or collect examples of the exact output you want. This is the default starting point.</li>
+</ul>
+
+<h3>Instruction fine-tuning</h3>
+<p><strong>How it works.</strong> SFT on a deliberately diverse mixture — summarise, translate, classify, rewrite, reason, refuse — often tens of thousands of tasks (FLAN, Alpaca, Dolly, OpenOrca lineage). The point is generalisation to unseen instructions, not mastery of one.</p>
+<ul>
+  <li><strong>Advantages:</strong> turns a base model into a usable assistant; improves zero-shot behaviour broadly.</li>
+  <li><strong>Disadvantages:</strong> needs large, diverse, high-quality data; expensive to curate; you're mostly redoing work Meta or Mistral already did well.</li>
+  <li><strong>Use when:</strong> you have a raw base model — for example after domain-adaptive pre-training on your own corpus — and need it to follow instructions.</li>
+</ul>
+
+<h3>Parameter-efficient fine-tuning (PEFT)</h3>
+<p><strong>How it works.</strong> Freeze the pre-trained weights. Introduce a small number of new trainable parameters — or select a small subset of existing ones — and train only those. The family includes LoRA, QLoRA, adapters, prefix tuning, prompt tuning, IA³, and BitFit.</p>
+<p>The insight that justifies it: the weight <em>update</em> needed to adapt a model to one task has low intrinsic rank. You don't need 7 billion degrees of freedom to teach a support tone; a few million will do.</p>
+<ul>
+  <li><strong>Advantages:</strong> 10–100× less memory; adapters are 10–200 MB, so you can store hundreds; base model stays intact, which sharply limits catastrophic forgetting; you can hot-swap adapters at serving time.</li>
+  <li><strong>Disadvantages:</strong> slightly lower ceiling than full fine-tuning on very large domain shifts; adds an extra hyperparameter surface (rank, alpha, target modules).</li>
+  <li><strong>Use when:</strong> almost always, in industry.</li>
+</ul>
+
+<h3>LoRA — Low-Rank Adaptation</h3>
+<p><strong>How it works.</strong> For a frozen weight matrix <span class="k">W ∈ ℝ^(d×k)</span>, learn two small matrices <span class="k">A ∈ ℝ^(r×k)</span> and <span class="k">B ∈ ℝ^(d×r)</span> with <span class="k">r ≪ min(d,k)</span>, and compute <span class="k">h = Wx + (α/r)·BAx</span>. Only A and B receive gradients. Full derivation in Section 7.</p>
+<ul>
+  <li><strong>Advantages:</strong> typically 0.1–1% of parameters trainable; no added inference latency once merged; adapters compose and swap.</li>
+  <li><strong>Disadvantages:</strong> rank must be tuned; a too-small rank underfits complex tasks; unmerged adapters add a small latency cost.</li>
+  <li><strong>Memory (7B, bf16):</strong> weights 14 GB + activations + tiny optimiser state ≈ <strong>16–20 GB</strong>. Fits an A100 40GB, or a 24GB card with short sequences.</li>
+  <li><strong>Use when:</strong> you have a single 24–80 GB GPU and a behaviour/format/style task. The default choice.</li>
+</ul>
+
+<h3>QLoRA — Quantised LoRA</h3>
+<p><strong>How it works.</strong> Quantise the frozen base model to 4-bit NF4, then train fp16/bf16 LoRA adapters on top. Gradients flow through the dequantised weights; the frozen 4-bit weights are never updated. Full detail in Section 8.</p>
+<ul>
+  <li><strong>Advantages:</strong> ~4× memory reduction on the base weights; 7B fine-tunes comfortably on a 16 GB card, 70B on a single 80 GB A100.</li>
+  <li><strong>Disadvantages:</strong> roughly 20–40% slower per step because of dequantisation; small quality cost versus bf16 LoRA; merging back to fp16 needs care.</li>
+  <li><strong>Memory (7B):</strong> ~<strong>6–10 GB</strong> total. Runs on a free Colab T4 at short sequence lengths.</li>
+  <li><strong>Use when:</strong> GPU memory is the binding constraint, or the model is very large.</li>
+</ul>
+
+<h3>Adapter-based fine-tuning (Houlsby-style)</h3>
+<p><strong>How it works.</strong> Insert small bottleneck feed-forward blocks — down-project, non-linearity, up-project, residual — between transformer sub-layers. Train only those blocks.</p>
+<ul>
+  <li><strong>Advantages:</strong> strong modularity; predates LoRA and generalises well; good for multi-task stacking.</li>
+  <li><strong>Disadvantages:</strong> they add depth, so they add <em>permanent inference latency</em> — unlike LoRA they cannot be merged into the base weights. This is the main reason LoRA won in practice.</li>
+  <li><strong>Memory:</strong> comparable to LoRA.</li>
+  <li><strong>Use when:</strong> you need explicitly modular task components and can absorb the latency.</li>
+</ul>
+
+<h3>Preference optimisation — the general idea</h3>
+<p>SFT teaches "here is a good answer." Preference optimisation teaches "answer A is better than answer B." That second signal is what produces helpfulness, safety, concision, and tone that feels deliberate rather than merely correct. It runs <em>after</em> SFT, never instead of it.</p>
+
+<h3>RLHF — Reinforcement Learning from Human Feedback</h3>
+<div class="ascii">1. SFT model  ─────────────────────────────┐
+2. sample 2-4 responses per prompt         │
+3. humans rank them                        │
+4. train reward model RM(prompt, resp) → scalar
+5. PPO: optimise policy to maximise RM     │
+   while a KL penalty keeps it near ───────┘ the SFT reference model
+</div>
+<ul>
+  <li><strong>Advantages:</strong> learns from comparisons, which humans give far more reliably than absolute scores; historically the strongest alignment results.</li>
+  <li><strong>Disadvantages:</strong> four models in memory at once (policy, reference, reward, value); notoriously unstable; reward hacking is real; expensive and slow.</li>
+  <li><strong>Memory:</strong> very high — for 7B, plan on multiple 80 GB GPUs even with LoRA policies.</li>
+  <li><strong>Use when:</strong> you're a well-resourced lab tuning a flagship model.</li>
+</ul>
+
+<h3>DPO — Direct Preference Optimization</h3>
+<p><strong>How it works.</strong> DPO's insight is that the RLHF objective has a closed-form optimum, so you can skip the reward model and the RL loop entirely and optimise a simple classification-style loss directly on preference pairs:</p>
+<div class="ascii">L_DPO = -log σ( β · [ log π_θ(y_w|x)/π_ref(y_w|x) − log π_θ(y_l|x)/π_ref(y_l|x) ] )
+
+  y_w = chosen (winning) response      π_θ   = model being trained
+  y_l = rejected (losing) response     π_ref = frozen SFT reference
+  β   = 0.1-0.5, how hard to stay near the reference
+</div>
+<p>In words: raise the log-probability of the chosen response and lower the rejected one, <em>relative to what the frozen reference model already assigned</em>. That relative framing is what stops the model from collapsing.</p>
+<ul>
+  <li><strong>Advantages:</strong> two models instead of four; stable; a normal supervised training loop; works fine with LoRA; usually matches PPO quality.</li>
+  <li><strong>Disadvantages:</strong> needs paired preference data; no online exploration, so it can't discover behaviours absent from the data; sensitive to β.</li>
+  <li><strong>Memory (7B, LoRA):</strong> ~<strong>24–40 GB</strong> — the reference model is the extra cost, and with LoRA you can even get it free by disabling the adapter.</li>
+  <li><strong>Use when:</strong> you have preference pairs and want alignment without an RL team. The pragmatic modern default. Variants worth naming: ORPO (merges SFT and preference into one stage, no reference model), KTO (works with thumbs-up/down instead of pairs), and SimPO (reference-free).</li>
+</ul>
+
+<div class="tw"><table>
+<thead><tr><th>Technique</th><th>Trainable params (7B)</th><th>GPU memory</th><th>Relative speed</th><th>Typical use</th></tr></thead>
+<tbody>
+<tr><td>Full fine-tuning</td><td>7,000M (100%)</td><td>~112 GB+</td><td>1×</td><td>Large domain shift, labs</td></tr>
+<tr><td>LoRA (r=16)</td><td>~20M (0.3%)</td><td>~16-20 GB</td><td>~1.3× faster</td><td>Default industry choice</td></tr>
+<tr><td>QLoRA (r=16, 4-bit)</td><td>~20M (0.3%)</td><td>~6-10 GB</td><td>~0.7× slower</td><td>Constrained GPU, big models</td></tr>
+<tr><td>Adapters</td><td>~30M (0.4%)</td><td>~18-22 GB</td><td>~1.2×, slower inference</td><td>Modular multi-task</td></tr>
+<tr><td>Prompt/prefix tuning</td><td>~0.1M (0.001%)</td><td>~15 GB</td><td>fastest</td><td>Very light task steering</td></tr>
+<tr><td>DPO + LoRA</td><td>~20M</td><td>~24-40 GB</td><td>~0.6×</td><td>Alignment after SFT</td></tr>
+<tr><td>RLHF (PPO)</td><td>varies</td><td>160 GB+</td><td>~0.1×</td><td>Flagship alignment</td></tr>
+</tbody></table></div>
+</div></section>
+
+<section id="s3"><div class="wrap">
+<span class="sec-num">Section 03</span>
+<h2>Fine-tuning architecture</h2>
+<div class="ascii">┌──────────┐   ┌──────────┐   ┌──────────────┐   ┌──────────────┐
+│ 1 RAW    │──▶│ 2 CLEAN  │──▶│ 3 FORMAT +   │──▶│ 4 SPLIT      │
+│ DATA     │   │ dedupe   │   │ TOKENIZE     │   │ 80/10/10     │
+│ logs,docs│   │ filter   │   │ chat template│   │ no leakage   │
+└──────────┘   └──────────┘   └──────────────┘   └──────┬───────┘
+                                                        │
+┌──────────┐   ┌──────────┐   ┌──────────────┐   ┌──────▼───────┐
+│ 8 DEPLOY │◀──│ 7 SAVE   │◀──│ 6 EVALUATE   │◀──│ 5 TRAIN      │
+│ vLLM/TGI │   │ adapter  │   │ val loss     │   │ base + LoRA  │
+│ monitor  │   │ merge    │   │ task metric  │   │ SFTTrainer   │
+└────┬─────┘   └──────────┘   └──────────────┘   └──────▲───────┘
+     │                                                  │
+     └───────── 9 FEEDBACK: log failures, relabel ──────┘
+</div>
+
+<h4>1 · Data collection</h4>
+<p>Source from production logs, human-written examples, existing documentation, or synthetic generation by a stronger model. Record provenance for every example — you will need it when you find a systematic error. Check licences if you plan to ship.</p>
+
+<h4>2 · Cleaning</h4>
+<p>Deduplicate (exact and near-duplicate), strip PII, drop truncated or empty responses, remove examples where the assistant says "as an AI language model" unless you want that, filter by length, and inspect a random sample of 50 by hand. That manual read is the single highest-ROI hour in the whole pipeline.</p>
+
+<h4>3 · Formatting and tokenization</h4>
+<p>Apply the base model's <em>exact</em> chat template — a Llama template on a Mistral model quietly costs you several points of accuracy. Convert text to token IDs, build attention masks, and mask prompt tokens with <span class="k">-100</span> in the labels.</p>
+
+<h4>4 · Splitting</h4>
+<p>Train / validation / test, typically 80/10/10 or 90/5/5 for larger sets. Split by <em>entity</em> (customer, document, conversation) rather than by row, or near-duplicates will straddle the boundary and inflate your numbers.</p>
+
+<h4>5 · Base model selection and training</h4>
+<p>Pick by licence, size, and how close the instruct-tuning already is to your task. Load in bf16 or 4-bit, attach LoRA adapters, run the training loop with gradient accumulation and checkpointing. Watch train and validation loss on every eval step.</p>
+
+<h4>6 · Evaluation</h4>
+<p>Validation loss tells you about fit; it does not tell you whether the model is good. Add a task metric — exact-match on JSON keys, ROUGE on summaries, an LLM judge on tone — and a small human-reviewed golden set.</p>
+
+<h4>7 · Saving</h4>
+<p>Save the adapter (small, composable) and optionally a merged full model (simple to serve). Version everything: base model revision hash, dataset hash, config, metrics, and seed.</p>
+
+<h4>8 · Deployment</h4>
+<p>Serve through vLLM, TGI, or TensorRT-LLM. Ramp with a canary, watch latency and throughput, log inputs and outputs, and sample a slice for offline human review.</p>
+
+<h4>9 · Feedback loop</h4>
+<p>Production failures are your next training set. The teams that win at fine-tuning are the ones that close this loop quickly, not the ones with the cleverest hyperparameters.</p>
+</div></section>
+
+<section id="s4"><div class="wrap">
+<span class="sec-num">Section 04</span>
+<h2>Dataset preparation</h2>
+<div class="note"><span class="note-t">The rule everything else follows from</span>
+<p>1,000 excellent examples beat 100,000 mediocre ones. The LIMA paper made this concrete: 1,000 carefully curated examples produced a competitive assistant. Model quality is bounded above by data quality — no learning rate will rescue inconsistent labels.</p></div>
+
+<h3>What makes a good dataset</h3>
+<ul>
+  <li><strong>Consistent.</strong> If half your examples end with a summary line and half don't, the model learns to do it randomly. Pick a convention and enforce it.</li>
+  <li><strong>Representative.</strong> The distribution of inputs should match production — including the short, rude, typo-ridden ones.</li>
+  <li><strong>Diverse.</strong> Cover the edge cases: refusals, ambiguous questions, out-of-scope requests, multi-turn corrections.</li>
+  <li><strong>Correct.</strong> Every response is one you'd be happy to ship verbatim. The model copies your mistakes faithfully.</li>
+  <li><strong>Appropriately sized.</strong> Rough guide: 100–500 for format/style, 1k–10k for a solid task model, 10k–100k+ for domain expertise.</li>
+  <li><strong>Balanced.</strong> For classification, avoid a 95/5 class split unless production really is 95/5.</li>
+</ul>
+
+<h3>Dataset formats</h3>
+<h4>Instruction / input / output (Alpaca style)</h4>
+<figure class="code"><figcaption><span>alpaca_style.json</span></figcaption><pre>{
+  <span class="s">"instruction"</span>: <span class="s">"Classify the support ticket into: billing, technical, account, other."</span>,
+  <span class="s">"input"</span>: <span class="s">"My card was charged twice for the March invoice."</span>,
+  <span class="s">"output"</span>: <span class="s">"billing"</span>
+}</pre></figure>
+<p>Simple, readable, good for single-turn tasks. The <span class="k">input</span> field is optional and often empty.</p>
+
+<h4>Chat / messages format (recommended)</h4>
+<figure class="code"><figcaption><span>chat_format.json</span></figcaption><pre>{
+  <span class="s">"messages"</span>: [
+    {<span class="s">"role"</span>: <span class="s">"system"</span>,    <span class="s">"content"</span>: <span class="s">"You are Nimbus Support, the assistant for Nimbus Cloud."</span>},
+    {<span class="s">"role"</span>: <span class="s">"user"</span>,      <span class="s">"content"</span>: <span class="s">"I was charged twice for March."</span>},
+    {<span class="s">"role"</span>: <span class="s">"assistant"</span>, <span class="s">"content"</span>: <span class="s">"I can help with that. Duplicate charges are usually a failed-retry artefact. I've flagged invoice #M-0312 for review; refunds post in 3-5 business days.\n\nCategory: billing | Priority: P2"</span>}
+  ]
+}</pre></figure>
+<p>This is the format to prefer. It maps directly onto <span class="k">tokenizer.apply_chat_template()</span>, handles multi-turn naturally, and matches how the model will actually be called in production.</p>
+
+<h4>JSONL — one JSON object per line</h4>
+<figure class="code"><figcaption><span>train.jsonl — the on-disk standard</span></figcaption><pre>{"messages":[{"role":"user","content":"Reset my password?"},{"role":"assistant","content":"Go to Settings → Security → Reset."}]}
+{"messages":[{"role":"user","content":"Do you support SAML?"},{"role":"assistant","content":"Yes, SAML 2.0 on Business and Enterprise plans."}]}
+{"messages":[{"role":"user","content":"What's the weather?"},{"role":"assistant","content":"I only cover Nimbus Cloud topics — I can't help with weather."}]}</pre></figure>
+<p>JSONL streams line by line, so you never load a 40 GB file into RAM, and a corrupted line costs you one example rather than the whole dataset. Note the third line: an explicit out-of-scope refusal, which is exactly the kind of example people forget to include.</p>
+
+<h4>Preference format (for DPO)</h4>
+<figure class="code"><figcaption><span>preferences.jsonl</span></figcaption><pre>{
+  <span class="s">"prompt"</span>:   <span class="s">"Is my data encrypted?"</span>,
+  <span class="s">"chosen"</span>:   <span class="s">"Yes — AES-256 at rest and TLS 1.3 in transit. Details: nimbus.dev/security"</span>,
+  <span class="s">"rejected"</span>: <span class="s">"Yes, we take security very seriously and use industry-standard measures."</span>
+}</pre></figure>
+
+<h3>Data cleaning in practice</h3>
+<figure class="code"><figcaption><span>clean.py — dedupe, filter, validate</span><button class="copy">Copy</button></figcaption><pre><span class="kw">import</span> json, re, hashlib
+<span class="kw">from</span> collections <span class="kw">import</span> Counter
+
+<span class="kw">def</span> normalise(t):
+    <span class="c"># lowercase + collapse whitespace so near-duplicates collide</span>
+    <span class="kw">return</span> re.sub(<span class="s">r"\s+"</span>, <span class="s">" "</span>, t.lower()).strip()
+
+<span class="kw">def</span> clean(path, out, min_chars=<span class="s">20</span>, max_chars=<span class="s">8000</span>):
+    seen, kept, stats = <span class="kw">set</span>(), [], Counter()
+    <span class="kw">for</span> line <span class="kw">in</span> <span class="kw">open</span>(path, encoding=<span class="s">"utf-8"</span>):
+        <span class="kw">try</span>:
+            ex = json.loads(line)
+        <span class="kw">except</span> json.JSONDecodeError:
+            stats[<span class="s">"bad_json"</span>] += <span class="s">1</span>; <span class="kw">continue</span>
+
+        msgs = ex.get(<span class="s">"messages"</span>, [])
+        <span class="kw">if</span> <span class="kw">not</span> msgs <span class="kw">or</span> msgs[-<span class="s">1</span>][<span class="s">"role"</span>] != <span class="s">"assistant"</span>:
+            stats[<span class="s">"malformed"</span>] += <span class="s">1</span>; <span class="kw">continue</span>
+
+        answer = msgs[-<span class="s">1</span>][<span class="s">"content"</span>]
+        <span class="kw">if</span> <span class="kw">not</span> (min_chars &lt;= <span class="kw">len</span>(answer) &lt;= max_chars):
+            stats[<span class="s">"length"</span>] += <span class="s">1</span>; <span class="kw">continue</span>
+
+        <span class="c"># hash the whole conversation to kill exact + near duplicates</span>
+        key = hashlib.md5(normalise(
+            <span class="s">" "</span>.join(m[<span class="s">"content"</span>] <span class="kw">for</span> m <span class="kw">in</span> msgs)).encode()).hexdigest()
+        <span class="kw">if</span> key <span class="kw">in</span> seen:
+            stats[<span class="s">"duplicate"</span>] += <span class="s">1</span>; <span class="kw">continue</span>
+        seen.add(key)
+
+        <span class="c"># scrub obvious PII before it reaches the weights</span>
+        <span class="kw">for</span> m <span class="kw">in</span> msgs:
+            m[<span class="s">"content"</span>] = re.sub(<span class="s">r"[\w.+-]+@[\w-]+\.[\w.]+"</span>, <span class="s">"[EMAIL]"</span>, m[<span class="s">"content"</span>])
+            m[<span class="s">"content"</span>] = re.sub(<span class="s">r"\b(?:\d[ -]*?){13,16}\b"</span>, <span class="s">"[CARD]"</span>, m[<span class="s">"content"</span>])
+
+        kept.append(ex); stats[<span class="s">"kept"</span>] += <span class="s">1</span>
+
+    <span class="kw">with</span> <span class="kw">open</span>(out, <span class="s">"w"</span>, encoding=<span class="s">"utf-8"</span>) <span class="kw">as</span> f:
+        <span class="kw">for</span> ex <span class="kw">in</span> kept:
+            f.write(json.dumps(ex, ensure_ascii=<span class="kw">False</span>) + <span class="s">"\n"</span>)
+    <span class="kw">print</span>(stats)
+    <span class="kw">return</span> kept
+
+clean(<span class="s">"raw.jsonl"</span>, <span class="s">"clean.jsonl"</span>)
+<span class="c"># Counter({'kept': 4182, 'duplicate': 611, 'length': 174, 'malformed': 28, 'bad_json': 5})</span></pre></figure>
+
+<h3>Data leakage</h3>
+<p>Leakage is when information from validation or test reaches training, making your metrics lie. The three forms that bite in LLM work:</p>
+<ul>
+  <li><strong>Near-duplicate leakage.</strong> The same question phrased two ways lands on both sides of the split. Fix with normalised hashing or MinHash/embedding similarity <em>before</em> splitting.</li>
+  <li><strong>Entity leakage.</strong> Ten tickets from the same customer, split across train and test. Group-split by customer ID.</li>
+  <li><strong>Temporal leakage.</strong> Training on October data, testing on September. If production means "predict the future", split by time.</li>
+</ul>
+
+<figure class="code"><figcaption><span>split.py — grouped, deduplicated splitting</span><button class="copy">Copy</button></figcaption><pre><span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> GroupShuffleSplit
+<span class="kw">import</span> numpy <span class="kw">as</span> np, json
+
+data   = [json.loads(l) <span class="kw">for</span> l <span class="kw">in</span> <span class="kw">open</span>(<span class="s">"clean.jsonl"</span>)]
+groups = [ex[<span class="s">"customer_id"</span>] <span class="kw">for</span> ex <span class="kw">in</span> data]   <span class="c"># never split within a group</span>
+
+gss = GroupShuffleSplit(n_splits=<span class="s">1</span>, test_size=<span class="s">0.2</span>, random_state=<span class="s">42</span>)
+train_idx, rest_idx = <span class="kw">next</span>(gss.split(data, groups=groups))
+
+rest        = [data[i] <span class="kw">for</span> i <span class="kw">in</span> rest_idx]
+rest_groups = [groups[i] <span class="kw">for</span> i <span class="kw">in</span> rest_idx]
+gss2 = GroupShuffleSplit(n_splits=<span class="s">1</span>, test_size=<span class="s">0.5</span>, random_state=<span class="s">42</span>)
+val_idx, test_idx = <span class="kw">next</span>(gss2.split(rest, groups=rest_groups))
+
+<span class="kw">print</span>(<span class="s">f"train={len(train_idx)} val={len(val_idx)} test={len(test_idx)}"</span>)
+<span class="c"># train=3345 val=418 test=419</span></pre></figure>
+
+<h3>Realistic example training data</h3>
+<figure class="code"><figcaption><span>nimbus_support_train.jsonl — five representative rows</span></figcaption><pre>{"messages":[{"role":"system","content":"You are Nimbus Support. Be concise, accurate, and end every reply with a category tag."},
+ {"role":"user","content":"our nightly backup job failed with error NB-503"},
+ {"role":"assistant","content":"NB-503 means the backup worker couldn't reach your storage bucket. Three usual causes:\n1. The bucket IAM role lost the storage.objectCreator binding\n2. A VPC firewall rule changed\n3. The bucket hit its quota\n\nStart with Settings → Backups → Test connection; it reports which of the three applies.\n\nCategory: technical | Priority: P1"}]}
+
+{"messages":[{"role":"system","content":"You are Nimbus Support. Be concise, accurate, and end every reply with a category tag."},
+ {"role":"user","content":"cancel my account NOW. this is the third time this month."},
+ {"role":"assistant","content":"I'm sorry — three outages in a month isn't acceptable. I can cancel immediately, but I'd also like to get this in front of an engineer.\n\nTo cancel: Settings → Billing → Close account. Billing stops at the end of the current period and your data is exportable for 30 days.\n\nI've opened an escalation with your incident history attached.\n\nCategory: account | Priority: P1"}]}
+
+{"messages":[{"role":"system","content":"You are Nimbus Support. Be concise, accurate, and end every reply with a category tag."},
+ {"role":"user","content":"what's the max file size on the starter plan"},
+ {"role":"assistant","content":"Starter caps single uploads at 2 GB. Pro raises it to 50 GB and Enterprise is unlimited with multipart upload.\n\nCategory: billing | Priority: P3"}]}
+
+{"messages":[{"role":"system","content":"You are Nimbus Support. Be concise, accurate, and end every reply with a category tag."},
+ {"role":"user","content":"can you write me a python script to scrape linkedin"},
+ {"role":"assistant","content":"That's outside what I cover — I only handle Nimbus Cloud questions. For general coding help you'll want a different tool.\n\nCategory: other | Priority: P4"}]}
+
+{"messages":[{"role":"system","content":"You are Nimbus Support. Be concise, accurate, and end every reply with a category tag."},
+ {"role":"user","content":"is the api rate limit per key or per org"},
+ {"role":"assistant","content":"Per organisation, not per key. Creating extra keys won't raise your ceiling — the limit is 600 requests/minute on Pro, burstable to 1,000 for 30 seconds.\n\nCategory: technical | Priority: P3"}]}</pre></figure>
+<p>Look at what these examples teach beyond the answers: a fixed system prompt, a consistent trailing tag, a refusal for out-of-scope requests, an empathetic-but-brief tone for an angry customer, and numbered lists only when there genuinely are multiple causes. Every one of those is a behaviour you are deliberately installing.</p>
+</div></section>
+
+<section id="s5"><div class="wrap">
+<span class="sec-num">Section 05</span>
+<h2>Tokenization</h2>
+<p>Models do not read text. They read integers. Tokenization is the reversible mapping between the two, and almost every subtle fine-tuning bug lives here.</p>
+
+<h3>The vocabulary</h3>
+<p>Modern LLMs use subword tokenizers — Byte-Pair Encoding, WordPiece, or SentencePiece/Unigram. Training on a corpus merges frequently co-occurring character pairs until the vocabulary reaches a target size (32k for Llama 2, 128k for Llama 3, ~100k for GPT-4-class models). Common words get one token; rare words split into pieces; any byte sequence is representable, so nothing is ever out-of-vocabulary.</p>
+<div class="ascii">"unbelievable"  →  ["un", "bel", "iev", "able"]      4 tokens
+"the"           →  ["the"]                            1 token
+"Bengaluru"     →  ["Beng", "al", "uru"]              3 tokens
+"संस्करण"          →  ["स", "ंस", "्क", "रण"]                ~6 tokens (non-Latin costs more)
+"def calc(x):"  →  ["def", " calc", "(", "x", "):"]   5 tokens
+
+Rule of thumb for English: 1 token ≈ 0.75 words ≈ 4 characters
+</div>
+
+<h3>The pieces you must know</h3>
+<ul>
+  <li><strong>Token</strong> — a subword unit. <strong>Token ID</strong> — its integer index in the vocabulary. <strong>Vocabulary</strong> — the full ID↔string table plus special tokens.</li>
+  <li><strong>Special tokens</strong> — <span class="k">&lt;s&gt;</span>/BOS, <span class="k">&lt;/s&gt;</span>/EOS, <span class="k">&lt;pad&gt;</span>, and chat-role markers like <span class="k">&lt;|im_start|&gt;</span>. If your training data lacks EOS at the end of each response, the model will never learn to stop generating.</li>
+  <li><strong>Context window</strong> — the maximum number of tokens the model can attend over (4k, 8k, 128k…). Prompt plus generation must fit inside it.</li>
+  <li><strong>Padding</strong> — filler tokens that make every sequence in a batch the same length so they stack into a tensor. For causal LMs, pad <em>left</em> for batched generation and <em>right</em> for training.</li>
+  <li><strong>Truncation</strong> — cutting sequences that exceed <span class="k">max_length</span>. Silent data loss; always check how many examples it hits.</li>
+  <li><strong>Attention mask</strong> — a 0/1 vector marking real tokens vs padding, so attention ignores the filler.</li>
+  <li><strong>Labels</strong> — the targets for the loss. Set to <span class="k">-100</span> where you want no gradient: padding and (usually) prompt tokens.</li>
+</ul>
+
+<figure class="code"><figcaption><span>tokenize_demo.py</span><button class="copy">Copy</button></figcaption><pre><span class="kw">from</span> transformers <span class="kw">import</span> AutoTokenizer
+
+tok = AutoTokenizer.from_pretrained(<span class="s">"mistralai/Mistral-7B-Instruct-v0.3"</span>)
+
+text = <span class="s">"Fine-tuning teaches behaviour, not facts."</span>
+
+<span class="c"># 1. text → tokens (human-readable pieces)</span>
+<span class="kw">print</span>(tok.tokenize(text))
+<span class="c"># ['▁Fine', '-', 't', 'uning', '▁teaches', '▁behaviour', ',', '▁not', '▁facts', '.']</span>
+
+<span class="c"># 2. text → token IDs (what the model consumes)</span>
+ids = tok.encode(text)
+<span class="kw">print</span>(ids)          <span class="c"># [1, 5713, 28733, 28707, 370, 288, ...]  note leading 1 = BOS</span>
+<span class="kw">print</span>(<span class="kw">len</span>(ids))     <span class="c"># 12</span>
+
+<span class="c"># 3. IDs → text (round-trip)</span>
+<span class="kw">print</span>(tok.decode(ids, skip_special_tokens=<span class="kw">True</span>))
+
+<span class="c"># 4. vocabulary + special tokens</span>
+<span class="kw">print</span>(tok.vocab_size)                 <span class="c"># 32768</span>
+<span class="kw">print</span>(tok.bos_token, tok.eos_token)   <span class="c"># &lt;s&gt; &lt;/s&gt;</span>
+<span class="kw">print</span>(tok.pad_token)                  <span class="c"># None → must be set before batching!</span>
+
+<span class="c"># Causal LMs often ship without a pad token. Reuse EOS.</span>
+<span class="kw">if</span> tok.pad_token <span class="kw">is</span> <span class="kw">None</span>:
+    tok.pad_token = tok.eos_token
+
+<span class="c"># 5. batching: padding, truncation, attention mask</span>
+batch = tok(
+    [<span class="s">"Short one."</span>, <span class="s">"A considerably longer sentence that will dominate the batch length."</span>],
+    padding=<span class="kw">True</span>,          <span class="c"># pad to the longest in the batch</span>
+    truncation=<span class="kw">True</span>,       <span class="c"># cut anything over max_length</span>
+    max_length=<span class="s">32</span>,
+    return_tensors=<span class="s">"pt"</span>,
+)
+<span class="kw">print</span>(batch[<span class="s">"input_ids"</span>].shape)      <span class="c"># torch.Size([2, 15])</span>
+<span class="kw">print</span>(batch[<span class="s">"attention_mask"</span>][<span class="s">0</span>])
+<span class="c"># tensor([1,1,1,1,1,0,0,0,0,0,0,0,0,0,0])  ← 1 = attend, 0 = padding, ignore</span></pre></figure>
+
+<h3>Chat templates — the step people skip</h3>
+<p>Each instruct model was trained with a specific control-token layout. Reproducing it exactly is not optional; using the wrong one degrades quality in ways that look like "the fine-tune didn't work".</p>
+<figure class="code"><figcaption><span>chat_template.py</span><button class="copy">Copy</button></figcaption><pre>messages = [
+    {<span class="s">"role"</span>: <span class="s">"system"</span>,    <span class="s">"content"</span>: <span class="s">"You are Nimbus Support."</span>},
+    {<span class="s">"role"</span>: <span class="s">"user"</span>,      <span class="s">"content"</span>: <span class="s">"Is my data encrypted?"</span>},
+    {<span class="s">"role"</span>: <span class="s">"assistant"</span>, <span class="s">"content"</span>: <span class="s">"Yes — AES-256 at rest, TLS 1.3 in transit."</span>},
+]
+
+<span class="c"># TRAINING: render the full conversation including the answer.</span>
+train_text = tok.apply_chat_template(messages, tokenize=<span class="kw">False</span>)
+
+<span class="c"># INFERENCE: stop after the assistant header so the model generates the answer.</span>
+prompt = tok.apply_chat_template(
+    messages[:-<span class="s">1</span>], tokenize=<span class="kw">False</span>, add_generation_prompt=<span class="kw">True</span>
+)
+<span class="kw">print</span>(prompt)
+<span class="c"># &lt;s&gt;[INST] You are Nimbus Support.\n\nIs my data encrypted? [/INST]</span></pre></figure>
+
+<h3>Masking the prompt out of the loss</h3>
+<figure class="code"><figcaption><span>build_labels.py — train only on the assistant's tokens</span><button class="copy">Copy</button></figcaption><pre><span class="kw">import</span> torch
+IGNORE = -<span class="s">100</span>   <span class="c"># PyTorch CrossEntropyLoss skips this index entirely</span>
+
+<span class="kw">def</span> build_example(messages, tok, max_len=<span class="s">1024</span>):
+    prompt_txt = tok.apply_chat_template(messages[:-<span class="s">1</span>], tokenize=<span class="kw">False</span>,
+                                         add_generation_prompt=<span class="kw">True</span>)
+    full_txt   = tok.apply_chat_template(messages, tokenize=<span class="kw">False</span>)
+
+    prompt_ids = tok(prompt_txt, add_special_tokens=<span class="kw">False</span>)[<span class="s">"input_ids"</span>]
+    full_ids   = tok(full_txt,   add_special_tokens=<span class="kw">False</span>,
+                     truncation=<span class="kw">True</span>, max_length=max_len)[<span class="s">"input_ids"</span>]
+
+    labels = <span class="kw">list</span>(full_ids)
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="kw">range</span>(<span class="kw">min</span>(<span class="kw">len</span>(prompt_ids), <span class="kw">len</span>(labels))):
+        labels[i] = IGNORE            <span class="c"># zero gradient on the question</span>
+
+    <span class="kw">return</span> {<span class="s">"input_ids"</span>: full_ids,
+            <span class="s">"attention_mask"</span>: [<span class="s">1</span>] * <span class="kw">len</span>(full_ids),
+            <span class="s">"labels"</span>: labels}</pre></figure>
+<div class="note"><span class="note-t">Why masking matters</span><p>Without it, the model spends capacity learning to generate user questions — a skill you will never use — and your loss curve becomes a poor proxy for answer quality. With long prompts and short answers, unmasked loss can be dominated almost entirely by the prompt.</p></div>
+</div></section>
+
+<section id="s6"><div class="wrap">
+<span class="sec-num">Section 06</span>
+<h2>Fine-tuning code, end to end</h2>
+<p>A complete LoRA fine-tune of Mistral-7B-Instruct. Assumptions stated up front: one GPU with ≥16 GB (T4, A10, L4, 3090, 4090, A100), CUDA 12.x, and a JSONL dataset in chat format. Swap <span class="k">load_in_4bit=True</span> off if you have ≥40 GB and want speed.</p>
+
+<h3>1 · Dependencies</h3>
+<figure class="code"><figcaption><span>install.sh</span><button class="copy">Copy</button></figcaption><pre>pip install <span class="s">"torch&gt;=2.3"</span> --index-url https://download.pytorch.org/whl/cu121
+pip install transformers datasets accelerate peft trl bitsandbytes evaluate
+<span class="c"># optional, big speedups on Ampere+ GPUs:</span>
+pip install flash-attn --no-build-isolation</pre></figure>
+<ul>
+  <li><span class="k">transformers</span> — models, tokenizers, Trainer. <span class="k">peft</span> — LoRA/QLoRA. <span class="k">trl</span> — SFTTrainer and DPOTrainer.</li>
+  <li><span class="k">bitsandbytes</span> — 4-bit/8-bit quantisation kernels. <span class="k">accelerate</span> — device placement and distributed training.</li>
+</ul>
+
+<h3>2 · Tokenizer</h3>
+<figure class="code"><figcaption><span>train.py — part 1</span><button class="copy">Copy</button></figcaption><pre><span class="kw">import</span> torch, json
+<span class="kw">from</span> transformers <span class="kw">import</span> (AutoTokenizer, AutoModelForCausalLM,
+                          BitsAndBytesConfig, TrainingArguments)
+<span class="kw">from</span> peft <span class="kw">import</span> LoraConfig, get_peft_model, prepare_model_for_kbit_training
+<span class="kw">from</span> datasets <span class="kw">import</span> load_dataset
+<span class="kw">from</span> trl <span class="kw">import</span> SFTTrainer
+
+MODEL = <span class="s">"mistralai/Mistral-7B-Instruct-v0.3"</span>
+
+tok = AutoTokenizer.from_pretrained(MODEL)
+tok.pad_token = tok.eos_token   <span class="c"># causal LMs usually have no pad token</span>
+tok.padding_side = <span class="s">"right"</span>    <span class="c"># right for training, left for batched generation</span></pre></figure>
+
+<h3>3 · Model, quantised to 4-bit</h3>
+<figure class="code"><figcaption><span>train.py — part 2</span><button class="copy">Copy</button></figcaption><pre>bnb = BitsAndBytesConfig(
+    load_in_4bit=<span class="kw">True</span>,
+    bnb_4bit_quant_type=<span class="s">"nf4"</span>,              <span class="c"># NF4 &gt; plain int4 for normal-ish weights</span>
+    bnb_4bit_compute_dtype=torch.bfloat16,   <span class="c"># math still happens in bf16</span>
+    bnb_4bit_use_double_quant=<span class="kw">True</span>,        <span class="c"># quantise the quantisation constants too</span>
+)
+
+model = AutoModelForCausalLM.from_pretrained(
+    MODEL,
+    quantization_config=bnb,
+    device_map=<span class="s">"auto"</span>,
+    attn_implementation=<span class="s">"flash_attention_2"</span>,  <span class="c"># drop this line if flash-attn absent</span>
+    torch_dtype=torch.bfloat16,
+)
+model.config.use_cache = <span class="kw">False</span>          <span class="c"># incompatible with gradient checkpointing</span>
+model = prepare_model_for_kbit_training(model)  <span class="c"># casts norms to fp32, enables grad ckpt</span></pre></figure>
+<p><span class="k">prepare_model_for_kbit_training</span> does three quiet but essential things: it upcasts layer-norm and the LM head to fp32 for numerical stability, enables gradient checkpointing, and makes the input embeddings require grad so gradients can flow back through a frozen quantised stack.</p>
+
+<h3>4 · Dataset</h3>
+<figure class="code"><figcaption><span>train.py — part 3</span><button class="copy">Copy</button></figcaption><pre>ds = load_dataset(<span class="s">"json"</span>, data_files={
+    <span class="s">"train"</span>: <span class="s">"data/train.jsonl"</span>,
+    <span class="s">"validation"</span>: <span class="s">"data/val.jsonl"</span>,
+})
+
+<span class="kw">def</span> to_text(ex):
+    <span class="c"># render each conversation with the model's own chat template</span>
+    <span class="kw">return</span> {<span class="s">"text"</span>: tok.apply_chat_template(ex[<span class="s">"messages"</span>], tokenize=<span class="kw">False</span>)}
+
+ds = ds.map(to_text, remove_columns=ds[<span class="s">"train"</span>].column_names)
+<span class="kw">print</span>(ds)
+<span class="kw">print</span>(ds[<span class="s">"train"</span>][<span class="s">0</span>][<span class="s">"text"</span>][:<span class="s">300</span>])   <span class="c"># ALWAYS eyeball one rendered example</span></pre></figure>
+
+<h3>5 · LoRA configuration</h3>
+<figure class="code"><figcaption><span>train.py — part 4</span><button class="copy">Copy</button></figcaption><pre>lora = LoraConfig(
+    r=<span class="s">16</span>,                  <span class="c"># rank: capacity of the update</span>
+    lora_alpha=<span class="s">32</span>,         <span class="c"># scaling; effective scale = alpha / r = 2.0</span>
+    lora_dropout=<span class="s">0.05</span>,     <span class="c"># regularisation on the adapter path</span>
+    bias=<span class="s">"none"</span>,           <span class="c"># don't train biases</span>
+    task_type=<span class="s">"CAUSAL_LM"</span>,
+    target_modules=[<span class="s">"q_proj"</span>, <span class="s">"k_proj"</span>, <span class="s">"v_proj"</span>, <span class="s">"o_proj"</span>,
+                    <span class="s">"gate_proj"</span>, <span class="s">"up_proj"</span>, <span class="s">"down_proj"</span>],
+)
+
+model = get_peft_model(model, lora)
+model.print_trainable_parameters()
+<span class="c"># trainable params: 41,943,040 || all params: 7,289,966,592 || trainable%: 0.5754</span></pre></figure>
+<p>Targeting all seven projections (attention <em>and</em> MLP) is the QLoRA-paper recommendation and consistently beats the older attention-only default. If memory is tight, drop to <span class="k">["q_proj","v_proj"]</span> and raise the rank slightly.</p>
+
+<h3>6 · Training arguments</h3>
+<figure class="code"><figcaption><span>train.py — part 5</span><button class="copy">Copy</button></figcaption><pre>args = TrainingArguments(
+    output_dir=<span class="s">"out/nimbus-lora"</span>,
+    num_train_epochs=<span class="s">3</span>,
+    per_device_train_batch_size=<span class="s">4</span>,
+    gradient_accumulation_steps=<span class="s">4</span>,      <span class="c"># effective batch = 4 × 4 = 16</span>
+    learning_rate=<span class="s">2e-4</span>,                 <span class="c"># LoRA likes 1e-4..3e-4; full FT needs ~2e-5</span>
+    lr_scheduler_type=<span class="s">"cosine"</span>,
+    warmup_ratio=<span class="s">0.03</span>,
+    weight_decay=<span class="s">0.01</span>,
+    bf16=<span class="kw">True</span>,                          <span class="c"># use fp16=True on T4/V100 (no bf16 support)</span>
+    gradient_checkpointing=<span class="kw">True</span>,        <span class="c"># ~40% less activation memory, ~25% slower</span>
+    optim=<span class="s">"paged_adamw_8bit"</span>,           <span class="c"># bitsandbytes optimiser, survives spikes</span>
+    max_grad_norm=<span class="s">0.3</span>,
+    logging_steps=<span class="s">10</span>,
+    eval_strategy=<span class="s">"steps"</span>, eval_steps=<span class="s">50</span>,
+    save_strategy=<span class="s">"steps"</span>, save_steps=<span class="s">50</span>,
+    load_best_model_at_end=<span class="kw">True</span>,
+    metric_for_best_model=<span class="s">"eval_loss"</span>, greater_is_better=<span class="kw">False</span>,
+    save_total_limit=<span class="s">2</span>,
+    report_to=<span class="s">"none"</span>,                   <span class="c"># "wandb" / "tensorboard" in real projects</span>
+    seed=<span class="s">42</span>,
+)</pre></figure>
+
+<h3>7 · Train</h3>
+<figure class="code"><figcaption><span>train.py — part 6</span><button class="copy">Copy</button></figcaption><pre>trainer = SFTTrainer(
+    model=model,
+    args=args,
+    train_dataset=ds[<span class="s">"train"</span>],
+    eval_dataset=ds[<span class="s">"validation"</span>],
+    processing_class=tok,            <span class="c"># older TRL versions: tokenizer=tok</span>
+)
+
+trainer.train()
+<span class="c">#  step  train_loss  eval_loss</span>
+<span class="c">#    50     1.4821      1.3944</span>
+<span class="c">#   100     1.1035      1.1187</span>
+<span class="c">#   150     0.9274      1.0402</span>
+<span class="c">#   200     0.8118      1.0361   ← flattening; more epochs would overfit</span></pre></figure>
+
+<h3>8 · Save</h3>
+<figure class="code"><figcaption><span>train.py — part 7</span><button class="copy">Copy</button></figcaption><pre>trainer.save_model(<span class="s">"out/nimbus-lora/final"</span>)   <span class="c"># adapter weights only, ~160 MB</span>
+tok.save_pretrained(<span class="s">"out/nimbus-lora/final"</span>)
+
+<span class="c"># what actually lands on disk:</span>
+<span class="c">#   adapter_model.safetensors   the B and A matrices</span>
+<span class="c">#   adapter_config.json         r, alpha, target_modules, base model id</span>
+<span class="c">#   tokenizer.json, tokenizer_config.json, special_tokens_map.json</span></pre></figure>
+
+<h3>9 · Load and run inference</h3>
+<figure class="code"><figcaption><span>infer.py</span><button class="copy">Copy</button></figcaption><pre><span class="kw">from</span> peft <span class="kw">import</span> PeftModel
+<span class="kw">from</span> transformers <span class="kw">import</span> AutoModelForCausalLM, AutoTokenizer
+<span class="kw">import</span> torch
+
+BASE, ADAPTER = <span class="s">"mistralai/Mistral-7B-Instruct-v0.3"</span>, <span class="s">"out/nimbus-lora/final"</span>
+
+tok  = AutoTokenizer.from_pretrained(ADAPTER)
+base = AutoModelForCausalLM.from_pretrained(BASE, torch_dtype=torch.bfloat16,
+                                            device_map=<span class="s">"auto"</span>)
+model = PeftModel.from_pretrained(base, ADAPTER)
+model.eval()
+
+<span class="kw">def</span> ask(question, system=<span class="s">"You are Nimbus Support."</span>):
+    msgs = [{<span class="s">"role"</span>: <span class="s">"system"</span>, <span class="s">"content"</span>: system},
+            {<span class="s">"role"</span>: <span class="s">"user"</span>,   <span class="s">"content"</span>: question}]
+    prompt = tok.apply_chat_template(msgs, tokenize=<span class="kw">False</span>, add_generation_prompt=<span class="kw">True</span>)
+    inputs = tok(prompt, return_tensors=<span class="s">"pt"</span>).to(model.device)
+
+    <span class="kw">with</span> torch.no_grad():
+        out = model.generate(
+            **inputs,
+            max_new_tokens=<span class="s">256</span>,
+            temperature=<span class="s">0.3</span>,        <span class="c"># low for support: consistency &gt; creativity</span>
+            top_p=<span class="s">0.9</span>,
+            repetition_penalty=<span class="s">1.05</span>,
+            do_sample=<span class="kw">True</span>,
+            eos_token_id=tok.eos_token_id,
+            pad_token_id=tok.eos_token_id,
+        )
+    <span class="c"># slice off the prompt so you return only the new tokens</span>
+    <span class="kw">return</span> tok.decode(out[<span class="s">0</span>][inputs[<span class="s">"input_ids"</span>].shape[-<span class="s">1</span>]:], skip_special_tokens=<span class="kw">True</span>)
+
+<span class="kw">print</span>(ask(<span class="s">"backup job failed with NB-503, what now?"</span>))</pre></figure>
+</div></section>
+
+<section id="s7"><div class="wrap">
+<span class="sec-num">Section 07</span>
+<h2>LoRA deep dive</h2>
+
+<h3>Why LoRA exists</h3>
+<p>Full fine-tuning stores a full-rank update <span class="k">ΔW</span> for every weight matrix — 7 billion numbers of gradient plus 7 billion×2 of optimiser state. But Aghajanyan et al. showed that fine-tuning updates have low <em>intrinsic dimensionality</em>: the useful part of the change lives in a small subspace. LoRA (Hu et al., 2021) makes that explicit by constraining ΔW to be low-rank.</p>
+
+<h3>The mathematics</h3>
+<div class="ascii">Standard layer:        h = W₀x                        W₀ ∈ ℝ^(d×k)
+Fine-tuned layer:      h = (W₀ + ΔW)x
+LoRA constraint:       ΔW = B·A                       B ∈ ℝ^(d×r),  A ∈ ℝ^(r×k)
+Final LoRA layer:      h = W₀x + (α/r)·B·A·x
+
+Parameter count
+  full ΔW  : d × k                  e.g. 4096 × 4096 = 16,777,216
+  LoRA B,A : r(d + k)               r=16 → 16 × 8192 =    131,072
+  ratio    : 2r/d ≈ 0.78%           128× fewer trainable numbers
+
+Initialisation (this detail matters)
+  A ~ N(0, σ²)    random normal
+  B = 0           zeros
+  ⇒ at step 0, BA = 0, so the model is bit-identical to the base model.
+    Training starts from the pre-trained behaviour, never from noise.
+</div>
+<p>Rank <span class="k">r</span> caps how much information ΔW can carry: a rank-16 matrix can express at most 16 independent directions of change. That is the whole trade-off. Small r = fewer parameters, less capacity, more regularisation. Large r = more capacity, more memory, more overfitting risk.</p>
+
+<h3>The hyperparameters, and what they actually do</h3>
+<div class="tw"><table>
+<thead><tr><th>Parameter</th><th>Typical</th><th>What it controls</th><th>If too low</th><th>If too high</th></tr></thead>
+<tbody>
+<tr><td><code>r</code> (rank)</td><td>8–64</td><td>Capacity of the update</td><td>Underfits complex tasks; style changes but skill doesn't</td><td>More memory, slower, overfits small datasets</td></tr>
+<tr><td><code>lora_alpha</code></td><td>16–128</td><td>Scaling — update is multiplied by α/r</td><td>Adapter barely influences output</td><td>Unstable training, loss spikes</td></tr>
+<tr><td><code>lora_dropout</code></td><td>0.0–0.1</td><td>Dropout on the adapter input</td><td>Overfitting on small data</td><td>Underfitting, noisy loss</td></tr>
+<tr><td><code>target_modules</code></td><td>all 7 proj</td><td>Which matrices get adapters</td><td>Attention-only limits reasoning changes</td><td>More params; rarely harmful</td></tr>
+</tbody></table></div>
+<div class="note"><span class="note-t">The alpha convention</span><p>Because the scale is α/r, setting <strong>α = 2r</strong> keeps the effective scale at 2.0 as you change rank, so you can tune rank without re-tuning learning rate. r=16/α=32 and r=64/α=128 behave comparably in scale. Note that <span class="k">use_rslora=True</span> switches to α/√r, which is more stable at high ranks.</p></div>
+
+<div class="calc">
+  <h4 style="margin-top:0">Try the trade-off</h4>
+  <div class="calc-grid">
+    <div>
+      <label for="rk">LoRA rank r = <b id="rkv">16</b></label>
+      <input type="range" id="rk" min="1" max="256" value="16" step="1">
+    </div>
+    <div>
+      <label for="sz">Base model</label>
+      <select id="sz">
+        <option value="1.5">1.5B</option>
+        <option value="7" selected>7B</option>
+        <option value="13">13B</option>
+        <option value="70">70B</option>
+      </select>
+    </div>
+  </div>
+  <div class="calc-out">
+    <div class="stat"><b id="o1">42M</b><span>trainable params</span></div>
+    <div class="stat"><b id="o2">0.58%</b><span>of the model</span></div>
+    <div class="stat"><b id="o3">160 MB</b><span>adapter file size</span></div>
+    <div class="stat"><b id="o4">~17 GB</b><span>bf16 training memory</span></div>
+  </div>
+  <div class="bar"><i id="bar"></i></div>
+</div>
+
+<h3>A LoRA layer from scratch</h3>
+<figure class="code"><figcaption><span>lora_from_scratch.py — ~40 lines, no PEFT</span><button class="copy">Copy</button></figcaption><pre><span class="kw">import</span> torch, torch.nn <span class="kw">as</span> nn, math
+
+<span class="kw">class</span> LoRALinear(nn.Module):
+    <span class="s">"""Wraps a frozen nn.Linear with a trainable low-rank update."""</span>
+    <span class="kw">def</span> __init__(self, base: nn.Linear, r=<span class="s">8</span>, alpha=<span class="s">16</span>, dropout=<span class="s">0.05</span>):
+        <span class="kw">super</span>().__init__()
+        self.base = base
+        <span class="kw">for</span> p <span class="kw">in</span> self.base.parameters():
+            p.requires_grad = <span class="kw">False</span>              <span class="c"># freeze W₀</span>
+
+        in_f, out_f = base.in_features, base.out_features
+        self.r, self.scaling = r, alpha / r
+        self.A = nn.Parameter(torch.empty(r, in_f))   <span class="c"># r × k</span>
+        self.B = nn.Parameter(torch.zeros(out_f, r))  <span class="c"># d × r, ZERO init</span>
+        nn.init.kaiming_uniform_(self.A, a=math.sqrt(<span class="s">5</span>))
+        self.drop = nn.Dropout(dropout)
+
+    <span class="kw">def</span> forward(self, x):
+        <span class="c"># frozen path + scaled low-rank path</span>
+        <span class="kw">return</span> self.base(x) + self.drop(x) @ self.A.T @ self.B.T * self.scaling
+
+    @torch.no_grad()
+    <span class="kw">def</span> merge(self):
+        <span class="s">"""Fold BA into W₀ so inference costs nothing extra."""</span>
+        self.base.weight += (self.B @ self.A) * self.scaling
+        <span class="kw">return</span> self.base
+
+
+<span class="c"># --- demo -------------------------------------------------------------</span>
+layer = nn.Linear(<span class="s">4096</span>, <span class="s">4096</span>, bias=<span class="kw">False</span>)
+lora  = LoRALinear(layer, r=<span class="s">8</span>, alpha=<span class="s">16</span>)
+
+total     = <span class="kw">sum</span>(p.numel() <span class="kw">for</span> p <span class="kw">in</span> lora.parameters())
+trainable = <span class="kw">sum</span>(p.numel() <span class="kw">for</span> p <span class="kw">in</span> lora.parameters() <span class="kw">if</span> p.requires_grad)
+<span class="kw">print</span>(<span class="s">f"total={total:,}  trainable={trainable:,}  ({100*trainable/total:.3f}%)"</span>)
+<span class="c"># total=16,842,752  trainable=65,536  (0.389%)</span>
+
+x = torch.randn(<span class="s">2</span>, <span class="s">4096</span>)
+<span class="kw">assert</span> torch.allclose(lora(x), layer(x), atol=<span class="s">1e-6</span>)
+<span class="c"># ✓ identical at init because B = 0 — the model starts exactly where it was</span></pre></figure>
+
+<h3>Why merging is free</h3>
+<p>Because the LoRA path is linear and parallel to the frozen path, <span class="k">W₀x + (α/r)BAx = (W₀ + (α/r)BA)x</span>. You can precompute that sum once and serve an ordinary dense model with zero added FLOPs. Houlsby adapters sit in series and cannot be collapsed this way, which is the practical reason LoRA displaced them.</p>
+</div></section>
+
+<section id="s8"><div class="wrap">
+<span class="sec-num">Section 08</span>
+<h2>QLoRA</h2>
+<p>QLoRA (Dettmers et al., 2023) is LoRA plus aggressive quantisation of the frozen base. It made fine-tuning a 65B model on a single 48 GB GPU possible, and it is why a student with a Colab T4 can fine-tune a 7B model today.</p>
+
+<h3>Quantisation in one paragraph</h3>
+<p>A bf16 weight uses 16 bits. Quantisation maps a block of weights onto a smaller set of levels — 8-bit (256 levels) or 4-bit (16 levels) — storing a scale factor per block so values can be approximately reconstructed. It is lossy compression for tensors. The art is choosing levels that match the distribution of the data, and keeping blocks small enough that a single outlier can't wreck the scale for everything around it.</p>
+
+<h3>NF4 — 4-bit NormalFloat</h3>
+<p>Neural network weights are roughly zero-centred and normally distributed. Uniform int4 spaces its 16 levels evenly, wasting resolution in the sparse tails. NF4 places its 16 levels at the <em>quantiles</em> of a standard normal, so each level holds an equal share of the weight mass. It is information-theoretically optimal for normally-distributed data and measurably better than int4 at the same bit width.</p>
+<div class="ascii">weight distribution (roughly normal)
+
+        ▁▂▄▆███▆▄▂▁
+    ────┴┴┴┴┴┴┴┴┴┴┴────
+int4  |  |  |  |  |  |     evenly spaced → most levels sit where few weights live
+nf4   ||| | |  |  | |||    quantile spaced → dense where the weights are
+</div>
+
+<h3>Double quantisation</h3>
+<p>Each 64-weight block needs its own fp32 scale constant. That costs 32/64 = 0.5 bits per parameter — on a 7B model, about 0.4 GB of pure overhead. Double quantisation quantises those constants too (to 8-bit, in blocks of 256), cutting the overhead to roughly 0.127 bits per parameter and saving ~0.3 GB on a 7B model. Small, free, and switched on with one flag.</p>
+
+<h3>Paged optimizers</h3>
+<p>The third QLoRA trick: optimiser state lives in unified memory and pages to CPU RAM when a long sequence causes a memory spike, instead of crashing the run. That's what <span class="k">optim="paged_adamw_8bit"</span> buys you.</p>
+
+<h3>Where the memory actually goes</h3>
+<div class="ascii">Fine-tuning a 7B model — approximate totals
+
+                       base weights  grads  optimiser  activations   TOTAL
+full FT (bf16+Adam)       14 GB      14 GB    84 GB      5-30 GB    ~120 GB
+LoRA  (bf16 base)         14 GB     0.08 GB   0.3 GB     3-10 GB     ~18 GB
+QLoRA (nf4 base)         3.5 GB     0.08 GB   0.3 GB     3-10 GB      ~7 GB
+                          ↑
+              4× smaller: 7B × 4 bits ≈ 3.5 GB
+</div>
+
+<h3>Why the gradients still work</h3>
+<p>This is the question interviewers use to separate people who ran a notebook from people who understand it. The 4-bit weights are <strong>never updated</strong> — they're frozen. During the forward pass each block is dequantised to bf16 on the fly, used in the matmul, and discarded. The backward pass computes gradients with respect to the LoRA parameters A and B only, which are stored in bf16 at full precision. Gradients flow <em>through</em> the quantised layer, not <em>into</em> it.</p>
+
+<h3>LoRA vs QLoRA</h3>
+<div class="tw"><table>
+<thead><tr><th></th><th>LoRA</th><th>QLoRA</th></tr></thead>
+<tbody>
+<tr><td>Base model precision</td><td>fp16 / bf16</td><td>4-bit NF4</td></tr>
+<tr><td>Memory, 7B</td><td>~16–20 GB</td><td>~6–10 GB</td></tr>
+<tr><td>Memory, 70B</td><td>~160 GB (multi-GPU)</td><td>~46 GB (one A100 80GB)</td></tr>
+<tr><td>Training speed</td><td>Baseline</td><td>~20–40% slower (dequant overhead)</td></tr>
+<tr><td>Quality</td><td>Baseline</td><td>Within ~1% on most benchmarks</td></tr>
+<tr><td>Merging adapters</td><td>Clean, lossless</td><td>Must dequantise base to fp16 first</td></tr>
+<tr><td>Choose when</td><td>You have the VRAM</td><td>You don't, or the model is huge</td></tr>
+</tbody></table></div>
+
+<figure class="code"><figcaption><span>qlora_memory.py — measure it yourself</span><button class="copy">Copy</button></figcaption><pre><span class="kw">import</span> torch
+<span class="kw">from</span> transformers <span class="kw">import</span> AutoModelForCausalLM, BitsAndBytesConfig
+
+MODEL = <span class="s">"mistralai/Mistral-7B-Instruct-v0.3"</span>
+
+<span class="kw">def</span> gb():
+    <span class="kw">return</span> torch.cuda.memory_allocated() / <span class="s">1024</span>**<span class="s">3</span>
+
+<span class="c"># --- bf16 baseline ---</span>
+m = AutoModelForCausalLM.from_pretrained(MODEL, torch_dtype=torch.bfloat16,
+                                         device_map=<span class="s">"cuda:0"</span>)
+<span class="kw">print</span>(<span class="s">f"bf16 : {gb():.2f} GB"</span>)      <span class="c"># bf16 : 13.49 GB</span>
+<span class="kw">del</span> m; torch.cuda.empty_cache()
+
+<span class="c"># --- NF4 + double quant ---</span>
+bnb = BitsAndBytesConfig(load_in_4bit=<span class="kw">True</span>, bnb_4bit_quant_type=<span class="s">"nf4"</span>,
+                         bnb_4bit_use_double_quant=<span class="kw">True</span>,
+                         bnb_4bit_compute_dtype=torch.bfloat16)
+m = AutoModelForCausalLM.from_pretrained(MODEL, quantization_config=bnb,
+                                         device_map=<span class="s">"cuda:0"</span>)
+<span class="kw">print</span>(<span class="s">f"nf4  : {gb():.2f} GB"</span>)      <span class="c"># nf4  : 3.87 GB  → 3.5× smaller</span></pre></figure>
+</div></section>
+
+<section id="s9"><div class="wrap">
+<span class="sec-num">Section 09</span>
+<h2>Training parameters</h2>
+<p>Every row below is a question an interviewer can ask as "what happens if you set it too high?" — which is really asking whether you have watched a training run fail.</p>
+
+<div class="tw"><table>
+<thead><tr><th>Parameter</th><th>What it does</th><th>Typical (LoRA)</th><th>Too low</th><th>Too high</th></tr></thead>
+<tbody>
+<tr><td><code>learning_rate</code></td><td>Step size of each weight update</td><td>1e-4 – 3e-4<br>(full FT: 1e-5 – 5e-5)</td><td>Loss barely moves; needs many more epochs</td><td>Loss spikes or goes NaN; catastrophic forgetting; gibberish output</td></tr>
+<tr><td><code>per_device_train_batch_size</code></td><td>Sequences per forward pass</td><td>1–8</td><td>Noisy gradients, unstable loss, slow GPU utilisation</td><td>CUDA OOM — the most common failure</td></tr>
+<tr><td><code>gradient_accumulation_steps</code></td><td>Micro-batches summed before one optimiser step</td><td>4–16</td><td>Effective batch too small → noisy updates</td><td>Fewer updates per epoch; slower convergence in wall-clock</td></tr>
+<tr><td><code>num_train_epochs</code></td><td>Passes over the dataset</td><td>1–3 (large data) <br>3–5 (small data)</td><td>Underfitting; behaviour not learned</td><td>Overfitting; memorisation; val loss climbs</td></tr>
+<tr><td><code>warmup_steps</code> / <code>warmup_ratio</code></td><td>Ramps LR from 0 to target</td><td>3–10% of steps</td><td>Early instability, especially with Adam's cold moments</td><td>Wastes budget training at a tiny LR</td></tr>
+<tr><td><code>weight_decay</code></td><td>L2 pull toward zero</td><td>0.0–0.1</td><td>Slightly more overfitting</td><td>Underfitting; adapter can't move far enough</td></tr>
+<tr><td><code>lr_scheduler_type</code></td><td>LR shape over training</td><td><code>cosine</code></td><td>Constant LR → noisy late training, poor final convergence</td><td>Too-aggressive decay → stops learning halfway</td></tr>
+<tr><td><code>max_seq_length</code></td><td>Token cap per example</td><td>512–4096</td><td>Truncates long examples → the model never sees full answers</td><td>Memory grows ~quadratically with attention; OOM</td></tr>
+<tr><td><code>r</code> (LoRA rank)</td><td>Capacity of the update</td><td>8–64</td><td>Underfits; tone changes but capability doesn't</td><td>Overfits small data; more memory</td></tr>
+<tr><td><code>lora_alpha</code></td><td>Adapter scaling (α/r)</td><td>2× r</td><td>Adapter has little effect</td><td>Loss spikes; base behaviour overwhelmed</td></tr>
+<tr><td><code>lora_dropout</code></td><td>Adapter regularisation</td><td>0.05</td><td>Overfitting on &lt;1k examples</td><td>Noisy loss; underfitting</td></tr>
+<tr><td><code>gradient_checkpointing</code></td><td>Recompute activations instead of storing them</td><td><code>True</code></td><td>Off → 2–3× more activation memory</td><td>On → ~20–30% slower per step</td></tr>
+<tr><td>mixed precision (<code>bf16</code>/<code>fp16</code>)</td><td>Lower-precision math</td><td><code>bf16=True</code></td><td>fp32 → 2× memory, much slower</td><td>fp16 on unstable runs → overflow/NaN. bf16 has fp32's range, so prefer it on Ampere+</td></tr>
+</tbody></table></div>
+
+<h3>Effective batch size</h3>
+<div class="ascii">effective_batch = per_device_batch × grad_accum_steps × num_gpus
+
+  4 × 4 × 1 = 16      typical single-GPU LoRA
+  2 × 16 × 8 = 256    multi-GPU run
+
+Memory scales with per_device_batch ONLY.
+Gradient quality scales with effective_batch.
+⇒ OOM? Halve per_device_batch and double grad_accum. Same math, less memory.
+</div>
+
+<h3>A defensible starting configuration</h3>
+<div class="note do"><span class="note-t">Start here, then change one thing at a time</span>
+<p>7B model, 2,000 examples, single 24 GB GPU: <span class="k">r=16, alpha=32, dropout=0.05</span>, all seven target modules, <span class="k">lr=2e-4</span>, cosine schedule, <span class="k">warmup_ratio=0.03</span>, batch 4 × accum 4, 3 epochs, <span class="k">max_seq_length=1024</span>, bf16, gradient checkpointing on, <span class="k">paged_adamw_8bit</span>. Evaluate every 50 steps and keep the best checkpoint by validation loss.</p></div>
+<p>The two knobs worth tuning first are the <strong>learning rate</strong> and the <strong>number of epochs</strong>. Rank matters less than people expect — going from 8 to 64 usually moves metrics less than fixing twenty bad labels.</p>
+</div></section>
+
+<section id="s10"><div class="wrap">
+<span class="sec-num">Section 10</span>
+<h2>Evaluation</h2>
+<div class="note"><span class="note-t">The trap</span><p>Loss is a proxy for the thing you care about, not the thing itself. A model can improve validation loss while getting worse at the actual job — for instance by learning your dataset's formatting quirks. Always pair loss with a task metric.</p></div>
+
+<h3>Loss-based signals</h3>
+<ul>
+  <li><strong>Training loss</strong> — cross-entropy on training batches. Should fall smoothly. Flat means the learning rate is too low or the data is broken; spiky means the LR is too high.</li>
+  <li><strong>Validation loss</strong> — the same measure on held-out data. This is your overfitting detector.</li>
+  <li><strong>Perplexity</strong> = <span class="k">exp(cross_entropy_loss)</span>. Interpretable as "on average the model is choosing between this many equally likely next tokens." Loss 1.0 → perplexity 2.7; loss 2.3 → perplexity 10. Only comparable across models with the same tokenizer and the same evaluation text.</li>
+</ul>
+
+<figure class="code"><figcaption><span>perplexity.py</span><button class="copy">Copy</button></figcaption><pre><span class="kw">import</span> torch, math
+
+@torch.no_grad()
+<span class="kw">def</span> perplexity(model, tok, texts, max_len=<span class="s">1024</span>):
+    nll, n_tokens = <span class="s">0.0</span>, <span class="s">0</span>
+    model.eval()
+    <span class="kw">for</span> t <span class="kw">in</span> texts:
+        enc = tok(t, return_tensors=<span class="s">"pt"</span>, truncation=<span class="kw">True</span>,
+                  max_length=max_len).to(model.device)
+        out = model(**enc, labels=enc[<span class="s">"input_ids"</span>])
+        k = enc[<span class="s">"input_ids"</span>].numel()
+        nll += out.loss.item() * k     <span class="c"># loss is a per-token mean → re-weight</span>
+        n_tokens += k
+    <span class="kw">return</span> math.exp(nll / n_tokens)
+
+<span class="kw">print</span>(<span class="s">f"base       PPL = {perplexity(base_model, tok, val_texts):.2f}"</span>)   <span class="c"># 9.84</span>
+<span class="kw">print</span>(<span class="s">f"fine-tuned PPL = {perplexity(ft_model,   tok, val_texts):.2f}"</span>)   <span class="c"># 4.12</span></pre></figure>
+
+<h3>Classification metrics</h3>
+<p>When the fine-tuned model produces a label — ticket category, intent, sentiment — evaluate it like a classifier.</p>
+<ul>
+  <li><strong>Accuracy</strong> — fraction correct. Misleading on imbalanced data: 95% accuracy is worthless if 95% of tickets are one class.</li>
+  <li><strong>Precision</strong> = TP/(TP+FP) — of the ones you flagged, how many were right. Optimise when false positives are costly (auto-refunds, content takedowns).</li>
+  <li><strong>Recall</strong> = TP/(TP+FN) — of the ones that existed, how many you caught. Optimise when misses are costly (fraud, safety, medical triage).</li>
+  <li><strong>F1</strong> = harmonic mean of the two. Use <em>macro</em>-F1 when small classes matter equally, <em>weighted</em> when they don't.</li>
+</ul>
+
+<figure class="code"><figcaption><span>eval_classification.py</span><button class="copy">Copy</button></figcaption><pre><span class="kw">from</span> sklearn.metrics <span class="kw">import</span> classification_report, confusion_matrix
+<span class="kw">import</span> re
+
+LABELS = [<span class="s">"billing"</span>, <span class="s">"technical"</span>, <span class="s">"account"</span>, <span class="s">"other"</span>]
+
+<span class="kw">def</span> extract_label(text):
+    m = re.search(<span class="s">r"Category:\s*(\w+)"</span>, text)
+    <span class="kw">return</span> m.group(<span class="s">1</span>).lower() <span class="kw">if</span> m <span class="kw">and</span> m.group(<span class="s">1</span>).lower() <span class="kw">in</span> LABELS <span class="kw">else</span> <span class="s">"other"</span>
+
+y_true = [ex[<span class="s">"label"</span>] <span class="kw">for</span> ex <span class="kw">in</span> test_set]
+y_pred = [extract_label(ask(ex[<span class="s">"question"</span>])) <span class="kw">for</span> ex <span class="kw">in</span> test_set]
+
+<span class="kw">print</span>(classification_report(y_true, y_pred, labels=LABELS, digits=<span class="s">3</span>))
+<span class="c">#               precision  recall  f1-score  support</span>
+<span class="c">#   billing        0.941    0.914    0.927       105</span>
+<span class="c">#   technical      0.897    0.932    0.914       147</span>
+<span class="c">#   account        0.889    0.842    0.865        76</span>
+<span class="c">#   other          0.812    0.839    0.825        62</span>
+<span class="c">#   macro avg      0.885    0.882    0.883       390</span></pre></figure>
+
+<h3>Generation metrics: BLEU and ROUGE</h3>
+<p>These compare generated text to a reference by n-gram overlap. <strong>BLEU</strong> is precision-oriented (how much of what you produced appears in the reference) and comes from machine translation. <strong>ROUGE</strong> is recall-oriented (how much of the reference you covered) and comes from summarisation; ROUGE-L uses longest common subsequence, so it tolerates reordering.</p>
+<div class="note dont"><span class="note-t">Use them with scepticism</span><p>Both punish valid paraphrases and reward copying. "Refunds post in 3–5 business days" and "You'll see the refund within 3 to 5 working days" score poorly against each other despite being equally correct. Use BLEU/ROUGE for translation and extractive summarisation; use an LLM judge or humans for open-ended assistant output. <strong>BERTScore</strong> sits between the two by comparing embeddings rather than exact n-grams.</p></div>
+
+<figure class="code"><figcaption><span>eval_generation.py</span><button class="copy">Copy</button></figcaption><pre><span class="kw">import</span> evaluate
+
+rouge = evaluate.load(<span class="s">"rouge"</span>)
+bleu  = evaluate.load(<span class="s">"bleu"</span>)
+
+preds = [ask(q) <span class="kw">for</span> q <span class="kw">in</span> questions]
+
+<span class="kw">print</span>(rouge.compute(predictions=preds, references=references))
+<span class="c"># {'rouge1': 0.512, 'rouge2': 0.287, 'rougeL': 0.463, 'rougeLsum': 0.470}</span>
+<span class="kw">print</span>(bleu.compute(predictions=preds, references=[[r] <span class="kw">for</span> r <span class="kw">in</span> references]))
+<span class="c"># {'bleu': 0.246, 'precisions': [...], 'length_ratio': 1.03}</span></pre></figure>
+
+<h3>LLM-as-a-judge</h3>
+<p>A strong model scores outputs against a rubric. Cheap, fast, and correlates reasonably with human judgment when done carefully.</p>
+<figure class="code"><figcaption><span>judge.py</span><button class="copy">Copy</button></figcaption><pre>JUDGE_PROMPT = <span class="s">"""You are grading a customer support reply.
+
+Question: {q}
+Reference answer: {ref}
+Model answer: {ans}
+
+Score 1-5 on each, then output ONLY JSON:
+{{"accuracy": n, "tone": n, "format": n, "reason": "one sentence"}}
+
+accuracy: is the factual content correct and complete?
+tone: concise, professional, appropriately empathetic?
+format: ends with 'Category: X | Priority: Y'?"""</span>
+
+<span class="kw">def</span> judge(q, ref, ans, client):
+    r = client.messages.create(
+        model=<span class="s">"claude-sonnet-4-6"</span>, max_tokens=<span class="s">300</span>,
+        messages=[{<span class="s">"role"</span>: <span class="s">"user"</span>,
+                   <span class="s">"content"</span>: JUDGE_PROMPT.format(q=q, ref=ref, ans=ans)}],
+    )
+    <span class="kw">return</span> json.loads(r.content[<span class="s">0</span>].text)
+
+<span class="c"># Guard against known judge biases:</span>
+<span class="c">#  · position bias  → randomise A/B order in pairwise comparisons</span>
+<span class="c">#  · length bias    → judges over-reward long answers; cap or normalise</span>
+<span class="c">#  · self-preference→ don't judge a model with a sibling of itself</span>
+<span class="c">#  · calibration    → spot-check 50 judgments against human labels</span></pre></figure>
+
+<h3>Human and task-specific evaluation</h3>
+<p>Keep a <strong>golden set</strong>: 50–200 examples, human-written ideal answers, reviewed by a domain expert, never used in training. Before every release, generate on it and have a human rate pass/fail. It is slow and it is the only evaluation that reliably catches the failure modes you didn't anticipate.</p>
+<p>Also measure what the business actually cares about: JSON parse rate, schema-valid key rate, escalation precision, deflection rate, average handle time. A model with worse ROUGE and a higher deflection rate is the better model.</p>
+
+<h3>Detecting overfitting</h3>
+<div class="ascii">loss
+ │
+ │╲                                     HEALTHY: both fall, gap stays small
+ │ ╲___ train
+ │  ╲____ val
+ └──────────────────────► steps
+
+ │╲                                     OVERFITTING: val turns upward
+ │ ╲___ train ────────╲___
+ │  ╲___ val ___╱▔▔▔▔▔        ← stop here (early stopping / best checkpoint)
+ └──────────────────────► steps
+
+ │▔▔▔▔▔▔▔▔▔▔▔▔▔▔                        UNDERFITTING / broken: loss flat
+ └──────────────────────► steps
+</div>
+<p>Other symptoms of overfitting: the model reproduces training examples verbatim when given slightly different questions; it performs brilliantly on phrasings it saw and collapses on paraphrases; it loses general capability outside the fine-tuned domain.</p>
+<p>Remedies, in the order to try them: more and more-diverse data → fewer epochs with early stopping → higher <span class="k">lora_dropout</span> → lower rank → lower learning rate → mix in 5–10% of a general instruction dataset to preserve broad ability.</p>
+</div></section>
+
+<section id="s11"><div class="wrap">
+<span class="sec-num">Section 11</span>
+<h2>Common problems and how to fix them</h2>
+
+<h3>CUDA out of memory</h3>
+<p>The single most common issue. Work down this list; each step costs some speed or quality, so stop as soon as it fits.</p>
+<ol>
+  <li>Reduce <span class="k">per_device_train_batch_size</span> to 1 and raise <span class="k">gradient_accumulation_steps</span> to compensate — identical math, far less memory.</li>
+  <li>Enable <span class="k">gradient_checkpointing=True</span>.</li>
+  <li>Reduce <span class="k">max_seq_length</span>. Attention memory grows with sequence length; halving 2048→1024 is a large win. Check first how many examples this truncates.</li>
+  <li>Switch to 4-bit QLoRA.</li>
+  <li>Use <span class="k">optim="paged_adamw_8bit"</span> or <span class="k">adafactor</span>.</li>
+  <li>Install Flash Attention 2 — it avoids materialising the full attention matrix.</li>
+  <li>Reduce LoRA rank or the number of target modules.</li>
+  <li>Set <span class="k">PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True</span> to reduce fragmentation.</li>
+  <li>Last resort: a smaller base model, or DeepSpeed ZeRO-3 / FSDP across GPUs.</li>
+</ol>
+<figure class="code"><figcaption><span>memory_debug.py</span><button class="copy">Copy</button></figcaption><pre><span class="kw">import</span> torch, gc
+
+<span class="kw">def</span> report(tag=<span class="s">""</span>):
+    <span class="kw">print</span>(<span class="s">f"{tag:12s} alloc={torch.cuda.memory_allocated()/1e9:.2f}GB "</span>
+          <span class="s">f"peak={torch.cuda.max_memory_allocated()/1e9:.2f}GB"</span>)
+
+<span class="kw">def</span> free():
+    gc.collect(); torch.cuda.empty_cache(); torch.cuda.reset_peak_memory_stats()
+
+<span class="c"># find the largest batch size that fits, automatically</span>
+<span class="kw">for</span> bs <span class="kw">in</span> [<span class="s">16</span>, <span class="s">8</span>, <span class="s">4</span>, <span class="s">2</span>, <span class="s">1</span>]:
+    <span class="kw">try</span>:
+        free()
+        run_one_step(batch_size=bs)
+        <span class="kw">print</span>(<span class="s">f"batch_size={bs} OK"</span>); <span class="kw">break</span>
+    <span class="kw">except</span> torch.cuda.OutOfMemoryError:
+        <span class="kw">print</span>(<span class="s">f"batch_size={bs} OOM"</span>)</pre></figure>
+
+<h3>Training loss isn't decreasing</h3>
+<p>Diagnose in this order: (1) print one fully rendered training example and confirm the chat template and label masking are right — this is the cause about half the time; (2) check that <span class="k">model.print_trainable_parameters()</span> is non-zero, since a mis-specified <span class="k">target_modules</span> silently trains nothing; (3) raise the learning rate by 5–10×; (4) overfit a single batch deliberately — if loss won't reach near zero on 8 examples, the pipeline is broken, not the hyperparameters; (5) confirm labels aren't all <span class="k">-100</span>.</p>
+
+<h3>Validation loss increasing while training loss falls</h3>
+<p>Textbook overfitting. Enable <span class="k">load_best_model_at_end</span> with an early-stopping callback, cut epochs, add data, increase dropout, or lower the rank.</p>
+
+<h3>Underfitting</h3>
+<p>Loss plateaus high and the model ignores your format. Raise the learning rate, raise the rank, add target modules, train more epochs, and check that your examples are actually consistent — a model cannot learn a rule that your data contradicts.</p>
+
+<h3>Catastrophic forgetting</h3>
+<p>The model nails your task and forgets how to do arithmetic, follow unrelated instructions, or speak another language. Causes: learning rate too high, too many epochs, or a dataset with no diversity.</p>
+<div class="note do"><span class="note-t">Fixes</span><p>Use LoRA instead of full fine-tuning (the base weights are untouched by construction); mix 5–15% general instruction data into your set; lower the LR; fewer epochs; keep rank modest. And measure it — run a small general benchmark before and after, not just your task metric.</p></div>
+
+<h3>Repetitive outputs</h3>
+<p>The model loops phrases or never stops. Check that every training response ends with the EOS token — this is the usual cause. Then: <span class="k">repetition_penalty=1.05–1.15</span>, <span class="k">no_repeat_ngram_size=4</span>, raise temperature slightly, and remove repetitive examples from the data. If the model won't stop generating at all, verify <span class="k">eos_token_id</span> is passed to <span class="k">generate()</span>.</p>
+
+<h3>Hallucinations</h3>
+<p>Often <em>caused</em> by fine-tuning: if you train on facts the base model doesn't know, you teach it the <em>style</em> of confident factual assertion without the underlying knowledge — so it invents facts in that style. Fix by moving factual content to RAG and keeping fine-tuning for behaviour; include explicit "I don't know" and out-of-scope examples in training; lower temperature at inference; and ground answers in retrieved text.</p>
+
+<h3>Bad dataset quality</h3>
+<p>Symptoms: inconsistent output format, contradictory answers, weird artefacts like stray HTML or "As an AI language model". Read 50 random examples by hand. Run a dedupe pass. Compute length distributions and look at the tails. Validate every example against a schema. Have a second person label 100 examples and measure agreement — if humans agree only 70% of the time, your model's ceiling is 70%.</p>
+
+<div class="tw"><table>
+<thead><tr><th>Symptom</th><th>Most likely cause</th><th>First thing to try</th></tr></thead>
+<tbody>
+<tr><td>Loss = NaN</td><td>fp16 overflow or LR too high</td><td>Switch to bf16; lower LR 10×; <code>max_grad_norm=0.3</code></td></tr>
+<tr><td>Loss flat at ~10+</td><td>Labels all masked, or LR ~0</td><td>Print one batch's labels; check target_modules</td></tr>
+<tr><td>Great val loss, bad outputs</td><td>Template mismatch at inference</td><td>Use the same <code>apply_chat_template</code> in both places</td></tr>
+<tr><td>Model never stops</td><td>Missing EOS in training data</td><td>Append EOS; pass <code>eos_token_id</code> to generate</td></tr>
+<tr><td>Output in the wrong language</td><td>Too few examples in target language</td><td>Add data; lower temperature</td></tr>
+<tr><td>Works on train phrasings only</td><td>Overfitting / low diversity</td><td>Paraphrase augmentation; fewer epochs</td></tr>
+</tbody></table></div>
+</div></section>
+
+<section id="s12"><div class="wrap">
+<span class="sec-num">Section 12</span>
+<h2>Fine-tuning vs RAG</h2>
+<div class="tw"><table>
+<thead><tr><th>Dimension</th><th>Fine-tuning</th><th>RAG</th></tr></thead>
+<tbody>
+<tr><td><strong>Purpose</strong></td><td>Change how the model behaves: format, tone, task skill, domain reasoning</td><td>Change what the model knows at request time: facts, documents, current state</td></tr>
+<tr><td><strong>Data requirements</strong></td><td>Hundreds to millions of labelled input→output pairs</td><td>A document corpus; no labels needed</td></tr>
+<tr><td><strong>Upfront cost</strong></td><td>GPU hours + labelling effort ($100s–$1,000s+)</td><td>Embedding compute + vector DB ($10s–$100s)</td></tr>
+<tr><td><strong>Per-request cost</strong></td><td>Lower — behaviour is in the weights, prompts stay short</td><td>Higher — retrieved chunks occupy context on every call</td></tr>
+<tr><td><strong>Training required</strong></td><td>Yes</td><td>No</td></tr>
+<tr><td><strong>Updating knowledge</strong></td><td>Retrain: hours to days</td><td>Re-index: seconds to minutes</td></tr>
+<tr><td><strong>Hallucination</strong></td><td>Can increase it if you train facts the model can't hold</td><td>Reduces it when retrieval is good; bad retrieval still produces bad answers</td></tr>
+<tr><td><strong>Latency</strong></td><td>Lower — one forward pass, short prompt</td><td>Higher — retrieval hop + longer prompt to process</td></tr>
+<tr><td><strong>Traceability</strong></td><td>None; knowledge is diffuse across weights</td><td>Strong; you can cite the exact source chunk</td></tr>
+<tr><td><strong>Access control</strong></td><td>Hard — weights can't enforce per-user permissions</td><td>Natural — filter the index by user permissions</td></tr>
+<tr><td><strong>Best use cases</strong></td><td>Output schemas, brand voice, classification, extraction, domain jargon, distillation, latency/cost reduction</td><td>Documentation Q&amp;A, policy lookup, changing catalogues, legal/medical reference, anything needing citations</td></tr>
+</tbody></table></div>
+
+<h3>Choosing, with examples</h3>
+<div class="note do"><span class="note-t">Fine-tune</span>
+<p><strong>"Every reply must end with <span class="k">Category: X | Priority: Y</span> and never exceed 120 words."</strong> — pure behaviour, no facts. Prompting gets you to ~93% compliance; fine-tuning gets you to 99%+.</p>
+<p><strong>"Convert radiology dictations into structured findings."</strong> — a learnable skill with a fixed schema and abundant paired data.</p>
+<p><strong>"Our 70B model works but costs too much."</strong> — distil into a fine-tuned 7B.</p></div>
+<div class="note"><span class="note-t">Use RAG</span>
+<p><strong>"Answer questions about our product docs, which change weekly."</strong> — volatile facts, citations required.</p>
+<p><strong>"What is customer 4471's current plan?"</strong> — live data; it should never be in weights.</p>
+<p><strong>"Which policy clause covers this?"</strong> — the answer must be attributable to a source.</p></div>
+<div class="note do"><span class="note-t">Do both — the usual production answer</span>
+<p>Fine-tune the model on 3,000 support conversations so it adopts your tone, format, escalation rules, and refusal behaviour. Then retrieve the three most relevant documentation chunks at request time and put them in the context. The fine-tune handles <em>how</em>; retrieval handles <em>what</em>. Teams that pick one and argue about it usually ship something worse than teams that do both.</p></div>
+
+<h3>The decision in four questions</h3>
+<div class="ascii">Does the answer depend on facts that change or must be cited?
+  YES ──▶ RAG
+  NO
+   │
+Do you need a specific format, tone, or skill that prompting can't hold?
+  NO  ──▶ stay with prompt engineering
+  YES
+   │
+Do you have 500+ consistent examples of that behaviour?
+  NO  ──▶ collect data first; prompt in the meantime
+  YES ──▶ fine-tune (LoRA), then add RAG on top if facts are involved
+</div>
+</div></section>
+
+<section id="s13"><div class="wrap">
+<span class="sec-num">Section 13</span>
+<h2>Production deployment</h2>
+
+<h3>Saving adapters vs merging</h3>
+<div class="tw"><table>
+<thead><tr><th></th><th>Serve base + adapter</th><th>Serve merged model</th></tr></thead>
+<tbody>
+<tr><td>Disk</td><td>Base once (14 GB) + N × ~150 MB</td><td>14 GB per variant</td></tr>
+<tr><td>Inference latency</td><td>Slightly higher (extra matmuls)</td><td>Zero overhead</td></tr>
+<tr><td>Multi-tenant</td><td>Excellent — hot-swap per request (vLLM multi-LoRA)</td><td>One model per deployment</td></tr>
+<tr><td>Quantised serving</td><td>Awkward</td><td>Straightforward (AWQ/GPTQ after merge)</td></tr>
+<tr><td>Use when</td><td>Many variants, rapid iteration</td><td>One model, maximum throughput</td></tr>
+</tbody></table></div>
+
+<figure class="code"><figcaption><span>merge.py — fold the adapter into the base weights</span><button class="copy">Copy</button></figcaption><pre><span class="kw">from</span> peft <span class="kw">import</span> PeftModel
+<span class="kw">from</span> transformers <span class="kw">import</span> AutoModelForCausalLM, AutoTokenizer
+<span class="kw">import</span> torch
+
+<span class="c"># IMPORTANT: load the base in fp16/bf16, NOT 4-bit, before merging.</span>
+<span class="c"># Merging into quantised weights loses precision.</span>
+base = AutoModelForCausalLM.from_pretrained(
+    <span class="s">"mistralai/Mistral-7B-Instruct-v0.3"</span>,
+    torch_dtype=torch.bfloat16, device_map=<span class="s">"cpu"</span>,
+)
+model = PeftModel.from_pretrained(base, <span class="s">"out/nimbus-lora/final"</span>)
+merged = model.merge_and_unload()          <span class="c"># W ← W + (α/r)·BA</span>
+
+merged.save_pretrained(<span class="s">"out/nimbus-merged"</span>, safe_serialization=<span class="kw">True</span>,
+                       max_shard_size=<span class="s">"4GB"</span>)
+AutoTokenizer.from_pretrained(<span class="s">"out/nimbus-lora/final"</span>).save_pretrained(<span class="s">"out/nimbus-merged"</span>)</pre></figure>
+
+<h3>Post-training quantisation for serving</h3>
+<p>Training quantisation (NF4) and serving quantisation are different jobs. For inference, use a calibrated method:</p>
+<ul>
+  <li><strong>AWQ</strong> — activation-aware; protects the ~1% of salient weight channels. Excellent quality/speed, well supported by vLLM.</li>
+  <li><strong>GPTQ</strong> — layer-wise second-order reconstruction. Mature and widely available.</li>
+  <li><strong>FP8</strong> — near-lossless on H100-class hardware, minimal effort.</li>
+  <li><strong>GGUF</strong> — for llama.cpp, CPU and Apple Silicon deployment.</li>
+</ul>
+<p>Expect 4-bit AWQ to cut weight memory ~4× and raise throughput, at a typical cost of 1–2% on task metrics. Always re-run your evaluation after quantising; never assume.</p>
+
+<h3>Inference servers</h3>
+<div class="tw"><table>
+<thead><tr><th>Server</th><th>Strengths</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>vLLM</strong></td><td>PagedAttention, continuous batching, multi-LoRA serving, OpenAI-compatible API</td><td>The default choice for self-hosting</td></tr>
+<tr><td><strong>TGI</strong></td><td>Hugging Face native, good observability, tensor parallelism</td><td>Strong ecosystem fit</td></tr>
+<tr><td><strong>TensorRT-LLM</strong></td><td>Highest throughput on NVIDIA</td><td>Complex build; worth it at scale</td></tr>
+<tr><td><strong>llama.cpp / Ollama</strong></td><td>CPU, Apple Silicon, edge, laptops</td><td>GGUF quantisation</td></tr>
+</tbody></table></div>
+<figure class="code"><figcaption><span>serve.sh — vLLM with hot-swappable adapters</span><button class="copy">Copy</button></figcaption><pre><span class="c"># Option A: serve the merged model</span>
+python -m vllm.entrypoints.openai.api_server \
+  --model out/nimbus-merged \
+  --dtype bfloat16 \
+  --max-model-len <span class="s">4096</span> \
+  --gpu-memory-utilization <span class="s">0.90</span> \
+  --port <span class="s">8000</span>
+
+<span class="c"># Option B: one base, many adapters, chosen per request by model name</span>
+python -m vllm.entrypoints.openai.api_server \
+  --model mistralai/Mistral-7B-Instruct-v0.3 \
+  --enable-lora \
+  --lora-modules support=out/nimbus-lora/final sales=out/sales-lora/final \
+  --max-loras <span class="s">4</span> --max-lora-rank <span class="s">16</span></pre></figure>
+
+<h3>GPU requirements, latency, throughput</h3>
+<div class="ascii">Serving a 7B model (rules of thumb, batch-dependent)
+
+  precision   weights   + KV cache (4k ctx, 32 concurrent)   GPU
+  bf16        14 GB       ~8 GB                              A100 40GB / L40S
+  fp8          7 GB       ~4 GB                              H100 / L40S
+  4-bit AWQ  ~4 GB        ~8 GB                              A10G 24GB / 4090
+
+KV cache per token ≈ 2 × layers × kv_heads × head_dim × bytes
+  → grows linearly with context AND concurrency. It is usually what
+    limits your batch size, not the weights.
+
+Latency vocabulary interviewers expect:
+  TTFT  time to first token   — dominated by prompt length (prefill)
+  TPOT  time per output token — dominated by memory bandwidth (decode)
+  total ≈ TTFT + TPOT × output_tokens
+</div>
+<p>To raise throughput: continuous batching (vLLM does this by default), quantisation, shorter prompts, speculative decoding, and prefix caching for shared system prompts. To lower latency: streaming, smaller models, shorter outputs, and fewer retrieved chunks.</p>
+
+<h3>Monitoring</h3>
+<ul>
+  <li><strong>System:</strong> TTFT and TPOT percentiles (p50/p95/p99), requests/sec, GPU utilisation, KV cache occupancy, queue depth, error rate, cost per 1k requests.</li>
+  <li><strong>Quality:</strong> JSON/schema validity rate, refusal rate, average output length, toxicity/PII flags, user thumbs-down rate, escalation rate.</li>
+  <li><strong>Drift:</strong> embed incoming prompts and compare the distribution to your training set weekly. A widening gap predicts quality decay before users report it.</li>
+  <li><strong>Sampling:</strong> log everything, then route 1% to human review.</li>
+</ul>
+
+<h3>Versioning and release</h3>
+<p>Pin and record: base model revision hash, adapter hash, dataset hash, full training config, library versions, random seed, and the evaluation report. A model you cannot reproduce is a model you cannot debug.</p>
+<p>Release with a shadow deployment first (run the new model on live traffic without serving it, compare offline), then a 5% canary with automatic rollback on metric regression, then full rollout. Keep the previous adapter one command away.</p>
+
+<h3>Evaluation after deployment</h3>
+<p>Offline evaluation predicts; production measures. Run your golden set against the deployed endpoint on a schedule so you catch infrastructure-level regressions — a changed template, a quantisation swap, a truncated system prompt. Feed flagged production failures back into the next training set, and your model improves on the distribution that actually exists rather than the one you imagined.</p>
+</div></section>
+
+<section id="s14"><div class="wrap">
+<span class="sec-num">Section 14</span>
+<h2>End-to-end project: a domain-specific support assistant</h2>
+<p><strong>The brief.</strong> Nimbus Cloud gets 4,000 support tickets a month. Roughly 60% are repeat questions about backups, billing tiers, API limits, and SSO. Build an assistant that answers in Nimbus's voice, tags every reply with a category and priority, refuses out-of-scope requests, and runs on one A10G (24 GB).</p>
+<p><strong>Success criteria, defined before any training:</strong> ≥95% of replies carry a valid category tag; ≥90% category accuracy on a held-out test set; ≥4.0/5 mean judge score on accuracy and tone; p95 latency under 2.5 s; refusal on 100% of out-of-scope probes.</p>
+
+<h3>Step 1 — Build the dataset</h3>
+<figure class="code"><figcaption><span>01_build_dataset.py</span><button class="copy">Copy</button></figcaption><pre><span class="s">"""
+Sources:
+  · 3,200 resolved Zendesk tickets (question + agent's final reply)
+  ·   400 hand-written examples for gaps: refusals, angry customers,
+        ambiguous questions, multi-turn clarification
+  ·   400 synthetic paraphrases of the 100 most common questions
+Target: ~4,000 examples in chat format.
+"""</span>
+<span class="kw">import</span> json, random, re
+
+SYSTEM = (<span class="s">"You are Nimbus Support, the assistant for Nimbus Cloud. "</span>
+          <span class="s">"Be concise and accurate. If a question is outside Nimbus Cloud, say so. "</span>
+          <span class="s">"End every reply with 'Category: &lt;billing|technical|account|other&gt; | "</span>
+          <span class="s">"Priority: &lt;P1|P2|P3|P4&gt;'."</span>)
+
+<span class="kw">def</span> from_ticket(t):
+    <span class="s">"""Convert one resolved ticket into a training example."""</span>
+    reply = t[<span class="s">"agent_reply"</span>].strip()
+    <span class="c"># enforce the format we want the model to learn — consistency is everything</span>
+    tag = <span class="s">f"Category: {t['category']} | Priority: {t['priority']}"</span>
+    <span class="kw">if</span> <span class="kw">not</span> reply.endswith(tag):
+        reply = <span class="s">f"{reply}\n\n{tag}"</span>
+    <span class="kw">return</span> {<span class="s">"messages"</span>: [
+        {<span class="s">"role"</span>: <span class="s">"system"</span>,    <span class="s">"content"</span>: SYSTEM},
+        {<span class="s">"role"</span>: <span class="s">"user"</span>,      <span class="s">"content"</span>: t[<span class="s">"question"</span>].strip()},
+        {<span class="s">"role"</span>: <span class="s">"assistant"</span>, <span class="s">"content"</span>: reply},
+    ], <span class="s">"customer_id"</span>: t[<span class="s">"customer_id"</span>], <span class="s">"label"</span>: t[<span class="s">"category"</span>]}
+
+<span class="c"># Deliberate coverage of behaviours that tickets rarely contain</span>
+HANDWRITTEN = [
+    (<span class="s">"write me a python web scraper"</span>,
+     <span class="s">"That's outside what I cover — I only handle Nimbus Cloud questions.\n\n"</span>
+     <span class="s">"Category: other | Priority: P4"</span>),
+    (<span class="s">"is it down?"</span>,
+     <span class="s">"I need a bit more to help. Which service — API, dashboard, or backups? "</span>
+     <span class="s">"You can also check status.nimbus.dev for live incidents.\n\n"</span>
+     <span class="s">"Category: technical | Priority: P2"</span>),
+    (<span class="s">"what will pricing be next year"</span>,
+     <span class="s">"I don't have information about future pricing. Current plans are on "</span>
+     <span class="s">"nimbus.dev/pricing, and your account manager can discuss renewals.\n\n"</span>
+     <span class="s">"Category: billing | Priority: P3"</span>),
+]
+
+<span class="kw">def</span> build():
+    tickets = [json.loads(l) <span class="kw">for</span> l <span class="kw">in</span> <span class="kw">open</span>(<span class="s">"raw/tickets.jsonl"</span>)]
+    rows = [from_ticket(t) <span class="kw">for</span> t <span class="kw">in</span> tickets]
+    <span class="kw">for</span> q, a <span class="kw">in</span> HANDWRITTEN:
+        rows.append({<span class="s">"messages"</span>: [
+            {<span class="s">"role"</span>: <span class="s">"system"</span>, <span class="s">"content"</span>: SYSTEM},
+            {<span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: q},
+            {<span class="s">"role"</span>: <span class="s">"assistant"</span>, <span class="s">"content"</span>: a}],
+            <span class="s">"customer_id"</span>: <span class="s">"synthetic"</span>,
+            <span class="s">"label"</span>: re.search(<span class="s">r"Category: (\w+)"</span>, a).group(<span class="s">1</span>)})
+    random.seed(<span class="s">42</span>); random.shuffle(rows)
+    <span class="kw">return</span> rows
+
+rows = build()
+<span class="kw">print</span>(<span class="kw">len</span>(rows))   <span class="c"># 4003</span></pre></figure>
+
+<h3>Step 2 — Clean, validate, split</h3>
+<figure class="code"><figcaption><span>02_preprocess.py</span><button class="copy">Copy</button></figcaption><pre><span class="kw">import</span> json, re, hashlib
+<span class="kw">from</span> collections <span class="kw">import</span> Counter
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> GroupShuffleSplit
+
+TAG = re.compile(<span class="s">r"Category: (billing|technical|account|other) \| Priority: P[1-4]$"</span>)
+
+<span class="kw">def</span> validate(ex):
+    m = ex[<span class="s">"messages"</span>]
+    <span class="kw">if</span> <span class="kw">len</span>(m) &lt; <span class="s">3</span> <span class="kw">or</span> m[-<span class="s">1</span>][<span class="s">"role"</span>] != <span class="s">"assistant"</span>: <span class="kw">return</span> <span class="s">"malformed"</span>
+    a = m[-<span class="s">1</span>][<span class="s">"content"</span>]
+    <span class="kw">if</span> <span class="kw">not</span> TAG.search(a):                       <span class="kw">return</span> <span class="s">"no_tag"</span>
+    <span class="kw">if</span> <span class="kw">not</span> <span class="s">20</span> &lt;= <span class="kw">len</span>(a) &lt;= <span class="s">3000</span>:               <span class="kw">return</span> <span class="s">"length"</span>
+    <span class="kw">if</span> <span class="s">"As an AI"</span> <span class="kw">in</span> a <span class="kw">or</span> <span class="s">"&lt;div"</span> <span class="kw">in</span> a:         <span class="kw">return</span> <span class="s">"artefact"</span>
+    <span class="kw">return</span> <span class="kw">None</span>
+
+seen, clean, stats = <span class="kw">set</span>(), [], Counter()
+<span class="kw">for</span> ex <span class="kw">in</span> rows:
+    <span class="kw">if</span> (r := validate(ex)): stats[r] += <span class="s">1</span>; <span class="kw">continue</span>
+    key = hashlib.md5(re.sub(<span class="s">r"\s+"</span>, <span class="s">" "</span>,
+          ex[<span class="s">"messages"</span>][<span class="s">1</span>][<span class="s">"content"</span>].lower()).encode()).hexdigest()
+    <span class="kw">if</span> key <span class="kw">in</span> seen: stats[<span class="s">"dup"</span>] += <span class="s">1</span>; <span class="kw">continue</span>
+    seen.add(key)
+    <span class="c"># scrub PII before it can reach the weights</span>
+    <span class="kw">for</span> msg <span class="kw">in</span> ex[<span class="s">"messages"</span>]:
+        msg[<span class="s">"content"</span>] = re.sub(<span class="s">r"[\w.+-]+@[\w-]+\.[\w.]+"</span>, <span class="s">"[EMAIL]"</span>, msg[<span class="s">"content"</span>])
+    clean.append(ex); stats[<span class="s">"kept"</span>] += <span class="s">1</span>
+
+<span class="kw">print</span>(stats)
+<span class="c"># Counter({'kept': 3418, 'dup': 402, 'no_tag': 97, 'length': 61, 'artefact': 25})</span>
+<span class="kw">print</span>(Counter(e[<span class="s">"label"</span>] <span class="kw">for</span> e <span class="kw">in</span> clean))
+<span class="c"># Counter({'technical': 1388, 'billing': 1020, 'account': 631, 'other': 379})</span>
+
+<span class="c"># group split so one customer never straddles train and test</span>
+groups = [e[<span class="s">"customer_id"</span>] <span class="kw">for</span> e <span class="kw">in</span> clean]
+tr, rest = <span class="kw">next</span>(GroupShuffleSplit(<span class="s">1</span>, test_size=<span class="s">0.2</span>, random_state=<span class="s">42</span>)
+                  .split(clean, groups=groups))
+rest_rows = [clean[i] <span class="kw">for</span> i <span class="kw">in</span> rest]
+va, te = <span class="kw">next</span>(GroupShuffleSplit(<span class="s">1</span>, test_size=<span class="s">0.5</span>, random_state=<span class="s">42</span>)
+              .split(rest_rows, groups=[groups[i] <span class="kw">for</span> i <span class="kw">in</span> rest]))
+
+<span class="kw">for</span> name, idx, src <span class="kw">in</span> [(<span class="s">"train"</span>, tr, clean), (<span class="s">"val"</span>, va, rest_rows), (<span class="s">"test"</span>, te, rest_rows)]:
+    <span class="kw">with</span> <span class="kw">open</span>(<span class="s">f"data/{name}.jsonl"</span>, <span class="s">"w"</span>) <span class="kw">as</span> f:
+        <span class="kw">for</span> i <span class="kw">in</span> idx: f.write(json.dumps(src[i], ensure_ascii=<span class="kw">False</span>) + <span class="s">"\n"</span>)
+    <span class="kw">print</span>(name, <span class="kw">len</span>(idx))
+<span class="c"># train 2734   val 341   test 343</span></pre></figure>
+
+<h3>Step 3 — LoRA fine-tune</h3>
+<figure class="code"><figcaption><span>03_train.py</span><button class="copy">Copy</button></figcaption><pre><span class="kw">import</span> torch
+<span class="kw">from</span> transformers <span class="kw">import</span> (AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig,
+                          TrainingArguments, EarlyStoppingCallback)
+<span class="kw">from</span> peft <span class="kw">import</span> LoraConfig, get_peft_model, prepare_model_for_kbit_training
+<span class="kw">from</span> datasets <span class="kw">import</span> load_dataset
+<span class="kw">from</span> trl <span class="kw">import</span> SFTTrainer
+
+MODEL = <span class="s">"mistralai/Mistral-7B-Instruct-v0.3"</span>   <span class="c"># Apache 2.0, safe to ship</span>
+
+tok = AutoTokenizer.from_pretrained(MODEL)
+tok.pad_token, tok.padding_side = tok.eos_token, <span class="s">"right"</span>
+
+model = AutoModelForCausalLM.from_pretrained(
+    MODEL, device_map=<span class="s">"auto"</span>, torch_dtype=torch.bfloat16,
+    quantization_config=BitsAndBytesConfig(
+        load_in_4bit=<span class="kw">True</span>, bnb_4bit_quant_type=<span class="s">"nf4"</span>,
+        bnb_4bit_use_double_quant=<span class="kw">True</span>, bnb_4bit_compute_dtype=torch.bfloat16),
+)
+model.config.use_cache = <span class="kw">False</span>
+model = prepare_model_for_kbit_training(model)
+model = get_peft_model(model, LoraConfig(
+    r=<span class="s">16</span>, lora_alpha=<span class="s">32</span>, lora_dropout=<span class="s">0.05</span>, bias=<span class="s">"none"</span>, task_type=<span class="s">"CAUSAL_LM"</span>,
+    target_modules=[<span class="s">"q_proj"</span>,<span class="s">"k_proj"</span>,<span class="s">"v_proj"</span>,<span class="s">"o_proj"</span>,
+                    <span class="s">"gate_proj"</span>,<span class="s">"up_proj"</span>,<span class="s">"down_proj"</span>]))
+model.print_trainable_parameters()
+<span class="c"># trainable params: 41,943,040 || all params: 7,289,966,592 || trainable%: 0.5754</span>
+
+ds = load_dataset(<span class="s">"json"</span>, data_files={<span class="s">"train"</span>:<span class="s">"data/train.jsonl"</span>,
+                                        <span class="s">"validation"</span>:<span class="s">"data/val.jsonl"</span>})
+ds = ds.map(<span class="kw">lambda</span> e: {<span class="s">"text"</span>: tok.apply_chat_template(e[<span class="s">"messages"</span>], tokenize=<span class="kw">False</span>)},
+            remove_columns=ds[<span class="s">"train"</span>].column_names)
+
+args = TrainingArguments(
+    output_dir=<span class="s">"out/nimbus"</span>, num_train_epochs=<span class="s">3</span>,
+    per_device_train_batch_size=<span class="s">4</span>, gradient_accumulation_steps=<span class="s">4</span>,
+    learning_rate=<span class="s">2e-4</span>, lr_scheduler_type=<span class="s">"cosine"</span>, warmup_ratio=<span class="s">0.03</span>,
+    weight_decay=<span class="s">0.01</span>, max_grad_norm=<span class="s">0.3</span>,
+    bf16=<span class="kw">True</span>, gradient_checkpointing=<span class="kw">True</span>, optim=<span class="s">"paged_adamw_8bit"</span>,
+    logging_steps=<span class="s">10</span>, eval_strategy=<span class="s">"steps"</span>, eval_steps=<span class="s">50</span>,
+    save_strategy=<span class="s">"steps"</span>, save_steps=<span class="s">50</span>, save_total_limit=<span class="s">2</span>,
+    load_best_model_at_end=<span class="kw">True</span>, metric_for_best_model=<span class="s">"eval_loss"</span>,
+    greater_is_better=<span class="kw">False</span>, seed=<span class="s">42</span>, report_to=<span class="s">"wandb"</span>,
+)
+
+trainer = SFTTrainer(model=model, args=args,
+                     train_dataset=ds[<span class="s">"train"</span>], eval_dataset=ds[<span class="s">"validation"</span>],
+                     processing_class=tok,
+                     callbacks=[EarlyStoppingCallback(early_stopping_patience=<span class="s">3</span>)])
+trainer.train()
+trainer.save_model(<span class="s">"out/nimbus/final"</span>); tok.save_pretrained(<span class="s">"out/nimbus/final"</span>)
+<span class="c"># ~2h 10m on a single A10G 24GB. Peak memory 18.3 GB. Best eval_loss 0.94 @ step 350.</span></pre></figure>
+
+<h3>Step 4 — Evaluate against the success criteria</h3>
+<figure class="code"><figcaption><span>04_evaluate.py</span><button class="copy">Copy</button></figcaption><pre><span class="kw">import</span> json, re, torch
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> classification_report
+<span class="kw">from</span> peft <span class="kw">import</span> PeftModel
+<span class="kw">from</span> transformers <span class="kw">import</span> AutoModelForCausalLM, AutoTokenizer
+
+tok  = AutoTokenizer.from_pretrained(<span class="s">"out/nimbus/final"</span>); tok.padding_side = <span class="s">"left"</span>
+base = AutoModelForCausalLM.from_pretrained(<span class="s">"mistralai/Mistral-7B-Instruct-v0.3"</span>,
+        torch_dtype=torch.bfloat16, device_map=<span class="s">"auto"</span>)
+model = PeftModel.from_pretrained(base, <span class="s">"out/nimbus/final"</span>).eval()
+
+TAG = re.compile(<span class="s">r"Category: (\w+) \| Priority: (P[1-4])"</span>)
+
+@torch.no_grad()
+<span class="kw">def</span> generate(messages, n=<span class="s">256</span>):
+    p = tok.apply_chat_template(messages, tokenize=<span class="kw">False</span>, add_generation_prompt=<span class="kw">True</span>)
+    x = tok(p, return_tensors=<span class="s">"pt"</span>).to(model.device)
+    o = model.generate(**x, max_new_tokens=n, temperature=<span class="s">0.3</span>, top_p=<span class="s">0.9</span>,
+                       do_sample=<span class="kw">True</span>, pad_token_id=tok.eos_token_id)
+    <span class="kw">return</span> tok.decode(o[<span class="s">0</span>][x[<span class="s">"input_ids"</span>].shape[-<span class="s">1</span>]:], skip_special_tokens=<span class="kw">True</span>)
+
+test = [json.loads(l) <span class="kw">for</span> l <span class="kw">in</span> <span class="kw">open</span>(<span class="s">"data/test.jsonl"</span>)]
+y_true, y_pred, tagged = [], [], <span class="s">0</span>
+
+<span class="kw">for</span> ex <span class="kw">in</span> test:
+    out = generate(ex[<span class="s">"messages"</span>][:-<span class="s">1</span>])
+    m = TAG.search(out)
+    tagged += <span class="kw">bool</span>(m)
+    y_true.append(ex[<span class="s">"label"</span>])
+    y_pred.append(m.group(<span class="s">1</span>) <span class="kw">if</span> m <span class="kw">else</span> <span class="s">"MISSING"</span>)
+
+<span class="kw">print</span>(<span class="s">f"format compliance: {tagged/len(test):.1%}"</span>)   <span class="c"># 98.8%   (target ≥95%) ✓</span>
+<span class="kw">print</span>(classification_report(y_true, y_pred, digits=<span class="s">3</span>))
+<span class="c"># macro avg  precision 0.905  recall 0.897  f1 0.901   (target ≥90%) ✓</span>
+
+<span class="c"># --- baseline comparison: the SAME test, prompted base model, no fine-tune ---</span>
+<span class="c"># format compliance: 71.4%    macro f1: 0.706</span>
+<span class="c"># → the fine-tune is worth it; without this comparison you can't claim that.</span></pre></figure>
+<p>Pair this with an LLM-judge pass on accuracy and tone (Section 10) and a 100-example human review. Only then decide to ship.</p>
+
+<h3>Step 5 — Optional: DPO polish</h3>
+<figure class="code"><figcaption><span>05_dpo.py — align on tone once SFT is solid</span><button class="copy">Copy</button></figcaption><pre><span class="kw">from</span> trl <span class="kw">import</span> DPOTrainer, DPOConfig
+
+<span class="c"># preferences.jsonl: {"prompt":..., "chosen":..., "rejected":...}</span>
+<span class="c"># chosen   = concise, specific, correctly tagged</span>
+<span class="c"># rejected = correct but waffly, or missing the tag</span>
+prefs = load_dataset(<span class="s">"json"</span>, data_files=<span class="s">"data/preferences.jsonl"</span>)[<span class="s">"train"</span>]
+
+dpo = DPOTrainer(
+    model=model,              <span class="c"># the SFT LoRA model</span>
+    ref_model=<span class="kw">None</span>,          <span class="c"># with PEFT, TRL uses the adapter-disabled base as reference</span>
+    args=DPOConfig(output_dir=<span class="s">"out/nimbus-dpo"</span>, beta=<span class="s">0.1</span>,
+                   learning_rate=<span class="s">5e-6</span>,    <span class="c"># much lower than SFT</span>
+                   num_train_epochs=<span class="s">1</span>,
+                   per_device_train_batch_size=<span class="s">2</span>,
+                   gradient_accumulation_steps=<span class="s">8</span>, bf16=<span class="kw">True</span>),
+    train_dataset=prefs, processing_class=tok,
+)
+dpo.train()</pre></figure>
+
+<h3>Step 6 — Merge, quantise, serve</h3>
+<figure class="code"><figcaption><span>06_deploy.sh</span><button class="copy">Copy</button></figcaption><pre><span class="c"># merge adapter into bf16 base (see Section 13)</span>
+python merge.py --adapter out/nimbus/final --out out/nimbus-merged
+
+<span class="c"># quantise for serving — re-run evaluation afterwards, always</span>
+python -m awq.quantize --model out/nimbus-merged --w_bit <span class="s">4</span> --out out/nimbus-awq
+
+<span class="c"># serve, OpenAI-compatible</span>
+python -m vllm.entrypoints.openai.api_server \
+  --model out/nimbus-awq --quantization awq \
+  --max-model-len <span class="s">4096</span> --gpu-memory-utilization <span class="s">0.9</span> --port <span class="s">8000</span>
+
+<span class="c"># result: fits an A10G 24GB, p95 latency 1.8s, ~38 req/s at 32 concurrency</span></pre></figure>
+
+<figure class="code"><figcaption><span>07_client.py — with RAG on top for volatile facts</span><button class="copy">Copy</button></figcaption><pre><span class="kw">from</span> openai <span class="kw">import</span> OpenAI
+client = OpenAI(base_url=<span class="s">"http://localhost:8000/v1"</span>, api_key=<span class="s">"none"</span>)
+
+<span class="kw">def</span> answer(question, retriever):
+    <span class="c"># fine-tune supplies the HOW (tone, format, refusals)</span>
+    <span class="c"># retrieval supplies the WHAT (current docs, plan limits, incidents)</span>
+    docs = retriever.search(question, k=<span class="s">3</span>)
+    context = <span class="s">"\n\n"</span>.join(<span class="s">f"[{d.title}]\n{d.text}"</span> <span class="kw">for</span> d <span class="kw">in</span> docs)
+    r = client.chat.completions.create(
+        model=<span class="s">"out/nimbus-awq"</span>, temperature=<span class="s">0.3</span>, max_tokens=<span class="s">300</span>,
+        messages=[{<span class="s">"role"</span>: <span class="s">"system"</span>, <span class="s">"content"</span>: SYSTEM + <span class="s">f"\n\nReference:\n{context}"</span>},
+                  {<span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: question}],
+    )
+    <span class="kw">return</span> r.choices[<span class="s">0</span>].message.content
+
+<span class="kw">print</span>(answer(<span class="s">"backup failed NB-503 on the starter plan"</span>, retriever))
+<span class="c"># NB-503 means the backup worker couldn't reach your storage bucket...</span>
+<span class="c"># Category: technical | Priority: P1</span></pre></figure>
+
+<h3>What this project demonstrates in an interview</h3>
+<ul>
+  <li>Success criteria defined <em>before</em> training, including a prompted baseline to beat.</li>
+  <li>Deliberate data coverage of refusals and edge cases, not just happy-path tickets.</li>
+  <li>Group-wise splitting to avoid leakage.</li>
+  <li>QLoRA chosen for a concrete hardware constraint, with the memory numbers to justify it.</li>
+  <li>Evaluation on the business metric (format compliance, category F1), not just loss.</li>
+  <li>Fine-tuning for behaviour, RAG for facts — the two used for what each is good at.</li>
+</ul>
+</div></section>
+
+<section id="s15"><div class="wrap">
+<span class="sec-num">Section 15</span>
+<h2>Interview questions</h2>
+<p>Thirty questions across three levels. Each has a short answer you could actually say out loud in about twenty seconds, the reasoning behind it, and the follow-up an interviewer is likely to ask next.</p>
+
+<span class="level">Beginner</span>
+
+<details class="qa"><summary>What is fine-tuning, in one sentence?</summary><div class="qa-body">
+<p class="ans">Continuing to train a pre-trained model on a smaller, task-specific dataset so its weights shift toward a particular behaviour, format, or domain.</p>
+<p class="deep">The training objective is unchanged from pre-training — next-token prediction with cross-entropy loss. What changes is scale and intent: trillions of general tokens become thousands of curated examples. You're not teaching the model language; you're teaching it your job.</p>
+<p class="fu">How is that different from pre-training?</p>
+</div></details>
+
+<details class="qa"><summary>Why fine-tune instead of just writing a better prompt?</summary><div class="qa-body">
+<p class="ans">When you need reliability that prompting can't reach, shorter prompts to cut cost and latency, or behaviour too subtle to describe in instructions.</p>
+<p class="deep">Prompting gets a format right maybe 90–95% of the time; fine-tuning pushes that past 99%, which matters when a parser consumes the output. It also lets you delete 2,000 tokens of few-shot examples from every request — real money at scale. And some things are far easier to demonstrate than describe: house tone, a domain's reasoning style, when to escalate. That said, always establish a prompted baseline with numbers first.</p>
+<p class="fu">What would make you decide prompting is enough?</p>
+</div></details>
+
+<details class="qa"><summary>What's the difference between a base model and an instruct model?</summary><div class="qa-body">
+<p class="ans">A base model just continues text. An instruct model has been fine-tuned on instruction-response data, so it follows commands and uses a chat template.</p>
+<p class="deep">Give a base model "What is Python?" and you may get more questions, because that's a plausible continuation of a FAQ page. Instruct variants add the habit of answering. For most task fine-tuning you start from the instruct checkpoint, since you get instruction-following for free and only need to add specialisation. You'd start from base if you're doing large-scale domain-adaptive pre-training or want full control over the chat format.</p>
+<p class="fu">When would you deliberately start from a base model?</p>
+</div></details>
+
+<details class="qa"><summary>What is supervised fine-tuning (SFT)?</summary><div class="qa-body">
+<p class="ans">Training on labelled prompt-response pairs, computing cross-entropy loss on the response tokens only, with the prompt masked out of the loss.</p>
+<p class="deep">SFT describes the objective, not the parameter strategy — you can do SFT fully or with LoRA. The prompt masking (labels set to -100) is the detail people forget: without it the model wastes capacity learning to generate user questions, and with long prompts your loss becomes a poor proxy for answer quality.</p>
+<p class="fu">What value do you set masked labels to, and why that value?</p>
+</div></details>
+
+<details class="qa"><summary>What is LoRA?</summary><div class="qa-body">
+<p class="ans">A parameter-efficient method that freezes the pre-trained weights and learns a low-rank update — two small matrices B and A whose product approximates the weight change — so you train under 1% of the parameters.</p>
+<p class="deep">For a frozen W, the layer computes h = Wx + (α/r)·BAx, where B is d×r and A is r×k with r much smaller than d. Only B and A get gradients. Because the LoRA path is linear and parallel, you can merge it into W at the end and serve a normal model with no added latency.</p>
+<p class="fu">Why is B initialised to zero?</p>
+</div></details>
+
+<details class="qa"><summary>What is QLoRA and why does it save so much memory?</summary><div class="qa-body">
+<p class="ans">LoRA on top of a base model quantised to 4-bit NF4. The base weights drop from 2 bytes per parameter to about 0.5, so a 7B model's weights go from ~14 GB to ~3.5 GB.</p>
+<p class="deep">Three ingredients: NF4, a 4-bit data type whose levels sit at the quantiles of a normal distribution so they match how weights are actually spread; double quantisation, which quantises the per-block scale constants to save another ~0.3 GB; and paged optimizers, which offload optimiser state to CPU RAM during memory spikes instead of crashing. The quantised weights are frozen — gradients flow through them to the bf16 adapters, never into them.</p>
+<p class="fu">What's the cost of QLoRA versus plain LoRA?</p>
+</div></details>
+
+<details class="qa"><summary>What is tokenization and why does it matter for fine-tuning?</summary><div class="qa-body">
+<p class="ans">Converting text into integer IDs from a subword vocabulary. It matters because a mismatch between training and inference — wrong chat template, missing EOS, wrong padding side — silently destroys quality.</p>
+<p class="deep">Modern models use BPE or SentencePiece with 32k–128k vocabularies. Roughly one token per 0.75 English words, more for code and non-Latin scripts. The practical failure modes are all pipeline bugs rather than algorithm problems: applying Llama's template to a Mistral model, forgetting to append EOS so the model never learns to stop, or padding right at generation time when it should be left.</p>
+<p class="fu">Why does padding side differ between training and generation?</p>
+</div></details>
+
+<details class="qa"><summary>How much data do you need to fine-tune?</summary><div class="qa-body">
+<p class="ans">Roughly 100–500 examples for format or tone, 1,000–10,000 for a solid task model, and tens of thousands for genuine domain expertise — but quality dominates quantity.</p>
+<p class="deep">The LIMA result is the one to cite: 1,000 carefully curated examples produced a competitive assistant. Consistency matters more than volume, because inconsistent labels teach the model to be inconsistent. If I had a fixed budget I'd spend it on 1,000 examples reviewed by a domain expert rather than 20,000 scraped ones.</p>
+<p class="fu">How would you tell whether adding more data will help?</p>
+</div></details>
+
+<details class="qa"><summary>What is overfitting in this context and how do you spot it?</summary><div class="qa-body">
+<p class="ans">Training loss keeps falling while validation loss flattens and then climbs. The model is memorising examples rather than learning the behaviour.</p>
+<p class="deep">Behavioural symptoms are just as telling: the model reproduces training answers verbatim for slightly different questions, performs well on phrasings it saw and collapses on paraphrases, and loses general capability. The fixes in order are more diverse data, fewer epochs with early stopping and best-checkpoint loading, higher LoRA dropout, lower rank, lower learning rate.</p>
+<p class="fu">Your validation loss is rising but human reviewers say the outputs improved. What now?</p>
+</div></details>
+
+<details class="qa"><summary>Fine-tuning or RAG — how do you choose?</summary><div class="qa-body">
+<p class="ans">Fine-tuning changes behaviour; RAG changes knowledge. If the answer depends on facts that change or must be cited, use RAG. If you need a format, tone, or skill, fine-tune. Most production systems use both.</p>
+<p class="deep">The failure mode worth naming is fine-tuning to inject facts: you teach the model the confident style of factual assertion without the underlying knowledge, so hallucinations get worse, not better. Retrieval also gives you per-user access control and citations, which weights can never provide.</p>
+<p class="fu">Give me a case where you'd need both, and say which does what.</p>
+</div></details>
+
+<span class="level">Intermediate</span>
+
+<details class="qa"><summary>Walk me through the memory footprint of fine-tuning a 7B model.</summary><div class="qa-body">
+<p class="ans">Full fine-tuning in bf16 with AdamW costs roughly 16–20 bytes per parameter — about 112 GB plus activations. LoRA cuts that to ~18 GB, QLoRA to ~7 GB.</p>
+<p class="deep">The breakdown: weights 14 GB (2 bytes), gradients 14 GB, Adam's two moments in fp32 56 GB, fp32 master weights 28 GB, plus activations that scale with batch size and sequence length. LoRA removes almost all of the gradient and optimiser cost because only ~0.5% of parameters are trainable, leaving the frozen weights as the dominant term. QLoRA then attacks that term with 4-bit quantisation.</p>
+<p class="fu">You OOM at batch size 4. List your options in order.</p>
+</div></details>
+
+<details class="qa"><summary>How do rank and alpha interact in LoRA?</summary><div class="qa-body">
+<p class="ans">Rank sets capacity; alpha sets the scale of the update, applied as α/r. Keeping α = 2r holds the effective scale constant so you can change rank without re-tuning the learning rate.</p>
+<p class="deep">Rank r caps the number of independent directions the update can express. Alpha is a multiplier on the adapter output — too small and the adapter barely influences the model, too large and training destabilises. Because the scale is a ratio, r=16/α=32 and r=64/α=128 have the same scale but very different capacity. With <code>use_rslora=True</code> the scale becomes α/√r, which behaves better at high ranks.</p>
+<p class="fu">If quality is poor, do you raise rank or the learning rate first?</p>
+</div></details>
+
+<details class="qa"><summary>Which modules should LoRA target, and why?</summary><div class="qa-body">
+<p class="ans">All seven linear projections — q, k, v, o in attention and gate, up, down in the MLP. The QLoRA paper showed this consistently beats the original attention-only setting.</p>
+<p class="deep">The original LoRA paper targeted q_proj and v_proj only, which was a memory-driven compromise. The MLP holds roughly two-thirds of a transformer's parameters and much of its stored knowledge, so excluding it limits how much you can change. If memory is very tight, falling back to q and v and raising rank slightly is the sensible trade.</p>
+<p class="fu">Why not include the embedding and LM head?</p>
+</div></details>
+
+<details class="qa"><summary>Explain gradient accumulation and when you'd use it.</summary><div class="qa-body">
+<p class="ans">Run several micro-batches, sum their gradients, then take one optimiser step. It gives you a large effective batch with the memory of a small one.</p>
+<p class="deep">Effective batch = per-device batch × accumulation steps × number of GPUs. Memory scales only with per-device batch; gradient quality scales with effective batch. So when you OOM, halving the micro-batch and doubling accumulation keeps the optimisation mathematics essentially identical. The cost is wall-clock time, since you do more forward-backward passes per update.</p>
+<p class="fu">Is it mathematically identical to a true large batch? Where does it differ?</p>
+</div></details>
+
+<details class="qa"><summary>What is catastrophic forgetting and how do you prevent it?</summary><div class="qa-body">
+<p class="ans">The model learns your task and loses unrelated general capability. Prevent it with LoRA rather than full fine-tuning, a lower learning rate, fewer epochs, and 5–15% general instruction data mixed into the set.</p>
+<p class="deep">LoRA helps structurally: the base weights are frozen, so general knowledge sits intact underneath, and you can even disable the adapter to recover the original model exactly. Full fine-tuning at a high learning rate on narrow data is the classic recipe for producing a model that writes perfect support tickets and can no longer add two numbers. The key practice is measuring it — run a small general benchmark before and after, not just your task metric.</p>
+<p class="fu">How would you quantify forgetting on a model you just trained?</p>
+</div></details>
+
+<details class="qa"><summary>Explain DPO and why it displaced RLHF in most shops.</summary><div class="qa-body">
+<p class="ans">DPO optimises preference data directly with a classification-style loss, skipping the reward model and the RL loop. Two models instead of four, a normal supervised loop, comparable quality.</p>
+<p class="deep">RLHF trains a reward model on human rankings then optimises the policy with PPO under a KL penalty — four models in memory, notorious instability, and reward hacking. DPO's derivation shows the optimal RLHF policy has a closed form, so you can reparameterise the reward in terms of the policy and reference log-probabilities and train directly on chosen/rejected pairs. The trade-off is no online exploration: DPO can only learn from behaviours present in the data.</p>
+<p class="fu">What does β control in DPO, and what happens if it's too small?</p>
+</div></details>
+
+<details class="qa"><summary>How do you prevent data leakage in an LLM fine-tuning dataset?</summary><div class="qa-body">
+<p class="ans">Deduplicate near-duplicates before splitting, split by entity rather than by row, and split by time when the task is predictive.</p>
+<p class="deep">Three failure modes. Near-duplicate leakage: the same question phrased two ways lands on both sides — fix with normalised hashing or MinHash/embedding similarity. Entity leakage: ten tickets from one customer split across train and test — use GroupShuffleSplit on customer ID. Temporal leakage: training on October and testing on September inflates results if production means predicting the future. Any of these makes your metrics lie in the optimistic direction.</p>
+<p class="fu">You get 97% test accuracy on the first try. What do you check?</p>
+</div></details>
+
+<details class="qa"><summary>Your training loss won't go down. Debug it.</summary><div class="qa-body">
+<p class="ans">Print a fully rendered training example, confirm trainable parameters are non-zero, then try overfitting a single batch. If loss won't approach zero on eight examples, it's a pipeline bug, not a hyperparameter.</p>
+<p class="deep">In rough order of frequency: wrong or missing chat template; labels all masked to -100; <code>target_modules</code> names that don't match the architecture, so PEFT attaches nothing and <code>print_trainable_parameters()</code> reports zero; learning rate far too low; <code>use_cache=True</code> fighting gradient checkpointing. The single-batch overfit test separates "broken" from "badly tuned" in about two minutes.</p>
+<p class="fu">Loss is NaN instead of flat. Different answer?</p>
+</div></details>
+
+<details class="qa"><summary>How do you evaluate a fine-tuned LLM properly?</summary><div class="qa-body">
+<p class="ans">Validation loss and perplexity for fit, a task metric for capability, an LLM judge for open-ended quality, and a human-reviewed golden set before release — all compared against a prompted baseline.</p>
+<p class="deep">Loss alone misleads: a model can improve loss while getting worse at the job by learning formatting quirks. For structured output measure schema validity and field accuracy; for classification use macro-F1; for summarisation ROUGE plus a judge; for assistants a judge on a rubric plus human review. The baseline comparison is what turns "it works" into "it's worth the cost".</p>
+<p class="fu">What biases does LLM-as-a-judge have and how do you control them?</p>
+</div></details>
+
+<details class="qa"><summary>What is perplexity and what are its limits?</summary><div class="qa-body">
+<p class="ans">The exponential of cross-entropy loss — roughly, how many equally likely options the model is choosing between per token. Only comparable across models with the same tokenizer and the same evaluation text.</p>
+<p class="deep">Loss 1.0 gives perplexity 2.7; loss 2.3 gives 10. It's a good progress signal within one training run, but it rewards predicting your dataset's surface statistics, which is not the same as being useful. A model that has memorised your training distribution will show excellent perplexity and may still fail on paraphrased questions.</p>
+<p class="fu">Two models, different tokenizers, same perplexity. What can you conclude?</p>
+</div></details>
+
+<span class="level">Advanced</span>
+
+<details class="qa"><summary>Why does LoRA work at all? Justify the low-rank assumption.</summary><div class="qa-body">
+<p class="ans">Fine-tuning updates have low intrinsic dimensionality — the useful change lives in a small subspace — so constraining ΔW to rank r loses little while removing most parameters.</p>
+<p class="deep">Aghajanyan et al. showed pre-trained models can be fine-tuned effectively in a randomly projected low-dimensional subspace, with the required dimension falling as models get larger. Intuitively, adaptation is re-weighting and recombining features the model already has rather than learning new ones. The caveat: the assumption holds for behaviour and style adaptation, and weakens for genuinely new capability or large domain shifts, where higher ranks or continued pre-training do better.</p>
+<p class="fu">Where have you seen the low-rank assumption break down?</p>
+</div></details>
+
+<details class="qa"><summary>Walk through gradient flow in QLoRA. If weights are 4-bit, how does backprop work?</summary><div class="qa-body">
+<p class="ans">The 4-bit weights are frozen and never receive gradients. During the forward pass each block is dequantised to bf16, used in the matmul, and discarded. Backprop computes gradients only with respect to the bf16 LoRA parameters.</p>
+<p class="deep">Gradients pass <em>through</em> the quantised layer as part of the chain rule — you need ∂L/∂x at each layer to keep propagating — but nothing is ever accumulated into the frozen weights, so their precision only affects the forward values and the backward pass through them, never an update. <code>prepare_model_for_kbit_training</code> upcasts layer norms and the LM head to fp32 for stability and makes input embeddings require grad so the chain isn't broken at the bottom.</p>
+<p class="fu">Why is NF4 better than int4 for this?</p>
+</div></details>
+
+<details class="qa"><summary>Design a fine-tuning system for 50 enterprise customers, each wanting their own model variant.</summary><div class="qa-body">
+<p class="ans">One shared base model plus 50 LoRA adapters, served by vLLM with multi-LoRA and per-request adapter selection. 14 GB of weights total instead of 700 GB.</p>
+<p class="deep">Storage: base once, adapters at ~150 MB each. Serving: vLLM's <code>--enable-lora</code> loads adapters dynamically and routes by model name, so one GPU pool serves all tenants. Training: an isolated per-tenant pipeline with data never crossing boundaries, a shared base config, and a per-tenant eval set. Versioning: adapter hash plus dataset hash per tenant, with the previous adapter one command from rollback. The tenants that outgrow a shared base get a merged, quantised dedicated deployment.</p>
+<p class="fu">How do you stop tenant A's data influencing tenant B's model?</p>
+</div></details>
+
+<details class="qa"><summary>You fine-tuned for a new domain and hallucinations got worse. Why?</summary><div class="qa-body">
+<p class="ans">You trained the model to assert facts it doesn't actually know. It learned the confident style of expert answers without the underlying knowledge, so it generates fluent fabrications in that style.</p>
+<p class="deep">This is the central argument for keeping facts in retrieval. If the training data contains facts absent from pre-training, SFT teaches the surface form of knowing rather than the knowledge — the model's next-token distribution shifts toward confident assertion regardless of whether it has support. Fixes: move factual content into RAG, include explicit "I don't know" and out-of-scope examples so uncertainty is a learned behaviour, lower temperature, and evaluate specifically for fabrication on questions with no valid answer.</p>
+<p class="fu">How would you build an eval set that measures fabrication specifically?</p>
+</div></details>
+
+<details class="qa"><summary>Compare LoRA, adapters, prefix tuning and full fine-tuning on a production axis.</summary><div class="qa-body">
+<p class="ans">LoRA wins in practice because it's the only one that merges into the base weights, so it costs nothing at inference. Adapters add permanent latency, prefix tuning eats context budget, and full fine-tuning costs a model copy per task.</p>
+<p class="deep">Houlsby adapters sit in series between sub-layers, so their compute can't be folded away. Prefix and prompt tuning prepend learned vectors, consuming context window and generally topping out lower in quality. Full fine-tuning has the highest ceiling for large domain shifts but demands a cluster, 14 GB of storage per variant, and carries real forgetting risk. LoRA gives roughly full-FT quality on behaviour tasks at 1% of trainable parameters with zero merged inference cost — which is why it's the default.</p>
+<p class="fu">When would you still choose full fine-tuning?</p>
+</div></details>
+
+<details class="qa"><summary>How would you choose between DPO, ORPO, KTO and PPO?</summary><div class="qa-body">
+<p class="ans">DPO if you have paired preferences and an SFT model. ORPO if you want one stage and no reference model. KTO if your feedback is thumbs-up/down rather than pairs. PPO only if you have the team, the compute, and a need for online exploration.</p>
+<p class="deep">ORPO folds preference learning into SFT with an odds-ratio penalty, cutting a stage and the reference model — attractive when compute is tight. KTO uses prospect-theory-style utilities on unpaired binary signals, which matters because production feedback is overwhelmingly thumbs-up/down, not rankings. SimPO removes the reference model with length normalisation. PPO's remaining advantage is that it can discover behaviours absent from the preference dataset, which offline methods structurally cannot.</p>
+<p class="fu">What does an offline method structurally fail to learn?</p>
+</div></details>
+
+<details class="qa"><summary>Your model scores well offline and users complain after launch. Diagnose it.</summary><div class="qa-body">
+<p class="ans">Usually distribution shift between the eval set and real traffic, or a serving-layer mismatch — a different chat template, a truncated system prompt, or quantisation applied after evaluation.</p>
+<p class="deep">Checklist: compare the exact prompt string the server builds against the training format, character for character; confirm sampling parameters match what you evaluated with; re-run the eval set against the deployed endpoint rather than the local model, which isolates infrastructure regressions; re-evaluate after quantisation, since 4-bit AWQ typically costs 1–2%; and embed real prompts to compare their distribution against training data. Then sample 100 real failures and read them — the pattern is usually obvious and absent from your eval set.</p>
+<p class="fu">Which of those do you check first, and why that one?</p>
+</div></details>
+
+<details class="qa"><summary>Explain the KV cache and why it dominates serving memory.</summary><div class="qa-body">
+<p class="ans">It stores key and value tensors for every past token so each new token doesn't recompute attention over the whole sequence. Its size grows linearly with context length and with concurrency, and at high batch sizes it typically exceeds the weights.</p>
+<p class="deep">Per token, roughly 2 × layers × kv_heads × head_dim × bytes. For a 7B model at 4k context with 32 concurrent requests that's several gigabytes on top of 14 GB of weights. Grouped-query attention shrinks it by sharing KV heads across query heads; vLLM's PagedAttention removes fragmentation by allocating in blocks; quantising the cache to fp8 halves it again. It is usually the thing that caps your batch size, and therefore your throughput.</p>
+<p class="fu">How does GQA change the arithmetic?</p>
+</div></details>
+
+<details class="qa"><summary>You have 200 examples and a hard task. What do you do?</summary><div class="qa-body">
+<p class="ans">Don't fine-tune yet. Prompt with few-shot examples to establish a baseline, use those 200 as an evaluation set, and spend the effort generating or collecting more data.</p>
+<p class="deep">200 examples will mostly teach memorisation, and you'd have no held-out data left to detect it. Better moves: use the 200 as a golden eval set; bootstrap synthetically by having a strong model generate paraphrases and new cases, then human-review them; consider a smaller model where 200 examples go further; or use very low rank with heavy dropout and one epoch if you must train, accepting that it will only shift format and tone. And keep collecting — production logs are the cheapest source of real data.</p>
+<p class="fu">How would you validate synthetic data before training on it?</p>
+</div></details>
+
+<details class="qa"><summary>How do you decide whether a fine-tune is worth shipping?</summary><div class="qa-body">
+<p class="ans">It must beat the prompted baseline on the business metric by a margin larger than your evaluation noise, hold up on a human-reviewed golden set, and survive quantisation — with total cost of ownership accounted for.</p>
+<p class="deep">Concretely: bootstrap a confidence interval on the test metric so you're not shipping a 1.5-point difference that's noise; check for regression on general capability, not just improvement on your task; re-run everything after merging and quantising; and price the ongoing cost — retraining cadence, GPU serving, adapter versioning, monitoring — against the prompting alternative. A fine-tune that wins by two points and adds a permanent maintenance burden is often the wrong call.</p>
+<p class="fu">Your metric improves by 1.5 points. Ship or not?</p>
+</div></details>
+</div></section>
+
+<section id="s16"><div class="wrap">
+<span class="sec-num">Section 16</span>
+<h2>Coding interview questions</h2>
+
+<h3>Q1 · Implement a LoRA layer and inject it into a model</h3>
+<p><strong>Problem.</strong> Without using PEFT, write a <span class="k">LoRALinear</span> wrapper and a function that replaces every <span class="k">nn.Linear</span> whose name matches a target list. Report the trainable-parameter percentage and support merging.</p>
+<p><strong>Approach.</strong> Wrap the frozen linear, add A (random init) and B (zeros), scale by α/r. Walk the module tree with <span class="k">named_modules()</span>, and use <span class="k">setattr</span> on the parent to swap children in place — you can't mutate a dict while iterating it, so collect targets first.</p>
+<figure class="code"><figcaption><span>solution_1.py</span><button class="copy">Copy</button></figcaption><pre><span class="kw">import</span> torch, torch.nn <span class="kw">as</span> nn, math
+
+<span class="kw">class</span> LoRALinear(nn.Module):
+    <span class="kw">def</span> __init__(self, base: nn.Linear, r=<span class="s">8</span>, alpha=<span class="s">16</span>, dropout=<span class="s">0.0</span>):
+        <span class="kw">super</span>().__init__()
+        self.base = base
+        <span class="kw">for</span> p <span class="kw">in</span> base.parameters(): p.requires_grad = <span class="kw">False</span>
+        self.r, self.scaling = r, alpha / r
+        self.A = nn.Parameter(torch.empty(r, base.in_features))
+        self.B = nn.Parameter(torch.zeros(base.out_features, r))
+        nn.init.kaiming_uniform_(self.A, a=math.sqrt(<span class="s">5</span>))
+        self.drop = nn.Dropout(dropout)
+        self.merged = <span class="kw">False</span>
+
+    <span class="kw">def</span> forward(self, x):
+        <span class="kw">if</span> self.merged: <span class="kw">return</span> self.base(x)
+        <span class="kw">return</span> self.base(x) + self.drop(x) @ self.A.T @ self.B.T * self.scaling
+
+    @torch.no_grad()
+    <span class="kw">def</span> merge(self):
+        <span class="kw">if</span> <span class="kw">not</span> self.merged:
+            self.base.weight.data += (self.B @ self.A) * self.scaling
+            self.merged = <span class="kw">True</span>
+
+
+<span class="kw">def</span> inject_lora(model, targets=(<span class="s">"q_proj"</span>, <span class="s">"v_proj"</span>), r=<span class="s">8</span>, alpha=<span class="s">16</span>, dropout=<span class="s">0.05</span>):
+    <span class="c"># collect first: you cannot swap modules while iterating named_modules()</span>
+    to_swap = [(n, m) <span class="kw">for</span> n, m <span class="kw">in</span> model.named_modules()
+               <span class="kw">if</span> <span class="kw">isinstance</span>(m, nn.Linear) <span class="kw">and</span> <span class="kw">any</span>(n.endswith(t) <span class="kw">for</span> t <span class="kw">in</span> targets)]
+
+    <span class="kw">for</span> name, module <span class="kw">in</span> to_swap:
+        parent_path, _, child = name.rpartition(<span class="s">"."</span>)
+        parent = model.get_submodule(parent_path) <span class="kw">if</span> parent_path <span class="kw">else</span> model
+        <span class="kw">setattr</span>(parent, child, LoRALinear(module, r, alpha, dropout))
+
+    <span class="kw">for</span> n, p <span class="kw">in</span> model.named_parameters():
+        p.requires_grad = (<span class="s">".A"</span> <span class="kw">in</span> n <span class="kw">or</span> <span class="s">".B"</span> <span class="kw">in</span> n)   <span class="c"># freeze everything else</span>
+
+    total = <span class="kw">sum</span>(p.numel() <span class="kw">for</span> p <span class="kw">in</span> model.parameters())
+    train = <span class="kw">sum</span>(p.numel() <span class="kw">for</span> p <span class="kw">in</span> model.parameters() <span class="kw">if</span> p.requires_grad)
+    <span class="kw">print</span>(<span class="s">f"trainable {train:,} / {total:,} = {100*train/total:.3f}%"</span>)
+    <span class="kw">return</span> model</pre></figure>
+<p><strong>Explanation.</strong> B = 0 means the model is bit-identical to the base at step 0, so training starts from pre-trained behaviour rather than perturbed noise. Merging works only because the LoRA branch is linear and parallel: W₀x + sBAx = (W₀ + sBA)x.</p>
+<p><strong>Complexity.</strong> Injection is O(M) over modules. Forward adds O(r(d+k)) per layer versus O(dk) for the base — about 0.4% extra FLOPs at r=8, d=k=4096, and zero after merging. Extra parameter space is O(r(d+k)) per adapted layer.</p>
+<p><strong>Follow-up.</strong> Add <span class="k">unmerge()</span>, and make the wrapper work for <span class="k">nn.Conv1D</span> as used in GPT-2.</p>
+
+<h3>Q2 · Build a collator that masks prompt tokens from the loss</h3>
+<p><strong>Problem.</strong> Given chat-format examples, produce padded batches of <span class="k">input_ids</span>, <span class="k">attention_mask</span> and <span class="k">labels</span>, where prompt tokens and padding are set to -100.</p>
+<p><strong>Approach.</strong> Render the prompt and the full conversation separately, tokenize both, and mask the first <span class="k">len(prompt_ids)</span> label positions. Pad dynamically to the longest sequence in the batch rather than to a global maximum.</p>
+<figure class="code"><figcaption><span>solution_2.py</span><button class="copy">Copy</button></figcaption><pre><span class="kw">import</span> torch
+IGNORE = -<span class="s">100</span>
+
+<span class="kw">class</span> MaskedChatCollator:
+    <span class="kw">def</span> __init__(self, tok, max_len=<span class="s">1024</span>):
+        self.tok, self.max_len = tok, max_len
+
+    <span class="kw">def</span> encode_one(self, messages):
+        prompt = self.tok.apply_chat_template(messages[:-<span class="s">1</span>], tokenize=<span class="kw">False</span>,
+                                              add_generation_prompt=<span class="kw">True</span>)
+        full   = self.tok.apply_chat_template(messages, tokenize=<span class="kw">False</span>)
+
+        p_ids = self.tok(prompt, add_special_tokens=<span class="kw">False</span>)[<span class="s">"input_ids"</span>]
+        f_ids = self.tok(full, add_special_tokens=<span class="kw">False</span>,
+                         truncation=<span class="kw">True</span>, max_length=self.max_len)[<span class="s">"input_ids"</span>]
+
+        labels = <span class="kw">list</span>(f_ids)
+        <span class="kw">for</span> i <span class="kw">in</span> <span class="kw">range</span>(<span class="kw">min</span>(<span class="kw">len</span>(p_ids), <span class="kw">len</span>(labels))):
+            labels[i] = IGNORE                 <span class="c"># no gradient on the question</span>
+        <span class="kw">return</span> f_ids, labels
+
+    <span class="kw">def</span> __call__(self, batch):
+        encoded = [self.encode_one(ex[<span class="s">"messages"</span>]) <span class="kw">for</span> ex <span class="kw">in</span> batch]
+        L = <span class="kw">max</span>(<span class="kw">len</span>(i) <span class="kw">for</span> i, _ <span class="kw">in</span> encoded)      <span class="c"># dynamic padding = less waste</span>
+        pad = self.tok.pad_token_id
+
+        input_ids, attn, labels = [], [], []
+        <span class="kw">for</span> ids, lab <span class="kw">in</span> encoded:
+            gap = L - <span class="kw">len</span>(ids)
+            input_ids.append(ids + [pad]    * gap)
+            attn.append(     [<span class="s">1</span>] * <span class="kw">len</span>(ids) + [<span class="s">0</span>] * gap)
+            labels.append(   lab + [IGNORE] * gap)   <span class="c"># padding never contributes loss</span>
+
+        <span class="kw">return</span> {<span class="s">"input_ids"</span>: torch.tensor(input_ids),
+                <span class="s">"attention_mask"</span>: torch.tensor(attn),
+                <span class="s">"labels"</span>: torch.tensor(labels)}
+
+<span class="c"># sanity check you should always run:</span>
+b = MaskedChatCollator(tok)([example])
+<span class="kw">assert</span> (b[<span class="s">"labels"</span>] != IGNORE).any(), <span class="s">"every label masked — loss would be NaN"</span>
+<span class="kw">print</span>(tok.decode([t <span class="kw">for</span> t <span class="kw">in</span> b[<span class="s">"labels"</span>][<span class="s">0</span>] <span class="kw">if</span> t != IGNORE]))   <span class="c"># should print ONLY the answer</span></pre></figure>
+<p><strong>Explanation.</strong> PyTorch's cross-entropy skips index -100 entirely, so masked positions contribute neither loss nor gradient. Sorting examples by length before batching (a length-grouped sampler) reduces padding further and can cut training time meaningfully.</p>
+<p><strong>Complexity.</strong> Time O(B·L) for a batch of B sequences of max length L. Space O(B·L) for the three tensors.</p>
+<p><strong>Follow-up.</strong> Extend it to multi-turn conversations where <em>every</em> assistant turn should be trained on, not just the last.</p>
+
+<h3>Q3 · Estimate training memory before you launch the run</h3>
+<p><strong>Problem.</strong> Write a function that estimates peak GPU memory for a given model size, precision, optimiser, and training strategy, so you can pick a configuration without trial-and-error OOMs.</p>
+<p><strong>Approach.</strong> Sum four terms — weights, gradients, optimiser state, activations — with bytes-per-parameter factors that depend on the strategy.</p>
+<figure class="code"><figcaption><span>solution_3.py</span><button class="copy">Copy</button></figcaption><pre><span class="kw">def</span> estimate_memory_gb(n_params_b, strategy=<span class="s">"lora"</span>, optimizer=<span class="s">"adamw"</span>,
+                        batch=<span class="s">4</span>, seq_len=<span class="s">1024</span>, hidden=<span class="s">4096</span>, layers=<span class="s">32</span>,
+                        grad_ckpt=<span class="kw">True</span>, lora_frac=<span class="s">0.006</span>):
+    P = n_params_b * <span class="s">1e9</span>
+
+    <span class="c"># 1. frozen/base weights</span>
+    bytes_per_w = {<span class="s">"full"</span>: <span class="s">2</span>, <span class="s">"lora"</span>: <span class="s">2</span>, <span class="s">"qlora"</span>: <span class="s">0.55</span>}[strategy]  <span class="c"># nf4 ≈ 4.4 bits</span>
+    weights = P * bytes_per_w
+
+    <span class="c"># 2. trainable parameter count drives grads + optimiser state</span>
+    trainable = P <span class="kw">if</span> strategy == <span class="s">"full"</span> <span class="kw">else</span> P * lora_frac
+    grads = trainable * <span class="s">2</span>
+    opt_bytes = {<span class="s">"adamw"</span>: <span class="s">12</span>, <span class="s">"adamw_8bit"</span>: <span class="s">2</span>, <span class="s">"sgd"</span>: <span class="s">4</span>}[optimizer]
+    <span class="c"># adamw: m(4) + v(4) + fp32 master(4) = 12 bytes per trainable param</span>
+    optim = trainable * opt_bytes
+
+    <span class="c"># 3. activations — the term everyone forgets</span>
+    act = batch * seq_len * hidden * layers * <span class="s">2</span> * (<span class="s">2</span> <span class="kw">if</span> grad_ckpt <span class="kw">else</span> <span class="s">14</span>)
+
+    total = (weights + grads + optim + act) / <span class="s">1024</span>**<span class="s">3</span>
+    <span class="kw">return</span> {<span class="s">"weights"</span>: weights/<span class="s">1024</span>**<span class="s">3</span>, <span class="s">"grads"</span>: grads/<span class="s">1024</span>**<span class="s">3</span>,
+            <span class="s">"optimizer"</span>: optim/<span class="s">1024</span>**<span class="s">3</span>, <span class="s">"activations"</span>: act/<span class="s">1024</span>**<span class="s">3</span>,
+            <span class="s">"total_gb"</span>: <span class="kw">round</span>(total, <span class="s">1</span>)}
+
+<span class="kw">for</span> s <span class="kw">in</span> [<span class="s">"full"</span>, <span class="s">"lora"</span>, <span class="s">"qlora"</span>]:
+    <span class="kw">print</span>(s, estimate_memory_gb(<span class="s">7</span>, strategy=s)[<span class="s">"total_gb"</span>], <span class="s">"GB"</span>)
+<span class="c"># full  110.4 GB   lora  16.8 GB   qlora  6.9 GB</span></pre></figure>
+<p><strong>Explanation.</strong> The insight worth stating aloud: for full fine-tuning the optimiser state dominates (12 bytes per parameter versus 2 for the weights). PEFT shrinks the trainable count, which collapses both the gradient and optimiser terms, leaving the frozen weights as the main cost — which is exactly what quantisation then attacks.</p>
+<p><strong>Complexity.</strong> O(1) time and space — it's arithmetic, which is the point. Treat the result as ±20%; real runs vary with attention implementation and fragmentation.</p>
+<p><strong>Follow-up.</strong> Extend it to multi-GPU with ZeRO stages 1, 2 and 3, where optimiser state, gradients, and parameters are sharded in turn.</p>
+
+<h3>Q4 · Implement the DPO loss</h3>
+<p><strong>Problem.</strong> Given policy and reference log-probabilities for chosen and rejected responses, implement the DPO loss and the implicit reward margin.</p>
+<p><strong>Approach.</strong> Compute the log-ratio for each response relative to the reference, take the difference, scale by β, and apply <span class="k">-logsigmoid</span>. Use <span class="k">F.logsigmoid</span> rather than <span class="k">log(sigmoid(x))</span> for numerical stability.</p>
+<figure class="code"><figcaption><span>solution_4.py</span><button class="copy">Copy</button></figcaption><pre><span class="kw">import</span> torch, torch.nn.functional <span class="kw">as</span> F
+
+<span class="kw">def</span> dpo_loss(policy_chosen_logps, policy_rejected_logps,
+             ref_chosen_logps, ref_rejected_logps, beta=<span class="s">0.1</span>):
+    <span class="s">"""All inputs: (batch,) summed log-probs of the response tokens."""</span>
+    <span class="c"># how much MORE likely the policy makes each response vs the reference</span>
+    chosen_logratio   = policy_chosen_logps   - ref_chosen_logps
+    rejected_logratio = policy_rejected_logps - ref_rejected_logps
+
+    logits = beta * (chosen_logratio - rejected_logratio)
+    loss   = -F.logsigmoid(logits).mean()      <span class="c"># stable; avoids log(0)</span>
+
+    <span class="c"># diagnostics you should log every step</span>
+    chosen_rewards   = beta * chosen_logratio.detach()
+    rejected_rewards = beta * rejected_logratio.detach()
+    accuracy = (chosen_rewards &gt; rejected_rewards).float().mean()
+    <span class="kw">return</span> loss, {<span class="s">"reward_margin"</span>: (chosen_rewards - rejected_rewards).mean(),
+                  <span class="s">"reward_accuracy"</span>: accuracy}
+
+
+<span class="kw">def</span> sequence_logps(logits, labels, ignore=-<span class="s">100</span>):
+    <span class="s">"""Sum log P(token) over the response tokens only."""</span>
+    logits = logits[:, :-<span class="s">1</span>]          <span class="c"># shift: predict token t+1 from t</span>
+    labels = labels[:,  <span class="s">1</span>:]
+    mask   = labels != ignore
+    safe   = labels.masked_fill(~mask, <span class="s">0</span>)   <span class="c"># gather can't take -100</span>
+    per_tok = torch.gather(logits.log_softmax(-<span class="s">1</span>), <span class="s">2</span>,
+                           safe.unsqueeze(<span class="s">2</span>)).squeeze(<span class="s">2</span>)
+    <span class="kw">return</span> (per_tok * mask).sum(-<span class="s">1</span>)</pre></figure>
+<p><strong>Explanation.</strong> The reference log-probabilities are what keep this stable. Without them the model could raise the chosen response's probability by simply collapsing its output distribution; measuring the change <em>relative to the frozen reference</em> means it must specifically prefer the chosen answer. β controls how far the policy may drift: small β allows large drift and risks degeneration, large β keeps it close to the SFT model and learns little. Watch <span class="k">reward_accuracy</span> — if it doesn't climb above ~0.6, your preference data is probably noise.</p>
+<p><strong>Complexity.</strong> One forward pass through the policy and one through the reference for each of chosen and rejected — four sequence forwards per pair, O(B·L·V) time dominated by the vocabulary projection, O(B·L·V) space for the logits, which is why DPO batches are small.</p>
+<p><strong>Follow-up.</strong> With a LoRA policy you can eliminate the reference model entirely. How, and why does that work?</p>
+
+<h3>Q5 · Deduplicate a 40 GB JSONL dataset that won't fit in memory</h3>
+<p><strong>Problem.</strong> Remove exact and near-duplicate examples from a dataset too large for RAM, preserving order, and report statistics.</p>
+<p><strong>Approach.</strong> Stream line by line. Store only fixed-size hashes, not text. For exact duplicates, a normalised MD5 in a set. For near-duplicates, MinHash over shingles with LSH banding.</p>
+<figure class="code"><figcaption><span>solution_5.py</span><button class="copy">Copy</button></figcaption><pre><span class="kw">import</span> json, re, hashlib
+<span class="kw">from</span> collections <span class="kw">import</span> Counter, defaultdict
+
+<span class="kw">def</span> normalise(t):
+    <span class="kw">return</span> re.sub(<span class="s">r"[^\w\s]"</span>, <span class="s">""</span>, re.sub(<span class="s">r"\s+"</span>, <span class="s">" "</span>, t.lower())).strip()
+
+<span class="kw">def</span> shingles(text, k=<span class="s">5</span>):
+    w = normalise(text).split()
+    <span class="kw">return</span> {<span class="s">" "</span>.join(w[i:i+k]) <span class="kw">for</span> i <span class="kw">in</span> <span class="kw">range</span>(<span class="kw">max</span>(<span class="kw">1</span>, <span class="kw">len</span>(w) - k + <span class="s">1</span>))}
+
+<span class="kw">def</span> minhash(text, n_perm=<span class="s">64</span>, k=<span class="s">5</span>):
+    <span class="s">"""n_perm smallest hash values — a fixed-size sketch of the shingle set."""</span>
+    sigs = [<span class="kw">float</span>(<span class="s">"inf"</span>)] * n_perm
+    <span class="kw">for</span> sh <span class="kw">in</span> shingles(text, k):
+        base = <span class="kw">int</span>(hashlib.md5(sh.encode()).hexdigest()[:<span class="s">16</span>], <span class="s">16</span>)
+        <span class="kw">for</span> i <span class="kw">in</span> <span class="kw">range</span>(n_perm):
+            h = (base * (<span class="s">2</span>*i + <span class="s">1</span>) + i) % (<span class="s">2</span>**<span class="s">61</span> - <span class="s">1</span>)   <span class="c"># cheap permutation family</span>
+            <span class="kw">if</span> h &lt; sigs[i]: sigs[i] = h
+    <span class="kw">return</span> <span class="kw">tuple</span>(sigs)
+
+<span class="kw">def</span> dedupe(inp, outp, bands=<span class="s">16</span>, rows=<span class="s">4</span>):
+    exact, buckets, stats = <span class="kw">set</span>(), defaultdict(<span class="kw">list</span>), Counter()
+
+    <span class="kw">with</span> <span class="kw">open</span>(inp) <span class="kw">as</span> fin, <span class="kw">open</span>(outp, <span class="s">"w"</span>) <span class="kw">as</span> fout:
+        <span class="kw">for</span> line <span class="kw">in</span> fin:                       <span class="c"># O(1) memory per line</span>
+            <span class="kw">try</span>: ex = json.loads(line)
+            <span class="kw">except</span> json.JSONDecodeError: stats[<span class="s">"bad"</span>] += <span class="s">1</span>; <span class="kw">continue</span>
+
+            text = <span class="s">" "</span>.join(m[<span class="s">"content"</span>] <span class="kw">for</span> m <span class="kw">in</span> ex[<span class="s">"messages"</span>])
+
+            key = hashlib.md5(normalise(text).encode()).digest()
+            <span class="kw">if</span> key <span class="kw">in</span> exact: stats[<span class="s">"exact_dup"</span>] += <span class="s">1</span>; <span class="kw">continue</span>
+            exact.add(key)
+
+            <span class="c"># LSH: identical in ANY band ⇒ probably similar overall</span>
+            sig = minhash(text)
+            hit = <span class="kw">False</span>
+            band_keys = [sig[b*rows:(b+<span class="s">1</span>)*rows] <span class="kw">for</span> b <span class="kw">in</span> <span class="kw">range</span>(bands)]
+            <span class="kw">for</span> b, bk <span class="kw">in</span> <span class="kw">enumerate</span>(band_keys):
+                <span class="kw">if</span> bk <span class="kw">in</span> buckets[b]: hit = <span class="kw">True</span>; <span class="kw">break</span>
+            <span class="kw">if</span> hit: stats[<span class="s">"near_dup"</span>] += <span class="s">1</span>; <span class="kw">continue</span>
+            <span class="kw">for</span> b, bk <span class="kw">in</span> <span class="kw">enumerate</span>(band_keys): buckets[b][bk] = <span class="kw">True</span>
+
+            fout.write(line); stats[<span class="s">"kept"</span>] += <span class="s">1</span>
+    <span class="kw">return</span> stats
+
+<span class="kw">print</span>(dedupe(<span class="s">"raw.jsonl"</span>, <span class="s">"dedup.jsonl"</span>))
+<span class="c"># Counter({'kept': 812043, 'near_dup': 94120, 'exact_dup': 61887, 'bad': 12})</span>
+<span class="c"># (buckets should be defaultdict(dict) for the band index above)</span></pre></figure>
+<p><strong>Explanation.</strong> The naive approach compares every pair — O(n²), which is 10¹² comparisons on a million examples. MinHash reduces each document to a fixed-size sketch whose collision probability approximates Jaccard similarity; LSH banding then only compares documents that already agree on a whole band, making the expected work near-linear. Tune the threshold with the banding relation: similarity ≈ (1/bands)^(1/rows).</p>
+<p><strong>Complexity.</strong> Time O(n·s·p) where s is shingles per document and p is permutations — linear in dataset size. Space O(n·p) for the sketches, which is orders of magnitude smaller than the text and the reason this fits in RAM when the data doesn't.</p>
+<p><strong>Follow-up.</strong> How would you shard this across machines, and how do you keep the <em>best</em> copy of a duplicate group rather than the first one you happened to see?</p>
+</div></section>
+
+<section id="s17"><div class="wrap">
+<span class="sec-num">Section 17</span>
+<h2>Cheat sheet</h2>
+<div class="cheat">
+<div><h4>Fine-tuning</h4><p>Continue training a pre-trained model on task-specific data. Changes behaviour, not knowledge. Same next-token objective, tiny fraction of the data.</p></div>
+<div><h4>SFT</h4><p>Supervised fine-tuning on (prompt, response) pairs. Mask prompt tokens with -100 so loss is computed only on the answer.</p></div>
+<div><h4>PEFT</h4><p>Freeze the base, train a small number of new parameters. Family: LoRA, QLoRA, adapters, prefix/prompt tuning, IA³, BitFit.</p></div>
+<div><h4>LoRA</h4><p>h = Wx + (α/r)·BAx. B zero-init, A random. Train ~0.1–1% of parameters. Merges into W for free inference.</p></div>
+<div><h4>QLoRA</h4><p>4-bit NF4 base + double quantisation + paged optimizers + bf16 LoRA adapters. 7B fine-tunes in ~7 GB. ~25% slower.</p></div>
+<div><h4>RLHF</h4><p>SFT → reward model from human rankings → PPO with KL penalty. Four models, unstable, expensive, powerful.</p></div>
+<div><h4>DPO</h4><p>Preference optimisation without a reward model or RL. Loss on chosen/rejected log-ratios vs a frozen reference. β = 0.1–0.5.</p></div>
+<div><h4>Tokenization</h4><p>Text → subword IDs. ~0.75 words per token. Use the model's own chat template. Always append EOS. Pad right to train, left to generate.</p></div>
+<div><h4>Quantization</h4><p>Training: NF4 via bitsandbytes. Serving: AWQ, GPTQ, FP8, GGUF. Expect 4× memory cut, 1–2% quality cost. Re-evaluate after.</p></div>
+<div><h4>Memory (7B)</h4><p>Full ≈ 112 GB · LoRA ≈ 18 GB · QLoRA ≈ 7 GB. Full FT ≈ 16–20 bytes/param. Effective batch = micro × accum × GPUs.</p></div>
+<div><h4>Key hyperparameters</h4><p>lr 2e-4 (LoRA) / 2e-5 (full) · r=16, α=32, dropout 0.05 · 3 epochs · cosine + 3% warmup · bf16 · grad checkpointing on.</p></div>
+<div><h4>Evaluation</h4><p>Train/val loss · perplexity = exp(loss) · macro-F1 for labels · ROUGE/BLEU for generation (weak) · LLM judge · human golden set.</p></div>
+<div><h4>Overfitting</h4><p>Val loss rises while train falls. Fix: more/diverse data → early stopping → dropout → lower rank → lower lr.</p></div>
+<div><h4>Fine-tuning vs RAG</h4><p>Behaviour vs knowledge. Weights vs context. Retrain vs re-index. No citations vs citations. Use both in production.</p></div>
+<div><h4>Deployment</h4><p>Merge or hot-swap adapters · AWQ quantise · vLLM/TGI · watch TTFT, TPOT, KV cache · canary + rollback · version every hash.</p></div>
+<div><h4>Debug order</h4><p>Print a rendered example → check trainable params ≠ 0 → overfit one batch → raise lr → check labels aren't all -100.</p></div>
+<div><h4>Say this in an interview</h4><p>"Fine-tuning teaches behaviour; RAG supplies knowledge." · "B is zero-init so step 0 is identical to the base." · "Quantised weights are frozen — gradients flow through, not into."</p></div>
+<div><h4>Red flags to avoid</h4><p>Fine-tuning to add facts · no prompted baseline · no held-out set · row-wise splitting with duplicates · shipping without re-evaluating after quantisation.</p></div>
+</div>
+
+<footer>
+  <p>Written as a study and reference guide. Versions move fast — check the current <span class="k">transformers</span>, <span class="k">peft</span>, and <span class="k">trl</span> docs before copying configs into production, and treat every memory figure here as an estimate to verify on your own hardware.</p>
+</footer>
+</div></section>
+</main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // --- hero matrix figure ---------------------------------------------
+  function grid(el, rows, cols, trainable){
+    if(!el) return;
+    el.style.gridTemplateColumns = "repeat(" + cols + ", 9px)";
+    var f = document.createDocumentFragment();
+    for(var i=0;i<rows*cols;i++){
+      var c = document.createElement("span");
+      c.className = "cell" + (trainable ? " train" : "");
+      f.appendChild(c);
+    }
+    el.appendChild(f);
+  }
+  grid(document.getElementById("mxW"), 12, 12, false);
+  grid(document.getElementById("mxB"), 12, 2, true);
+  grid(document.getElementById("mxA"), 2, 12, true);
+
+  // --- theme -----------------------------------------------------------
+  var root = document.documentElement, tb = document.getElementById("themeToggle");
+  function isDark(){
+    var t = root.getAttribute("data-theme");
+    if(t) return t === "dark";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+  function paint(){ tb.textContent = isDark() ? "Light" : "Dark"; }
+  try{
+    var saved = localStorage.getItem("ft-theme");
+    if(saved) root.setAttribute("data-theme", saved);
+  }catch(e){}
+  paint();
+  tb.addEventListener("click", function(){
+    var next = isDark() ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try{ localStorage.setItem("ft-theme", next); }catch(e){}
+    paint();
+  });
+
+  // --- mobile contents -------------------------------------------------
+  var nav = document.getElementById("toc"), nt = document.getElementById("navToggle");
+  nt.addEventListener("click", function(){
+    var open = nav.classList.toggle("open");
+    nt.setAttribute("aria-expanded", open ? "true" : "false");
+    nt.textContent = open ? "Close" : "Contents";
+  });
+  nav.addEventListener("click", function(e){
+    if(e.target.tagName === "A" && nav.classList.contains("open")){
+      nav.classList.remove("open");
+      nt.textContent = "Contents";
+      nt.setAttribute("aria-expanded","false");
+    }
+  });
+
+  // --- active section highlighting -------------------------------------
+  var links = {};
+  Array.prototype.forEach.call(nav.querySelectorAll("a"), function(a){
+    links[a.getAttribute("href").slice(1)] = a;
+  });
+  if("IntersectionObserver" in window){
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        var a = links[en.target.id];
+        if(!a) return;
+        if(en.isIntersecting){
+          Object.keys(links).forEach(function(k){ links[k].classList.remove("active"); });
+          a.classList.add("active");
+        }
+      });
+    }, {rootMargin: "-80px 0px -70% 0px", threshold: 0});
+    Array.prototype.forEach.call(document.querySelectorAll("section[id]"), function(s){ obs.observe(s); });
+  }
+
+  // --- copy buttons ----------------------------------------------------
+  document.addEventListener("click", function(e){
+    if(!e.target.classList || !e.target.classList.contains("copy")) return;
+    var fig = e.target.closest("figure");
+    var code = fig && fig.querySelector("pre");
+    if(!code) return;
+    var done = function(msg){
+      var old = e.target.textContent;
+      e.target.textContent = msg;
+      setTimeout(function(){ e.target.textContent = old; }, 1400);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(code.innerText).then(function(){ done("Copied"); },
+                                                        function(){ done("Select manually"); });
+    } else { done("Select manually"); }
+  });
+
+  // --- LoRA calculator --------------------------------------------------
+  var rk = document.getElementById("rk"), sz = document.getElementById("sz");
+  // per-model: hidden dim, layers, and total params (billions)
+  var CFG = { "1.5": {h:1536, l:28, p:1.5}, "7": {h:4096, l:32, p:7.24},
+              "13": {h:5120, l:40, p:13.0}, "70": {h:8192, l:80, p:70.6} };
+
+  function fmt(n){
+    if(n >= 1e9) return (n/1e9).toFixed(1) + "B";
+    if(n >= 1e6) return (n/1e6).toFixed(1) + "M";
+    if(n >= 1e3) return (n/1e3).toFixed(1) + "K";
+    return String(n);
+  }
+  function update(){
+    var r = parseInt(rk.value, 10);
+    var c = CFG[sz.value];
+    // 7 target projections; MLP matrices are ~3.5x hidden wide in these models
+    var perLayer = r * (4 * 2 * c.h + 3 * (c.h + 3.5 * c.h));
+    var trainable = perLayer * c.l;
+    var total = c.p * 1e9;
+    var pct = 100 * trainable / total;
+    var mb = trainable * 2 / 1048576;              // bf16 adapter on disk
+    var mem = (total * 2 + trainable * 14) / 1073741824 + 4; // weights + opt + activations
+
+    document.getElementById("rkv").textContent = r;
+    document.getElementById("o1").textContent = fmt(trainable);
+    document.getElementById("o2").textContent = pct.toFixed(2) + "%";
+    document.getElementById("o3").textContent = (mb < 1000 ? Math.round(mb) + " MB"
+                                                           : (mb/1024).toFixed(1) + " GB");
+    document.getElementById("o4").textContent = "~" + Math.round(mem) + " GB";
+    document.getElementById("bar").style.width = Math.min(100, Math.max(1.5, pct * 12)) + "%";
+  }
+  if(rk && sz){ rk.addEventListener("input", update); sz.addEventListener("change", update); update(); }
+})();
+</script>
+</body>
+</html>
