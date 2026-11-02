@@ -1,0 +1,925 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How to Explain Production ML Pipeline Topics in Interviews</title>
+<style>
+:root{--bg:#0f1419;--card:#1c2430;--card2:#10151d;--bd:#2a3444;--tx:#e6edf3;--dim:#9aa8b8;--ac:#5eb3ff;--ac2:#7ee0c1;--warn:#f0b45e;--bad:#f07a7a}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.6;display:flex}
+nav{width:260px;flex-shrink:0;height:100vh;position:sticky;top:0;overflow-y:auto;background:#0b0f14;border-right:1px solid var(--bd);padding:18px 14px}
+nav h3{margin:0 0 8px;font-size:15px;color:var(--ac2)}nav .np{margin:12px 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ac)}
+nav a{display:block;color:var(--dim);text-decoration:none;font-size:12.5px;padding:4px 8px;border-radius:6px}nav a:hover{background:var(--card);color:var(--tx)}
+main{flex:1;min-width:0;max-width:940px;margin:0 auto;padding:28px 24px 80px}
+h1{margin:0 0 6px;font-size:clamp(22px,3.5vw,31px);background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:20px;border-bottom:2px solid var(--ac);padding-bottom:8px;margin-top:42px;scroll-margin-top:12px}
+p,li{font-size:14.5px;color:#cfd9e4}.dim{color:var(--dim)}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 18px;margin:14px 0}
+.steps{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.steps span{border:1px solid var(--ac);border-radius:20px;padding:4px 13px;font-size:13px;background:var(--card2)}.steps b{color:var(--ac2)}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px}.cmp>div{border-radius:10px;padding:10px 14px;background:var(--card2);border:1px solid var(--bd)}.cmp .w{border-color:#5a2f2f}.cmp .s{border-color:#2f5a4e}
+.lab{font-size:11px;letter-spacing:.05em;color:var(--ac2);font-weight:700;margin-bottom:2px}
+.card{background:var(--card2);border:1px solid var(--bd);border-radius:10px;margin:9px 0;scroll-margin-top:12px}.card summary{cursor:pointer;padding:11px 15px;font-weight:600;font-size:15px}
+.cb{padding:4px 16px 14px}.cb>div{margin:10px 0}.cb p{margin:3px 0}.cb ol{margin:3px 0;padding-left:20px}
+.say{border-left:3px solid var(--ac2);padding-left:12px;background:#0e1e1b;border-radius:0 8px 8px 0;padding:8px 12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.good .lab{color:var(--ac)}.bad .lab{color:var(--bad)}.fu{color:var(--dim)}.scn{border:1px dashed var(--warn);border-radius:8px;margin-top:12px}.scn summary{cursor:pointer;padding:9px 12px;font-size:14px;color:var(--warn);font-weight:600}.scb{padding:2px 14px 12px}.scb ul{margin:3px 0;padding-left:20px}
+table{width:100%;border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}th,td{border-bottom:1px solid var(--bd);padding:7px 9px;text-align:left;vertical-align:top}th{color:var(--ac2);font-size:12px;text-transform:uppercase}
+#q{width:100%;background:var(--card);border:1px solid var(--bd);color:var(--tx);padding:10px 14px;border-radius:8px;margin:8px 0;font-size:14px}.hidden{display:none}
+@media(max-width:900px){nav{display:none}.cmp,.two{grid-template-columns:1fr}}
+</style></head><body>
+<nav><h3>Interview Explanation Guide</h3><a href="#method">The 6-step method</a><a href="#compare">Weak vs strong answer</a><a href="#delivery">Delivery tips</a><div class="np">Pipeline stages</div><a href="#s1">1. Data Sources</a><a href="#s2">2. Data Ingestion</a><a href="#s3">3. Data Validation</a><a href="#s4">4. Data Storage</a><a href="#s5">5. Data Preprocessing</a><a href="#s6">6. Feature Engineering</a><a href="#s7">7. Feature Store</a><a href="#s8">8. Data Versioning</a><a href="#s9">9. Model Training</a><a href="#s10">10. Hyperparameter Optimization</a><a href="#s11">11. Model Evaluation</a><a href="#s12">12. Model Validation (Gates)</a><a href="#s13">13. Experiment Tracking</a><a href="#s14">14. Model Registry</a><a href="#s15">15. Model Packaging</a><a href="#s16">16. Model Deployment</a><a href="#s17">17. Model Serving</a><a href="#s18">18. Model Monitoring</a><a href="#s19">19. Automated Retraining</a><a href="#s20">20. Continuous Training (CI/CD/CT)</a><div class="np">Stage 1 sub-topics</div><a href="#g1">Idempotency</a><a href="#g2">Incremental Loading &amp; Watermark</a><a href="#g3">Batch vs Streaming vs CDC</a><a href="#g4">ETL vs ELT</a><a href="#g5">Schema Evolution &amp; Data Contracts</a><a href="#g6">Deduplication</a><a href="#g7">Data Lineage</a><a href="#g8">Leakage Starting at Ingestion</a><a href="#g9">Scaling Ingestion (100 GB → 5 TB)</a><a href="#g10">Debugging a Failed Pipeline</a><div class="np">Practice</div><a href="#practice">Practice routine</a><a href="#rubric">Self-scoring rubric</a></nav>
+<main>
+<h1>How to Explain Each Topic Properly in Interviews</h1>
+<p class="dim">For every production ML pipeline stage and every Stage 1 ingestion topic: what to say first, how to expand, what example to cite, what signals seniority, what to avoid, plus 5 scenario-based questions per topic (150 in total).</p>
+<input id="q" placeholder="Search a topic, e.g. drift, idempotency, canary...">
+
+<h2 id="method">1. The 6-step method (use it for every topic)</h2>
+<div class="steps"><span><b>1</b> Definition (1 line)</span><span><b>2</b> Why it exists</span><span><b>3</b> How it works</span><span><b>4</b> Tools you used</span><span><b>5</b> What fails + how you handle it</span><span><b>6</b> Trade-off / when not to</span></div>
+<div class="panel"><p><b>Rule:</b> answer in two layers. First a <b>30-second summary</b> that fully answers the question. Then stop and let the interviewer pull you deeper, or continue into the 2-minute structure. Add <b>one concrete example</b> with a number or a real system. <span style="color:var(--warn)">Hindi tip: practice by explaining in Hinglish first, then repeat in clean English; interviews are in English, but thinking in your own language helps structure.</span></p></div>
+
+<h2 id="compare">2. Weak vs strong answer: "What is data drift and how do you handle it?"</h2>
+<div class="cmp"><div class="w"><div class="lab" style="color:var(--bad)">WEAK</div><p>"Drift is when data changes and the model gets worse. We retrain the model when it happens."</p><p class="dim">Problems: vague, no types of drift, no detection method, retrains blindly, no example.</p></div>
+<div class="s"><div class="lab">STRONG</div><p>"Data drift means the distribution of input features in production differs from training. It is different from concept drift, where the input-to-output relationship changes. I detect it by comparing production windows to a training reference with PSI or KS tests per feature using Evidently, plus prediction-distribution monitoring, because labels arrive late. An alert fires above thresholds, say PSI over 0.2 on a key feature. I first check data quality for upstream bugs, then trigger a retraining run, and the new model still has to pass the validation gates against the champion before promotion."</p></div></div>
+<p class="dim">The strong version has a definition, a contrast, a method, a tool, a threshold, a sequence of actions and a safeguard.</p>
+
+<h2 id="delivery">3. Delivery tips</h2>
+<div class="panel"><ul>
+<li><b>Lead with the answer.</b> Do not build up to it.</li>
+<li><b>Use the phrase "it depends on..." and then decide.</b> Name the 1–2 factors, then give your pick.</li>
+<li><b>Quantify.</b> Latency, volume, PSI threshold, retries, rows per day. Estimates are fine if you say they are estimates.</li>
+<li><b>Mention failure and rollback unprompted.</b> This is the biggest signal of production experience.</li>
+<li><b>Name trade-offs.</b> "Streaming gives freshness but costs operational complexity" beats praising a tool.</li>
+<li><b>Only claim what you did.</b> Say "in my project" for experience and "I would" for design. Do not bluff tools you have not used; say how you would learn or compare.</li>
+<li><b>If you do not know:</b> say what you know nearby, then reason out loud. "I have not used Feast in production, but the problem it solves is training-serving skew; I would evaluate it by..."</li>
+<li><b>Check understanding.</b> After a long answer: "Should I go deeper into the retry design or the monitoring side?"</li>
+<li><b>Use the whiteboard flow.</b> Draw source → ingest → validate → store → features → train → registry → serve → monitor, and point to where your topic sits.</li></ul></div>
+
+<input type="hidden">
+<h2 id="stages">4. The 20 pipeline stages: how to explain each</h2>
+<details class="card" id="s1"><summary>1. Data Sources</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Data sources are the systems where facts originate: application databases, event streams, third-party APIs and files. For ML we never train directly on the production database; we ingest a copy. I classify each source by owner, change rate and reliability, because that decides the ingestion pattern and the contract we need.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Types of sources (OLTP DB, stream, API, files)</li><li>Who owns it and what contract exists</li><li>How we access it safely (replica, CDC, API limits)</li><li>Risks: load on the source, schema change, PII</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Orders in PostgreSQL, clickstream in Kafka, a partner CSV every morning.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Mention data contracts with source owners and read replicas.</p></div><div class="bad"><div class="lab">AVOID</div><p>Saying &#x27;we just query the production database&#x27;.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> How do you avoid hurting the application?<br><b>How to answer:</b> Use a read replica or CDC, incremental queries on an indexed change column, off-peak schedules and rate limits.</p></div>
+<details class="scn"><summary>Scenario 1: The DBA complains your nightly extraction slows the customer-facing app between 2 and 3 AM.</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Which queries and how many rows?</li><li>Is there a read replica?</li><li>Is there an index on the change column?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Full-table scans</li><li>Extraction on the primary</li><li>Large single transaction holding locks</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Check slow-query log and execution plan, measure rows read, look at lock waits and the schedule.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Move extraction to a read replica, add an index on updated_at, load incrementally in small batches with rate limiting, or switch to CDC.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>CDC removes query load but adds infrastructure; replicas can lag slightly.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I would stop reading from the primary: use a replica, an indexed incremental query with batching and throttling, and consider CDC if freshness or load demands it.</p></div></div></details><details class="scn"><summary>Scenario 2: A partner API changes its pagination and your ingestion now returns only the first page of results.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Was the change announced? Did row counts drop?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>API version change</li><li>Default page size changed silently</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Compare today&#x27;s row count with history, read the API changelog, switch to cursor-based pagination, pin the API version and add a row-count anomaly check.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I confirm with counts and the changelog, implement proper pagination, pin the version and alert on volume drops.</p></div></div></details><details class="scn"><summary>Scenario 3: The source database is migrated to a new cluster and credentials and hosts change.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is there a cutover date? Is there a staging environment?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Hard-coded hosts</li><li>Secrets stored in code</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use secret manager and Airflow Connections, test the new endpoint in staging, run old and new in parallel, compare counts, then cut over.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I remove hard-coded config, dual-run and compare, then cut over with a rollback plan.</p></div></div></details><details class="scn"><summary>Scenario 4: Two source systems disagree on the same customer&#x27;s attributes.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which system is the system of record?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>No survivorship rule</li><li>Different update timing</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Define a source priority and tie-break rule, store the source of each value, flag conflicts for data stewards and test the rule.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I define the system of record and survivorship rule, keep provenance, and report conflicts instead of silently choosing.</p></div></div></details><details class="scn"><summary>Scenario 5: You discover a free-text source field contains phone numbers and emails you did not expect.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Who owns the field? What policies apply?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Users typing PII into notes</li><li>No data classification</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Scan and classify, mask or tokenise at ingestion, restrict access, notify the data owner and update the contract.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I treat it as a privacy incident: classify, mask at ingestion, restrict access and fix the contract with the owner.</p></div></div></details></div></details><details class="card" id="s2"><summary>2. Data Ingestion</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Ingestion reliably copies data from sources into our platform, either in batches or as a stream. I design it to be incremental, idempotent, atomic and checkpointed, so retries and backfills never create duplicates or half-written data.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Pattern: batch / CDC / stream, chosen by freshness need</li><li>Incremental load with a watermark</li><li>Idempotent, atomic writes into an immutable raw zone</li><li>Retries, alerts, freshness checks</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Pull orders updated since the last watermark every night into dt= partitions; advance the watermark only after the write succeeds.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Say &#x27;at-least-once delivery plus idempotent writes gives effectively-once results&#x27;.</p></div><div class="bad"><div class="lab">AVOID</div><p>Claiming exactly-once is easy, or ignoring retries.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> What if the job crashes halfway?<br><b>How to answer:</b> Watermark has not moved and files are written via temp + rename, so the next run safely re-reads the same rows.</p></div>
+<details class="scn"><summary>Scenario 1: Your Airflow ingestion DAG had several task failures over a weekend and downstream DAGs are blocked.</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Which tasks failed and why?</li><li>Are the failures independent or one root cause?</li><li>Is the data partially written?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Source outage</li><li>Expired credentials</li><li>Worker resource exhaustion</li><li>Dependency chain failing</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Open the first failed task log, group failures by cause, check partial outputs, confirm the source is healthy.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Fix the root cause, clear failed task states, backfill failed dates in order with limited concurrency. Safe because tasks are idempotent. Add failure and freshness alerts.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Fast re-runs risk overloading the source; throttle the backfill.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I find the first failure, fix the root cause, then clear and backfill date by date, relying on idempotent writes, and add freshness alerting so it is caught earlier.</p></div></div></details><details class="scn"><summary>Scenario 2: Your ingestion job takes longer every month as the table grows.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is it a full load? Is the change column indexed?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Full-table scan</li><li>No partitioning</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Switch to incremental loads on an indexed column, partition the work and read in parallel.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Growing runtime means a full-scan design; I move to incremental, indexed, parallel loading.</p></div></div></details><details class="scn"><summary>Scenario 3: Kafka consumer lag keeps growing.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is it processing or the sink that is slow?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Too few consumers or partitions</li><li>Slow per-message writes</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Check lag per partition, add consumers up to the partition count, batch writes to the sink and profile processing time.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I find whether consumption or the sink is the bottleneck, then scale consumers and batch the writes.</p></div></div></details><details class="scn"><summary>Scenario 4: A partner sends the same file twice under different names.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is there a file manifest or checksum?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Retry by the partner</li><li>No dedup on files</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Compute a content hash per file, keep a processed-files ledger and skip known hashes; keep row-level dedup as a second guard.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I identify files by content hash, keep a ledger and still dedup rows by key.</p></div></div></details><details class="scn"><summary>Scenario 5: You need to backfill two years of history without disturbing daily runs.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What is the deadline and the source capacity?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Backfill competing for resources and source capacity</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use a separate backfill DAG with its own pool, process partition by partition with throttling, rely on idempotent writes and validate counts per partition.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>A separate throttled backfill job over idempotent partitions, validated by counts, keeps daily runs safe.</p></div></div></details></div></details><details class="card" id="s3"><summary>3. Data Validation</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Validation is the quality gate between ingestion and use. It checks schema, nulls, ranges, uniqueness, freshness and distribution, and sends bad data to quarantine instead of letting it reach training. I use Great Expectations or Pandera and treat failures by severity.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>What we check (schema, null, range, uniqueness, freshness, distribution)</li><li>Where it runs (after ingestion, before training and again at serving)</li><li>Failure handling: block, quarantine or warn</li><li>Tools and reporting</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>A negative order amount or a null customer_id fails the batch and raises an alert; a small distribution shift only warns.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Explain severity levels so you do not block the pipeline for harmless warnings.</p></div><div class="bad"><div class="lab">AVOID</div><p>Treating validation as a one-time notebook check.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> Great Expectations vs Pandera?<br><b>How to answer:</b> GE for pipeline-level suites, reports and many backends; Pandera for lightweight schemas inside Python code.</p></div>
+<details class="scn"><summary>Scenario 1: A validation suite fails on 2% of rows in today&#x27;s batch. Do you block the whole pipeline?</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Which checks failed and how critical are they?</li><li>Is 2% normal?</li><li>Can bad rows be isolated?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Upstream bug</li><li>New category value</li><li>Late or null-heavy source feed</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Look at which rows and columns failed, compare with the history of failure rates, trace to the source change.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Use severity: critical failures block; non-critical warn. Quarantine the 2% for review, continue with the clean 98% if the contract allows, notify the source owner, and track failure rate trends.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Blocking is safe but stalls training; continuing risks bias if the bad 2% is not random.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I apply severity levels: quarantine failing rows, continue only if the loss is acceptable and unbiased, alert the owner, and block if the failure is critical or the rate crosses a threshold.</p></div></div></details><details class="scn"><summary>Scenario 2: Validation passes, yet model quality drops because bad data got through.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What was wrong with the data?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Checks only on schema and nulls</li><li>No distribution or relationship checks</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Add distribution, referential and business-rule checks, compare against a reference window and turn every incident into a new expectation.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Validation must grow with incidents; I add statistical and business-rule checks, not just schema checks.</p></div></div></details><details class="scn"><summary>Scenario 3: Validation alerts fire so often that the team ignores them.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which checks fire most?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Static thresholds on noisy metrics</li><li>No severity levels</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use baselines learned from history, severity tiers, aggregation and clear owners; remove checks nobody acts on.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I cut noise with statistical baselines and severities so every alert is actionable.</p></div></div></details><details class="scn"><summary>Scenario 4: You must validate a streaming feed in real time.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What latency budget do you have?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Heavy batch checks do not fit streaming</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Do lightweight inline checks (schema, ranges), windowed statistics, and route failures to a dead-letter queue for review.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Inline lightweight checks plus windowed stats, with a dead-letter queue for bad records.</p></div></div></details><details class="scn"><summary>Scenario 5: The validation job is slow on 5 TB of data.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which checks dominate runtime?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Pulling data into Pandas</li><li>Full scans for every check</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Push checks down to Spark/SQL, validate only new partitions, sample for distribution checks and run critical checks fully.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Push-down, incremental and sampled validation keep it fast without dropping critical checks.</p></div></div></details></div></details><details class="card" id="s4"><summary>4. Data Storage</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>I store data in zones: raw (immutable), clean and curated. Columnar formats like Parquet with sensible partitioning make reads cheap, and table formats like Delta or Iceberg add ACID transactions and time travel.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Zones raw → clean → curated</li><li>File format (Parquet) and compression</li><li>Partitioning key and avoiding small files</li><li>Table format for ACID, schema evolution, time travel</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Partition events by date, keep raw JSON immutable, query curated Parquet from Spark or the warehouse.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Talk about partition-key choice and the small-files problem.</p></div><div class="bad"><div class="lab">AVOID</div><p>Over-partitioning by a high-cardinality column.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> How do you choose the partition key?<br><b>How to answer:</b> By the most common filter, usually date, with a moderate number of partitions of reasonable size.</p></div>
+<details class="scn"><summary>Scenario 1: Queries on the curated table are slow and storage listing takes minutes after a year of hourly ingestion.</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>How many files and what size?</li><li>How is it partitioned?</li><li>Which format?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Millions of tiny files</li><li>Over-partitioning</li><li>Row-based format (CSV/JSON)</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Count files per partition, check average size, inspect partitioning and query filters.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Compact small files into 128 MB–1 GB Parquet files, choose a coarser partition key, use Delta/Iceberg compaction jobs, and add table maintenance to the schedule.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Compaction costs compute and can conflict with writers; schedule it off-peak.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>This is the small-files problem. I would compact into larger Parquet files, simplify partitioning and automate table maintenance.</p></div></div></details><details class="scn"><summary>Scenario 2: Cloud storage cost for the data lake doubles in a quarter.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which zone grows the most?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Temp files not cleaned</li><li>No lifecycle policy</li><li>Many small files</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Audit usage by prefix, add lifecycle tiering and retention, compact files and delete temporary outputs.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I find the growth source, then apply lifecycle rules, compaction and retention.</p></div></div></details><details class="scn"><summary>Scenario 3: Two jobs write to the same table and corrupt it.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which table format is used?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Plain Parquet without transactions</li><li>Overlapping writers</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use an ACID table format (Delta/Iceberg), isolate writers by partition or locks and run concurrency tests.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>ACID table formats and clear writer ownership prevent corruption.</p></div></div></details><details class="scn"><summary>Scenario 4: A user requests deletion of their data under privacy law.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Where does the user&#x27;s data live?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Copies in features, training sets and backups</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Locate data by key, delete or rewrite using the table format, propagate to derived datasets and retrain schedules, and log completion.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I trace the user&#x27;s key through all derived data, delete with the table format and keep an audit record.</p></div></div></details><details class="scn"><summary>Scenario 5: Analysts and the ML team report different numbers from the same data.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How are metrics defined?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Different filters and definitions</li><li>Querying raw vs curated</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Provide one curated layer with documented definitions and versioned tables; reconcile the differences.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>A single curated layer with documented definitions removes the mismatch.</p></div></div></details></div></details><details class="card" id="s5"><summary>5. Data Preprocessing</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Preprocessing turns clean data into model-ready input: imputing, encoding and scaling. The key rule is to fit on training data only and save the fitted pipeline so inference applies exactly the same transformations.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Steps: impute, encode, scale, transform</li><li>Fit on train only, transform on validation/test</li><li>Wrap in sklearn Pipeline / ColumnTransformer</li><li>Serialise with the model and reuse at serving</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Median imputation, one-hot encoding and standardisation in a ColumnTransformer saved with joblib together with the model.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Name training-serving skew as the risk you are preventing.</p></div><div class="bad"><div class="lab">AVOID</div><p>Scaling before the train/test split (leakage).</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> How do you guarantee the same preprocessing in production?<br><b>How to answer:</b> Ship the fitted pipeline as part of the model artifact, or reuse the same library code from a feature store.</p></div>
+<details class="scn"><summary>Scenario 1: A production-critical feature is sometimes missing at inference time. What do you do?</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>How often and why is it missing?</li><li>How was it handled in training?</li><li>What is the cost of a wrong prediction?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Upstream outage</li><li>Late-arriving feature</li><li>New customers with no history</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Measure the missing rate over time, find the source, compare with the training missing rate.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Use the same imputation as training (stored in the pipeline), add a missing-indicator feature, use models that tolerate NaN, fall back to a simpler model or default for critical gaps, and alert on missing-rate spikes.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Imputation keeps service up but can reduce accuracy; failing the request is safer for high-risk decisions.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I keep training and serving behaviour consistent with a saved pipeline, add an indicator, define a safe fallback by risk level, and monitor the missing rate.</p></div></div></details><details class="scn"><summary>Scenario 2: A new category value appears at inference time.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How often does it occur?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Encoder not set to ignore unknown</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use handle_unknown or an &#x27;unknown&#x27; bucket, log occurrences and retrain periodically.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I make the pipeline tolerate unknowns, log them and retrain when they become common.</p></div></div></details><details class="scn"><summary>Scenario 3: A scaler fitted on old data gives out-of-range values after drift.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is the shift real or a bug?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Distribution drift</li><li>Unit change upstream</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Check upstream first, then use robust scaling or clipping and retrain the pipeline together with the model.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I rule out a data bug, then retrain preprocessing with the model and consider robust scaling.</p></div></div></details><details class="scn"><summary>Scenario 4: Preprocessing takes 50 ms of an 80 ms latency budget.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which step dominates?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Row-wise Python operations</li><li>Heavy encoders</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Profile, vectorise, precompute stable parts or move them to the feature store, and simplify transformations.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I profile, vectorise and precompute expensive parts offline.</p></div></div></details><details class="scn"><summary>Scenario 5: Your pickled preprocessing pipeline breaks after a library upgrade.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which versions differ?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Unpinned dependencies</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Pin versions, store the environment with the model (MLflow), test model loading in CI and retrain on upgrades.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Pinned environments and a load test in CI catch this before production.</p></div></div></details></div></details><details class="card" id="s6"><summary>6. Feature Engineering</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Feature engineering creates predictive signals from raw data, such as aggregates over time windows, ratios and recency. In production features must be point-in-time correct, meaning computed only from data available at prediction time.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Types of features (aggregates, ratios, recency, text/time)</li><li>Point-in-time correctness to prevent leakage</li><li>Reusable, tested code shared by training and serving</li><li>Versioning and documentation</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>orders_last_30d as of the prediction timestamp, not as of today.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Stress leakage prevention and feature reuse across models.</p></div><div class="bad"><div class="lab">AVOID</div><p>Using future data or data not available at inference.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> How do you avoid leakage in window features?<br><b>How to answer:</b> Compute with an as-of timestamp per row and test that no source row is newer than that timestamp.</p></div>
+<details class="scn"><summary>Scenario 1: How do you prevent data leakage in an automated training pipeline?</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Which data sources and timestamps exist?</li><li>Is it time-dependent data?</li><li>How are features computed?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Future data in features</li><li>Preprocessing fitted on all data</li><li>Duplicates across splits</li><li>Target-derived columns</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Audit each feature for &#x27;available at prediction time&#x27;, check split logic and fitting steps.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Time-based splits, as-of feature computation, pipelines that fit only on training folds, automated tests (no row newer than the label cutoff), duplicate checks across splits and a suspiciously-high-score alert.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Strict point-in-time logic costs engineering effort and compute.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I make leakage structurally impossible: as-of features, fit-on-train pipelines, time-based splits and automated checks, plus an alert for suspiciously perfect metrics.</p></div></div></details><details class="scn"><summary>Scenario 2: Rolling features differ between batch training and streaming serving.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Event time or processing time?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Two implementations</li><li>Different window semantics</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use a single feature definition, align on event time and add parity tests comparing online and offline values.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>One definition, event-time windows and parity tests keep them consistent.</p></div></div></details><details class="scn"><summary>Scenario 3: A feature takes two seconds to compute online.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Can it be precomputed?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Heavy aggregation at request time</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Materialise it offline or stream-update it, cache results, approximate if acceptable.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I precompute heavy aggregates and serve them from the online store.</p></div></div></details><details class="scn"><summary>Scenario 4: The upstream definition of &#x27;active user&#x27; changes.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Who owns the definition?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>No feature versioning</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Version the feature, run old and new in parallel, evaluate the effect and retrain deliberately.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I version the feature, dual-run, and retrain on a planned schedule.</p></div></div></details><details class="scn"><summary>Scenario 5: You have thousands of features, many redundant, and training is slow.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How many are actually important?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>No selection step</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Remove unavailable and constant features, prune correlated ones, use importance or L1, and check stability across time.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I prune with filters and embedded selection and check that the selection is stable.</p></div></div></details></div></details><details class="card" id="s7"><summary>7. Feature Store</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>A feature store defines each feature once and serves it offline for training and online for low-latency inference, which removes training-serving skew. It also gives point-in-time joins and feature reuse across teams. I use Feast with a warehouse offline and Redis online.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Problem: skew and duplicated feature code</li><li>Offline store, online store, registry</li><li>Materialisation from offline to online</li><li>Point-in-time joins; when not to use it</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Training set built with get_historical_features; online lookup by customer_id at request time.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Mention it adds operational complexity and is not needed for small teams with a few features.</p></div><div class="bad"><div class="lab">AVOID</div><p>Presenting it as always necessary.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> When would you skip a feature store?<br><b>How to answer:</b> Few features, one model, no online low-latency needs; a shared tested library may be enough.</p></div>
+<details class="scn"><summary>Scenario 1: Online features in production do not match the values used in training (training-serving skew).</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Same code or different?</li><li>Same data source and time window?</li><li>Are values stale?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Two implementations of the feature</li><li>Different aggregation windows</li><li>Stale online store</li><li>Time zone differences</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Log online feature values and recompute them offline for the same entity and time; diff.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Define features once in the feature store, use point-in-time retrieval for training, materialise on a schedule, add skew monitoring comparing online and offline values.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>The feature store adds operational complexity.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I would unify feature definitions in the store, build training sets with point-in-time joins, and monitor online-offline differences continuously.</p></div></div></details><details class="scn"><summary>Scenario 2: The online feature store is down.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which features are critical?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Single point of failure</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use defaults or cached last-known values, a circuit breaker, graceful degradation and an HA setup.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I define safe fallbacks per feature and run the online store highly available.</p></div></div></details><details class="scn"><summary>Scenario 3: Materialisation lags, so online features are stale.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What is the freshness requirement?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Job too infrequent or failing</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Monitor feature freshness, increase frequency or stream updates and alert on TTL breaches.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Freshness monitoring plus faster materialisation fixes staleness.</p></div></div></details><details class="scn"><summary>Scenario 4: A team needs a new feature in the store quickly.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Who owns it? Is it needed online?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>No clear onboarding process</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Define it in code, review, backfill offline, materialise online, test parity and document ownership.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>A lightweight reviewed process with parity tests keeps speed and quality.</p></div></div></details><details class="scn"><summary>Scenario 5: A training set was built using latest feature values instead of values as of the event time.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How was the join done?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Missing point-in-time join</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use historical retrieval with event timestamps and add tests that no feature timestamp exceeds the label time.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Point-in-time joins and a timestamp test prevent this leakage.</p></div></div></details></div></details><details class="card" id="s8"><summary>8. Data Versioning</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Data versioning pins the exact dataset used for each model so any result can be reproduced. DVC stores small pointer files in Git and the data in remote storage, while table formats like Delta provide time travel. I link the dataset version to the experiment run.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Why: reproducibility, audit, rollback</li><li>How: DVC hashes / Delta versions</li><li>Link dataset version to model and code commit</li><li>Retention and storage cost</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Model v12 was trained on dataset hash a1b2 at commit c3d4, recorded in MLflow.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Connect versioning to lineage and compliance.</p></div><div class="bad"><div class="lab">AVOID</div><p>Saying &#x27;we keep the CSV in a folder&#x27;.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> DVC vs Git LFS?<br><b>How to answer:</b> DVC supports pipelines, remote storage and data lineage; LFS just stores big files in Git.</p></div>
+<details class="scn"><summary>Scenario 1: A regulator asks you to reproduce the model trained six months ago, but the dataset was overwritten.</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Do you have raw data, code and config?</li><li>Was the data versioned?</li><li>How much was overwritten?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>No data versioning</li><li>Mutable tables</li><li>Missing run metadata</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Check tracking records, raw zone, table history/time travel and git history.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Rebuild from the immutable raw zone or Delta time travel using the recorded commit and config; going forward use DVC/table versions and record the dataset hash in every run.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Versioning costs storage; retention policies balance cost against audit needs.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I would reconstruct from raw data and the recorded commit, then fix the process: immutable raw data, dataset versions linked to every run.</p></div></div></details><details class="scn"><summary>Scenario 2: DVC remote storage cost explodes.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How many versions are kept?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>No garbage collection</li><li>Storing derived data</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Set retention, garbage-collect, store only needed snapshots and rebuild derived data from immutable raw data.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Retention and rebuilding derived data keep versioning affordable.</p></div></div></details><details class="scn"><summary>Scenario 3: Two teammates modify the same dataset version.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is the data treated as immutable?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Mutable datasets</li><li>No review</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Treat versions as immutable, use Git branches and merge reviews, and check dvc.lock in CI.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Immutable versions and Git-based review avoid conflicts.</p></div></div></details><details class="scn"><summary>Scenario 4: Registry models cannot be linked to the data they were trained on.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is the dataset hash logged?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Training template does not log data version</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Log dataset hash and commit in every run and block registration without them.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I enforce data-version logging as a registration requirement.</p></div></div></details><details class="scn"><summary>Scenario 5: The dataset is 5 TB and cannot be copied for every version.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which storage format is used?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>File copies instead of snapshots</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use table-format snapshots or time travel and store only pointers per version.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Snapshots and pointers, not copies.</p></div></div></details></div></details><details class="card" id="s9"><summary>9. Model Training</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>A production training pipeline is a modular, reproducible job, not a notebook. It pins data, code, environment and random seeds, logs everything, saves checkpoints, and produces a versioned artifact with metrics.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Inputs: versioned data and config</li><li>Reproducibility: seeds, pinned dependencies</li><li>Logging, error handling, checkpoints</li><li>Outputs: model artifact + metrics to tracking</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>A Python module run by Airflow on a container image, logging to MLflow and writing model.pkl plus metrics.json.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Explain why two runs can still differ (non-determinism in GPUs/threads, data order) and how you control it.</p></div><div class="bad"><div class="lab">AVOID</div><p>Saying &#x27;I train it in Jupyter and pickle it&#x27;.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> Same data, different results. Why?<br><b>How to answer:</b> Unfixed seeds, non-deterministic parallelism or GPU ops, changed data or library versions, different row order.</p></div>
+<details class="scn"><summary>Scenario 1: Your model training takes 8 hours instead of the usual 1 hour. How do you investigate?</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>What changed: data volume, code, hardware, config?</li><li>Which step is slow?</li><li>Is it consistent?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Data volume growth</li><li>Inefficient preprocessing or joins</li><li>Fewer CPUs or GPU not used</li><li>Resource contention</li><li>Hyperparameter change (more trees, depth)</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Compare with the last fast run (data size, config, commit), profile stage timings, check CPU/GPU/IO utilisation and queue wait.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Fix the bottleneck: cache preprocessed data, vectorise, use histogram-based GBMs, sample for tuning, parallelise, allocate proper resources, and add duration alerts.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Sampling speeds tuning but may reduce quality; larger hardware costs more.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I diff against the last fast run, profile each stage to find the bottleneck, fix it, and add a runtime alert.</p></div></div></details><details class="scn"><summary>Scenario 2: A training job fails halfway through.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is the failure transient?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Spot interruption</li><li>Out of memory</li><li>Transient network error</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use checkpoints and resumable steps, retry transient errors and alert on non-transient ones.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Checkpoints and idempotent steps let me resume instead of restarting.</p></div></div></details><details class="scn"><summary>Scenario 3: Training works on a sample but runs out of GPU memory on full data.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What is the batch size and model size?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Batch too large</li><li>No streaming data loader</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Reduce batch size with gradient accumulation, use mixed precision, stream data and consider distributed training.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Accumulation, mixed precision and streaming loaders reduce memory use.</p></div></div></details><details class="scn"><summary>Scenario 4: You need to train 500 models, one per store.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Do they share a design?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Manual per-model work</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Template the training, parallelise with Airflow dynamic tasks, Ray or Spark, track each run and control cost.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>One template, parallel execution and per-run tracking.</p></div></div></details><details class="scn"><summary>Scenario 5: Model quality varies from one retrain to the next.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is the data window different?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Seed and data variance</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Measure variance across seeds, pin windows, ensemble or average, and report confidence intervals.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I quantify the variance and report intervals instead of single numbers.</p></div></div></details></div></details><details class="card" id="s10"><summary>10. Hyperparameter Optimization</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>HPO searches model settings efficiently. I prefer Bayesian methods like Optuna&#x27;s TPE with pruning, tune on validation folds, never on the test set, and log every trial. I also stop when gains flatten, because returns diminish quickly.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Search method: grid vs random vs Bayesian</li><li>Objective and validation scheme</li><li>Budget, pruning, early stopping</li><li>Logging and final check on untouched test data</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>60 Optuna trials over learning rate, depth and regularisation with 5-fold CV, best params logged to MLflow.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Mention overfitting the validation set and nested CV.</p></div><div class="bad"><div class="lab">AVOID</div><p>Tuning on the test set.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> Why random search often beats grid?<br><b>How to answer:</b> Few hyperparameters matter, and random search tries more distinct values of each.</p></div>
+<details class="scn"><summary>Scenario 1: A tuned model scores 0.95 on validation but 0.88 on test and worse in production.</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>How many trials were run?</li><li>Was the same split used?</li><li>Is the validation set representative?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Overfitting the validation set</li><li>Leakage in the CV</li><li>Distribution shift</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Check number of trials, validation size, whether tuning touched test data, and adversarial validation between sets.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Limit trials, use nested CV or a fresh holdout, prefer simpler models within one standard error of the best, fix any leakage.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Nested CV costs much more compute.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>That is validation overfitting. I would use nested CV or a fresh holdout and choose a simpler configuration, then verify with an online experiment.</p></div></div></details><details class="scn"><summary>Scenario 2: Hyperparameter search consumes a huge compute budget.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What is the budget?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Too many parameters and trials</li><li>No pruning</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use pruning and early stopping, tune fewer parameters, use subsets and set budget caps.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Pruning and budgets keep tuning efficient.</p></div></div></details><details class="scn"><summary>Scenario 3: The best parameters make the model too slow for the latency SLA.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What is the latency limit?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Latency not in the objective</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Add latency or size as a constraint or multi-objective target and cap trees or depth.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I include latency in the objective.</p></div></div></details><details class="scn"><summary>Scenario 4: HPO results cannot be reproduced.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Are seeds and splits fixed?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Random samplers and splits</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Seed the sampler, fix CV splits, store trials in a database and log them.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Seeds, fixed splits and stored trials.</p></div></div></details><details class="scn"><summary>Scenario 5: You are tuning a time-series model.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is there seasonality?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Shuffled CV leaks the future</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use walk-forward or time-based CV and never shuffle.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Walk-forward validation only.</p></div></div></details></div></details><details class="card" id="s11"><summary>11. Model Evaluation</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Evaluation measures how the model will behave in production. I choose metrics from business cost, evaluate on held-out data (time-based when data is temporal), compare with a baseline, check slices and select a threshold deliberately.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Metric tied to business cost</li><li>Correct split (time-based if needed)</li><li>Baseline and confidence intervals</li><li>Slice analysis and threshold choice</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Fraud: PR-AUC and recall at fixed precision, with the threshold set from review-team capacity.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Show you look at per-segment performance, not just the average.</p></div><div class="bad"><div class="lab">AVOID</div><p>Quoting only accuracy.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> Accuracy is 99%. Is the model good?<br><b>How to answer:</b> Not necessarily; with rare positives a constant prediction scores that. Check PR-AUC, recall and cost.</p></div>
+<details class="scn"><summary>Scenario 1: Your model performs well on training data but poorly on validation data. How do you investigate?</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>How big is the gap?</li><li>Is the split random or time-based?</li><li>Is there leakage in training only?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Overfitting</li><li>Train/validation distribution mismatch</li><li>Too complex model</li><li>Small data</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Plot learning curves, compare feature distributions, check regularisation and model capacity.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>More data, regularisation, simpler model, early stopping, better features, correct splitting.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Simpler models may lose some accuracy but generalise better.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I check learning curves to separate overfitting from distribution mismatch, then regularise or simplify and verify with proper validation.</p></div></div></details><details class="scn"><summary>Scenario 2: Overall metrics look fine but the model is poor for one customer segment.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How large is the segment?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Under-representation</li><li>Different behaviour in the segment</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Compute sliced metrics, inspect data coverage, consider segment-specific thresholds, features or more data.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I always report sliced metrics and fix coverage or thresholds for weak segments.</p></div></div></details><details class="scn"><summary>Scenario 3: Offline metrics improved but the business KPI did not move.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How is the prediction used?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Metric not aligned with value</li><li>No action taken on predictions</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Align the metric with business value, check the funnel and run an online experiment.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I validate the link between the metric and the KPI with an A/B test.</p></div></div></details><details class="scn"><summary>Scenario 4: You must pick a threshold, but costs of false positives and negatives are unknown.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is there a review capacity limit?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>No cost estimates</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Elicit rough costs, use capacity-based thresholds, inspect the PR curve and run a sensitivity analysis.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I derive the threshold from costs or capacity and show how sensitive it is.</p></div></div></details><details class="scn"><summary>Scenario 5: The test set is small and the metric is unstable.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How many positives?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>High variance estimate</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use bootstrap confidence intervals, repeated CV, more data and avoid claiming small differences.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I report intervals and avoid over-interpreting small gaps.</p></div></div></details></div></details><details class="card" id="s12"><summary>12. Model Validation (Gates)</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Validation gates decide automatically whether a model may move on. Examples: metric above a minimum, not worse than the current champion by more than a tolerance, fairness gaps within limits, acceptable latency and size, and sane predictions. Failing models are rejected and never registered for production.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Absolute thresholds</li><li>Comparison with champion</li><li>Fairness and slice checks</li><li>Operational checks (latency, size) and approval workflow</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>CI step compares challenger vs champion on the same holdout and exits non-zero if recall drops more than 1 point.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Mention human approval for high-risk models in addition to automated gates.</p></div><div class="bad"><div class="lab">AVOID</div><p>Promoting on one metric only.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> How do you stop an unapproved model reaching production?<br><b>How to answer:</b> Only models with an approved registry alias are deployable, and the deploy pipeline refuses anything else.</p></div>
+<details class="scn"><summary>Scenario 1: How do you stop an unapproved model from reaching production?</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Who approves and on what criteria?</li><li>How is deployment triggered?</li><li>Are there manual overrides?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Manual copying of artifacts</li><li>Weak access control</li><li>Gates that can be skipped</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Review the path from training to deployment and who can write to production.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Only registry versions with an approved alias are deployable; CI gates compare metrics against thresholds and champion; deployment credentials only in the pipeline; audit logs; human approval for high risk.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>More gates slow releases; match rigor to model risk.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I make the registry alias the only route to production, enforce automated gates and approvals in CI, and remove manual write access.</p></div></div></details><details class="scn"><summary>Scenario 2: A challenger is slightly more accurate but worse on a fairness metric.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What are the policy limits?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Single-metric gating</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use multi-criteria gates, escalate trade-offs to human review and document the decision.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Gates cover fairness too, and trade-offs go to human approval.</p></div></div></details><details class="scn"><summary>Scenario 3: Your gate is so strict that no model ever passes.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How were thresholds chosen?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Thresholds set without baselines</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Calibrate thresholds from historical baselines and variance, use tolerance bands or statistical tests and keep an exception process.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Thresholds come from baselines and variance, not guesses.</p></div></div></details><details class="scn"><summary>Scenario 4: An emergency fix needs to bypass the gate.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Who can approve?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>No break-glass process</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Provide an audited break-glass route with senior approval and mandatory post-incident review.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Emergency bypass exists but is audited and reviewed afterwards.</p></div></div></details><details class="scn"><summary>Scenario 5: A model passes offline gates but behaves differently in shadow mode.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What differs between data sets?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Offline data not production-like</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Compare prediction distributions and latency in shadow, add a shadow gate and refresh offline data.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I add a shadow stage to the gates.</p></div></div></details></div></details><details class="card" id="s13"><summary>13. Experiment Tracking</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Tracking records parameters, metrics, artifacts, the dataset version, the git commit and environment for every run, so any result can be compared and reproduced. I use MLflow.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>What to log (params, metrics, artifacts, data version, code, env)</li><li>Comparing runs</li><li>Naming/tagging conventions</li><li>Link to registry and lineage</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>mlflow.log_params, log_metric and log_model inside every training run, tagged with dataset hash and commit.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Say reproducibility is the real goal, not dashboards.</p></div><div class="bad"><div class="lab">AVOID</div><p>Tracking only the final metric.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> What is missing if you log only metrics?<br><b>How to answer:</b> You cannot reproduce or audit the result without data version, code and environment.</p></div>
+<details class="scn"><summary>Scenario 1: Two training runs on the same dataset produce different results, and you cannot find which run to trust.</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Are seeds set?</li><li>Was the data identical?</li><li>Same library versions and hardware?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Unfixed seeds</li><li>Non-deterministic parallelism or GPU ops</li><li>Data order or sampling changes</li><li>Different dependency versions</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Compare tracked params, dataset hash, commit, environment and seeds between runs.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Fix seeds, pin environment and data, log everything to MLflow, accept small non-determinism but measure variance across seeds.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Full determinism can reduce speed.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I compare the tracked metadata to find what differs, fix seeds and versions, and report metrics as mean and variance across seeds.</p></div></div></details><details class="scn"><summary>Scenario 2: There are hundreds of runs and nobody can find the best one.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is there a naming convention?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>No tags or structure</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use tags, parent-child runs, searchable metrics, autologging and dashboards.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Tagging and search conventions make runs findable.</p></div></div></details><details class="scn"><summary>Scenario 3: Teams compute the same metric differently.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is evaluation code shared?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Inconsistent definitions</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Share an evaluation library, log its version and standardise metric names.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>One evaluation library and logged version.</p></div></div></details><details class="scn"><summary>Scenario 4: The tracking server goes down during training.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Should training depend on it?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Tight coupling</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Buffer logs locally, retry asynchronously, never fail training for tracking and run the server highly available.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Tracking must not be a single point of failure.</p></div></div></details><details class="scn"><summary>Scenario 5: You need to compare a run with one from last quarter.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Were data and code logged?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Missing metadata</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use logged data, code and environment, rerun on the same holdout and compare on identical data.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Comparable runs need logged data, code and environment.</p></div></div></details></div></details><details class="card" id="s14"><summary>14. Model Registry</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>The registry is the versioned catalogue of approved models. Each version has metadata and lineage, and aliases (or stages) such as champion mark what is in production. Promotion and rollback are just moving an alias, which makes them fast and auditable.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Versions, metadata, lineage</li><li>Aliases / stages (staging, production, champion)</li><li>Promotion workflow with approvals</li><li>Rollback by repointing the alias</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Register churn_model v13, run tests, set alias champion; if issues appear, point champion back to v12.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Mention audit trail and permission control for promotion.</p></div><div class="bad"><div class="lab">AVOID</div><p>Deploying by copying a pickle file.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> How do you roll back?<br><b>How to answer:</b> Repoint the production alias to the previous version and redeploy or reload; no retraining needed.</p></div>
+<details class="scn"><summary>Scenario 1: The registry has several model versions. How do you promote the correct one, and how do you roll back?</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Which version is current champion?</li><li>Which passed validation?</li><li>What is the rollback tolerance?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Unclear promotion process</li><li>No lineage or metrics attached</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Check each version&#x27;s metrics, data version, tests and gate results.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Promote the version that passed all gates by setting the champion alias; deploy via CD; rollback is repointing the alias to the previous version and redeploying.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Fast rollback requires keeping previous versions deployable.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I promote only the gate-passing version through an alias and roll back by repointing it, with full metadata for audit.</p></div></div></details><details class="scn"><summary>Scenario 2: Production serves the wrong model version.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How does deployment resolve the model?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Alias cached</li><li>Deployment pinned to old version</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Check the alias, make deployments record the version, expose the version in the API and reconcile automatically.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I make the served version visible and reconcile it with the registry.</p></div></div></details><details class="scn"><summary>Scenario 3: Approvals must go through data science, risk and operations.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Who approves what?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Informal process</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use tags or aliases for each stage, role-based permissions and an audit trail.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Staged approvals with permissions and audit.</p></div></div></details><details class="scn"><summary>Scenario 4: Someone deletes a registered model by accident.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is the artifact store versioned?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Weak permissions</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Apply role permissions, soft delete, and back up or version the artifact store.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Permissions and backed-up artifacts.</p></div></div></details><details class="scn"><summary>Scenario 5: You need different models per region.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Are pipelines shared?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Naming confusion</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use naming conventions or separate registered models with aliases per region on a common pipeline.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>A shared pipeline with per-region registered models.</p></div></div></details></div></details><details class="card" id="s15"><summary>15. Model Packaging</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Packaging bundles the model, preprocessing, dependencies and input signature into one deployable unit, usually a Docker image or MLflow/BentoML bundle. This avoids &#x27;works on my machine&#x27; and version mismatches.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>What goes in: model, preprocessing, signature, dependencies</li><li>Format: MLflow model, ONNX, Docker image</li><li>Pinned versions and reproducible builds</li><li>Smoke test of the built image</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Docker image with pinned scikit-learn and the registered model loaded at startup.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Mention pickle/library-version risks and image scanning.</p></div><div class="bad"><div class="lab">AVOID</div><p>Shipping only the model file.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> Why can pickle be risky?<br><b>How to answer:</b> It depends on exact library versions and can execute code when loaded, so load only trusted artifacts and pin versions.</p></div>
+<details class="scn"><summary>Scenario 1: The model works locally and in tests but fails after deployment in the container.</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Same library versions?</li><li>Same preprocessing code?</li><li>How was the model serialised?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Dependency mismatch</li><li>Pickle incompatibility</li><li>Missing preprocessing step or file</li><li>Different input signature</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Compare environments, load the model in the image, run a smoke test with sample requests.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Package model, preprocessing and signature together, pin dependencies, build once and promote the same image, add a startup smoke test in CI.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Strict pinning needs regular dependency update work.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I package everything in one pinned image, run a smoke test in CI and promote the identical image across environments.</p></div></div></details><details class="scn"><summary>Scenario 2: The Docker image is 8 GB and deploys slowly.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What is included?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Training dependencies in the serving image</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use slim bases and multi-stage builds, remove training libraries and cache layers.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Slim, serving-only images.</p></div></div></details><details class="scn"><summary>Scenario 3: A GPU-trained model must run on CPU-only nodes.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What latency is required?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Framework tied to GPU</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Export to ONNX, quantise, build separate images and select nodes appropriately.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Export and optimise for the target hardware.</p></div></div></details><details class="scn"><summary>Scenario 4: A security scan reports vulnerabilities in the image.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which packages?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Old base image</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Update the base image, pin versions, scan in CI, use minimal images and run as non-root.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Scanning in CI and minimal images.</p></div></div></details><details class="scn"><summary>Scenario 5: The package misses custom preprocessing code.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Was it tested in a clean environment?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Code not bundled</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Include the code in the model package (custom pyfunc) and test loading in a clean environment.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Bundle code and test in a clean environment.</p></div></div></details></div></details><details class="card" id="s16"><summary>16. Model Deployment</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Deployment releases a model safely using strategies such as blue-green, canary, shadow and A/B testing, always with a fast rollback. I automate it through CI/CD and use health checks so releases cause zero downtime.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Strategy by risk: shadow → canary → full</li><li>Blue-green for instant switch and rollback</li><li>Health/readiness checks</li><li>Automation and rollback criteria</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Send 5% of traffic to the new version, watch error rate and latency, then ramp up; roll back automatically on breach.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Compare strategies and say which you would pick for a risky model.</p></div><div class="bad"><div class="lab">AVOID</div><p>Big-bang releases.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> Shadow vs canary?<br><b>How to answer:</b> Shadow gets real traffic but its output is not used; canary serves real users a small share.</p></div>
+<details class="scn"><summary>Scenario 1: How do you deploy a new model without affecting existing customers, and what if it misbehaves?</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Risk level of the model?</li><li>Can you run it in shadow?</li><li>What rollback criteria?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Big-bang release risk</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Define success and failure metrics before release.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Shadow first, then canary at 5%, watching error rate, latency and business metrics, ramp up gradually, automated rollback on breach; blue-green for instant switch.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Slower rollouts cost time and parallel infrastructure.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I use shadow then canary with automatic rollback on predefined thresholds so customers are protected.</p></div></div></details><details class="scn"><summary>Scenario 2: A canary shows a slightly worse business metric, but it is not statistically significant.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Was a decision rule set beforehand?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Underpowered test</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Extend the test using a power analysis, use guardrail metrics and follow a predefined decision rule.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I follow a predefined decision rule and make sure the test has enough power.</p></div></div></details><details class="scn"><summary>Scenario 3: Rollback is blocked because the new model required a database schema change.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is the change backward compatible?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Tight coupling</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Make schema changes backward compatible, separate them from model releases and use feature flags.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Decouple schema changes from model releases.</p></div></div></details><details class="scn"><summary>Scenario 4: You must upgrade a service that holds a warm cache without downtime.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How large is the cache?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Cold cache after switch</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use blue-green with pre-warmed caches, readiness gates and gradual traffic shifting.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Pre-warm the new version and shift traffic gradually.</p></div></div></details><details class="scn"><summary>Scenario 5: A newly deployed model gives incorrect predictions.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How is &#x27;incorrect&#x27; measured?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Wrong version</li><li>Preprocessing mismatch</li><li>Feature outage</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Roll back immediately, compare inputs with the training distribution, check version, preprocessing and feature values, then write a postmortem.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Rollback first, diagnose second, then prevent recurrence.</p></div></div></details></div></details><details class="card" id="s17"><summary>17. Model Serving</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Serving delivers predictions either online through an API or in batch. For online, I use FastAPI with request validation, a warmed-up model, caching where valid, and I watch p95/p99 latency and throughput, scaling horizontally on Kubernetes.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Batch vs online choice</li><li>API design and validation (Pydantic)</li><li>Latency/throughput: warm-up, caching, async, batching, GPU</li><li>Scaling and observability</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Fraud API under 100 ms p99 with feature lookups from Redis; nightly batch scoring for churn.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Use percentile latencies, not averages.</p></div><div class="bad"><div class="lab">AVOID</div><p>Loading the model on every request.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> Latency jumped from 100 ms to 3 s. What now?<br><b>How to answer:</b> Check recent deploys, per-stage timings, feature-store calls, CPU/memory throttling, cold starts and traffic spikes.</p></div>
+<details class="scn"><summary>Scenario 1: Your prediction API latency rises from 100 ms to 3 seconds. How do you debug it?</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Since when and for all requests?</li><li>Any recent deploy?</li><li>What changed in traffic?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>New model heavier</li><li>Feature store or DB calls slow</li><li>CPU throttling or memory pressure</li><li>Cold starts or autoscaling lag</li><li>Traffic spike</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Look at p50/p95/p99, per-stage traces, deploy history, resource metrics, dependency latencies.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Fix the slow component: cache or batch feature lookups, resize resources, warm up, scale out, optimise or distil the model, roll back if a deploy caused it.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Caching can serve stale features; larger pods cost more.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I use tracing to find the slow stage, check recent changes and resources, then fix or roll back and add latency alerts.</p></div></div></details><details class="scn"><summary>Scenario 2: The serving container crashes under high traffic.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What do the logs and metrics say?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Out of memory</li><li>Too many workers</li><li>No backpressure</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Set resource limits and requests, tune workers, add autoscaling and backpressure, and load test.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Limits, autoscaling and load testing.</p></div></div></details><details class="scn"><summary>Scenario 3: You must serve 10,000 requests per second.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What is the latency target?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Single instance</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Scale horizontally, use batching and caching, an efficient model and async handling behind a gateway.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Horizontal scale plus efficiency work.</p></div></div></details><details class="scn"><summary>Scenario 4: Invalid requests intermittently break the API.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What kind of inputs?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>No request validation</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Validate with Pydantic, version the schema, return clear 4xx errors and log them.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Validate at the boundary and log failures.</p></div></div></details><details class="scn"><summary>Scenario 5: New replicas are slow right after scale-out.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How long does model loading take?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Cold start</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Preload and warm up the model, keep minimum replicas and use readiness probes.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Warm-up and readiness probes.</p></div></div></details></div></details><details class="card" id="s18"><summary>18. Model Monitoring</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Monitoring has three layers: system (latency, errors, resources), data (quality and drift) and model (performance, prediction distribution). Because labels often arrive late, I use drift and proxy metrics for early warning, then confirm with real performance later. Alerts have thresholds and owners.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>System, data and model layers</li><li>Drift types: data/feature, prediction, concept</li><li>Delayed labels and proxy metrics</li><li>Dashboards, alerts, and link to retraining</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Evidently drift reports daily, Prometheus metrics for latency, Grafana dashboard, alert when PSI &gt; 0.2 on key features.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Distinguish data drift (inputs change) from concept drift (input-output relationship changes).</p></div><div class="bad"><div class="lab">AVOID</div><p>Saying &#x27;we monitor accuracy&#x27; without explaining label delay.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> Data drift or concept drift?<br><b>How to answer:</b> Compare input distributions for data drift; if inputs are stable but performance falls once labels arrive, suspect concept drift.</p></div>
+<details class="scn"><summary>Scenario 1: Your model&#x27;s accuracy drops after 30 days in production. What do you investigate?</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Gradual or sudden?</li><li>Any upstream change?</li><li>Are labels delayed or biased?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Data drift</li><li>Concept drift</li><li>Upstream data bug</li><li>Seasonality</li><li>Label delay or pipeline change</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Check data quality first, compare feature distributions to training, break performance down by segment and time.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Fix upstream bugs if found, otherwise retrain on recent data and validate against the champion; add drift and segment alerts.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Retraining too often adds cost and instability.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I rule out data bugs, then separate data drift from concept drift, and retrain through the normal gates if needed.</p></div></div></details><details class="scn"><summary>Scenario 2: Your input data distribution changes suddenly.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Was there an upstream release?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Upstream bug</li><li>Real change such as a campaign</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Check data quality first, compare features to the reference, apply a fallback if needed, then retrain if the change is real.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I separate bugs from real shifts before acting.</p></div></div></details><details class="scn"><summary>Scenario 3: The model receives valid inputs but produces unexpected predictions.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which segment shows it?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Feature values off</li><li>Version mismatch</li><li>Edge cases</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Inspect the logged features, compare with offline replay and check version and preprocessing.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I replay the logged request offline to compare.</p></div></div></details><details class="scn"><summary>Scenario 4: Labels arrive 60 days late. How do you monitor?</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Are there proxy signals?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Delayed ground truth</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use drift and prediction-distribution monitoring, business proxies and evaluate matured cohorts when labels land.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Proxies now, true metrics when labels mature.</p></div></div></details><details class="scn"><summary>Scenario 5: Drift alerts are so numerous that people ignore them.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which features alert?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Alerts on unimportant features</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Weight by feature importance, tune thresholds, aggregate and use severity levels.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Prioritise alerts that matter to the model.</p></div></div></details></div></details><details class="card" id="s19"><summary>19. Automated Retraining</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Retraining is triggered by a schedule, drift or performance alerts, or enough new labelled data. The retrained model is never deployed blindly: it goes through the same validation gates and is compared with the current champion.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Triggers: schedule, drift, performance, data volume</li><li>Pipeline reruns with fresh versioned data</li><li>Same gates as any new model</li><li>Cost and stability guardrails</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Airflow DAG triggered by a drift alert trains a challenger, evaluates, and registers it only if it beats the champion.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Warn that retraining on bad or drifted data can make things worse.</p></div><div class="bad"><div class="lab">AVOID</div><p>Retraining automatically straight into production.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> How do you decide when to retrain?<br><b>How to answer:</b> Use measured degradation or drift beyond thresholds, plus a periodic schedule as a safety net.</p></div>
+<details class="scn"><summary>Scenario 1: How do you decide when to retrain a model?</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>How fast does the domain change?</li><li>How quickly do labels arrive?</li><li>What does retraining cost?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Retraining by habit or too late</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Track performance, drift metrics and data volume over time.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Combine a schedule as a safety net with triggers: performance below a threshold, significant drift on key features or enough new labelled data; always validate before promotion.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Frequent retraining uses compute and may amplify noise.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I use scheduled plus signal-based triggers and validate every retrained model against the champion.</p></div></div></details><details class="scn"><summary>Scenario 2: Retraining produced a worse model.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What data window was used?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Bad or biased recent data</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Rely on gates against the champion, inspect the training window and data quality and keep the champion.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Gates keep a worse model out; I investigate the data.</p></div></div></details><details class="scn"><summary>Scenario 3: Retraining cost is too high.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How often is it triggered?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Retraining by habit</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Trigger on signals, use warm starts or subsampling, cheaper hardware and sensible schedules.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Retrain when signals say so, not by habit.</p></div></div></details><details class="scn"><summary>Scenario 4: Model decisions influence the data it is retrained on (feedback loop).</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What actions does the model drive?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Selection bias</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Keep random exploration or holdout, log counterfactual information and monitor bias.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I keep an exploration holdout to avoid self-reinforcing bias.</p></div></div></details><details class="scn"><summary>Scenario 5: How do you tell data drift from concept drift?</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Do you have recent labels?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Both can occur together</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Compare input distributions for data drift; if inputs are stable but performance drops once labels arrive, suspect concept drift.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Inputs changed means data drift; relationship changed means concept drift.</p></div></div></details></div></details><details class="card" id="s20"><summary>20. Continuous Training (CI/CD/CT)</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Continuous training makes the full loop automatic: data checks, training, evaluation, gates, registry, deployment and monitoring, all defined as code. CI tests code and data, CD ships the service, CT keeps the model fresh, and every step has gates and rollback.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>CI: tests for code, data and model</li><li>CD: automated, gated deployment</li><li>CT: automated retraining</li><li>Governance, approvals and rollback</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>GitHub Actions runs tests and builds the image; Airflow runs training; the registry alias triggers a canary rollout.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Mention where a human stays in the loop for high-risk models.</p></div><div class="bad"><div class="lab">AVOID</div><p>Equating ML CI/CD with just deploying code.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> Pipeline passed but the deployed model fails. Why?<br><b>How to answer:</b> Tests did not cover data or serving conditions: training-serving skew, a different environment, missing validation of real inputs.</p></div>
+<details class="scn"><summary>Scenario 1: Your CI/CD pipeline passes, but the deployed model fails. Why?</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>What failed exactly?</li><li>What did tests cover?</li><li>What differs between test and production?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Tests do not cover real data or serving</li><li>Environment mismatch</li><li>Training-serving skew</li><li>Missing integration tests</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Reproduce with production-like inputs, compare environments, review test coverage.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Add data validation tests, model validation tests, integration tests of the serving container with realistic requests, staging environment and canary with automated rollback.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>More test layers lengthen the pipeline.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>CI only proved the code; I add data, model and serving integration tests plus a canary so real conditions are covered.</p></div></div></details><details class="scn"><summary>Scenario 2: The full CI pipeline is too slow to run on every commit.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What does it run?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Training in CI</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use a test pyramid with small data in CI, caching, and run heavy training on schedule or after merge.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Fast tests on commit, heavy jobs later.</p></div></div></details><details class="scn"><summary>Scenario 3: Dev, staging and production behave differently.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What differs?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Manual environment setup</li><li>Config in code</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use containers, Terraform for infrastructure and separate configuration, promoting the same image.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Infrastructure as code and the same image everywhere.</p></div></div></details><details class="scn"><summary>Scenario 4: A secret is committed to the repository.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Was it exposed?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>No secret scanning</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Rotate immediately, move to a secret manager, add scanning and pre-commit hooks.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Rotate first, then prevent.</p></div></div></details><details class="scn"><summary>Scenario 5: Noisy alerts trigger endless retraining loops.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How are triggers defined?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>No cooldown</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Add cooldowns, minimum data requirements, a maximum retrain rate and approval for costly runs.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Rate limits and cooldowns on retraining.</p></div></div></details></div></details>
+<h2 id="ing">5. Stage 1 sub-topics: how to explain each</h2>
+<details class="card" id="g1"><summary>Idempotency</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>An idempotent job gives the same final result no matter how many times it runs on the same input. That matters because retries, backfills and duplicate triggers are normal. I get it with deterministic keys, upserts or partition overwrite, and atomic writes.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Define it simply</li><li>Why retries make it necessary</li><li>Techniques: upsert by key, overwrite partition, temp file + rename</li><li>Test: run twice and compare</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Airflow retried a timed-out task; because writes upsert by order_id, no duplicates appeared.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Connect it to at-least-once delivery.</p></div><div class="bad"><div class="lab">AVOID</div><p>Defining it only as &#x27;running twice&#x27;.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> Is idempotency the same as exactly-once?<br><b>How to answer:</b> No. Exactly-once is a delivery guarantee; idempotent writes make at-least-once behave like exactly-once.</p></div>
+<details class="scn"><summary>Scenario 1: A task retry created duplicate rows in your training table.</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Is there a business key?</li><li>How are writes done?</li><li>How many duplicates?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Append-only writes</li><li>No dedup rule</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Count rows per key, find the run ids that wrote them.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Dedup by key, then switch to upserts or partition overwrite with atomic writes so retries are safe.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Upserts cost more than appends.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I clean the duplicates and make the job idempotent via upserts and atomic partition writes.</p></div></div></details><details class="scn"><summary>Scenario 2: A backfill overwrites newer data with older data.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How are versions compared?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Blind overwrite</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Upsert only if the incoming updated_at or version is newer and give each partition a single owner.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Only newer versions may overwrite.</p></div></div></details><details class="scn"><summary>Scenario 3: The job is idempotent, but a downstream API call or email is sent twice.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Does the sink support idempotency keys?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Side effects outside storage</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use idempotency keys, an outbox pattern and dedup at the sink.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Side effects need idempotency keys too.</p></div></div></details><details class="scn"><summary>Scenario 4: Two runs of the same job overlap.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is concurrency limited?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>No locking</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Limit max active runs, use locks and unique run ids.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Prevent overlapping runs.</p></div></div></details><details class="scn"><summary>Scenario 5: How do you test that a job is idempotent?</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which outputs matter?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Untested assumption</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Run it twice on the same input and compare checksums; replay and fault-injection tests.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Run twice and compare.</p></div></div></details></div></details><details class="card" id="g2"><summary>Incremental Loading &amp; Watermark</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Incremental loading fetches only rows changed since the last successful run, tracked with a watermark such as max(updated_at). The watermark moves only after the data is safely written. Limits: it misses hard deletes and unreliable change columns, which is where CDC helps.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Why not full loads at scale</li><li>Watermark column and checkpoint</li><li>Advance after success</li><li>Limits and alternatives (CDC)</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Fetch orders with updated_at greater than the saved watermark each night.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Mention an overlap window for late-arriving data.</p></div><div class="bad"><div class="lab">AVOID</div><p>Moving the watermark before the write.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> Source clock skewed or late rows?<br><b>How to answer:</b> Re-read an overlap window (last N hours) and dedup by key.</p></div>
+<details class="scn"><summary>Scenario 1: Late-arriving data keeps being missed by your watermark-based ingestion.</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>How late is the data?</li><li>Is updated_at reliable?</li><li>Is there clock skew?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Rows committed after the watermark advanced</li><li>Source timestamp not bumped</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Compare source vs landed counts by day.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Re-read an overlap window (e.g. last 24 hours), dedup by key, or move to CDC.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Overlap rereads data; CDC needs more infrastructure.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I add an overlap window with dedup, and use CDC if lateness or deletes matter.</p></div></div></details><details class="scn"><summary>Scenario 2: The source updated_at is not bumped on some changes.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which changes are missed?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Bulk updates bypassing triggers</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use a version column, CDC or hash comparison and add periodic reconciliation.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Do not trust an unreliable change column.</p></div></div></details><details class="scn"><summary>Scenario 3: The watermark state is lost.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Where was state stored?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Local file</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Store state durably, recover with an overlap rescan and idempotent writes.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Durable state plus an idempotent rescan.</p></div></div></details><details class="scn"><summary>Scenario 4: The source hard-deletes rows.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Do you need deletes?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Watermarks cannot see deletes</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use CDC or tombstones and periodic reconciliation.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Use CDC for deletes.</p></div></div></details><details class="scn"><summary>Scenario 5: Source and pipeline time zones differ.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What zone does the source use?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Implicit time zones</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Standardise on UTC and be explicit on conversions.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>UTC everywhere.</p></div></div></details></div></details><details class="card" id="g3"><summary>Batch vs Streaming vs CDC</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Batch is scheduled, simple and easy to backfill. Streaming processes events continuously for second-level freshness but needs ordering, state and 24x7 operations. CDC streams database changes including deletes. I choose by the freshness the use case actually needs.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Define each in one line</li><li>Decision factor: freshness vs complexity</li><li>Cost and operations</li><li>Pick per use case</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Nightly churn: batch. Card fraud features: stream. Mirror a transactional table with deletes: CDC.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Say streaming is not automatically better.</p></div><div class="bad"><div class="lab">AVOID</div><p>Choosing streaming for everything.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> What is micro-batching?<br><b>How to answer:</b> Processing small time-window batches, e.g. Spark Structured Streaming, balancing latency and simplicity.</p></div>
+<details class="scn"><summary>Scenario 1: Product wants real-time predictions, but your pipeline is a nightly batch. How do you decide?</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>What is the true freshness requirement?</li><li>Which features need to be fresh?</li><li>What is the budget and team skill?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Real-time requested without a need</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Quantify the value of freshness per feature.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Use batch for slow features, stream or online lookups only for the few fast-changing ones; hybrid architecture.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Streaming increases cost and operational burden.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I clarify the real freshness need and stream only the features that require it, keeping the rest batch.</p></div></div></details><details class="scn"><summary>Scenario 2: A CDC pipeline falls behind after a bulk update at the source.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How big is the burst?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Burst throughput</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Scale consumers, throttle bulk jobs and use a bulk path for large changes.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Absorb bursts with scaling and throttling.</p></div></div></details><details class="scn"><summary>Scenario 3: Events arrive out of order in the stream.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How late can they be?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Network delays</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use event time, watermarks with allowed lateness and reorder where needed.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Event time with allowed lateness.</p></div></div></details><details class="scn"><summary>Scenario 4: Choose between self-managed Kafka and a managed streaming service.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What is the team&#x27;s operations capacity?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Operational burden</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Compare cost, skills and ecosystem; choose managed when the team is small.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Match the choice to ops capacity.</p></div></div></details><details class="scn"><summary>Scenario 5: Payments require exactly-once processing.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Where can duplicates appear?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>At-least-once delivery</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use transactional producers and consumers or idempotent sinks with dedup keys.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Transactions or idempotent sinks.</p></div></div></details></div></details><details class="card" id="g4"><summary>ETL vs ELT</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>ETL transforms data before loading it; ELT loads raw data first and transforms inside the warehouse or lake. For ML, ELT is the common default because the raw data is kept for reprocessing and cheap compute scales. ETL still fits when data must be masked before landing.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Order of steps</li><li>Benefits of ELT (raw retained, reprocessable)</li><li>When ETL (PII masking, compliance)</li><li>Tools</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Land raw API JSON in S3, then transform with Spark or dbt.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Mention PII handling as the main reason for ETL.</p></div><div class="bad"><div class="lab">AVOID</div><p>Treating one as always better.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> Where would you mask PII?<br><b>How to answer:</b> Before it lands in broadly accessible zones, or tokenise at ingestion.</p></div>
+<details class="scn"><summary>Scenario 1: Legal says raw PII must never be stored in the data lake. How do you design ingestion?</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Which fields are PII?</li><li>Do models need them?</li><li>What retention rules apply?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Pure ELT landing raw PII</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Map fields and consumers.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Use ETL at the boundary: tokenise or hash PII before landing, keep a mapping in a restricted vault, restrict access, document lineage.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Hashing can limit analytics; tokens need governance.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I mask or tokenise PII before it lands and keep the rest ELT for flexibility.</p></div></div></details><details class="scn"><summary>Scenario 2: SQL transformations became unmaintainable.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How are they organised?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Giant scripts</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Adopt modular models with dbt, tests and version control.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Modular, tested, versioned transformations.</p></div></div></details><details class="scn"><summary>Scenario 3: A bug in transformation logic requires reprocessing.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which partitions are affected?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Logic error</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>ELT keeps raw data, so fix the code and rerun the affected partitions with versioned logic.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Raw data retained means safe reprocessing.</p></div></div></details><details class="scn"><summary>Scenario 4: Transformation costs in the warehouse spike.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which models are expensive?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Full refreshes</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use incremental models, partitions and cost monitoring.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Incremental models and cost visibility.</p></div></div></details><details class="scn"><summary>Scenario 5: Compliance requires data to stay in a region.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which regions?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Cross-region movement</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Build regional pipelines and storage and move only aggregated or permitted data.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Regional pipelines for residency.</p></div></div></details></div></details><details class="card" id="g5"><summary>Schema Evolution &amp; Data Contracts</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Schemas change. I classify changes as additive or breaking, allow additive ones with a warning, and fail fast with quarantine on breaking ones. A data contract with the producing team, enforced by a schema check or registry, prevents silent damage to features.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Additive vs breaking</li><li>Detect at ingestion</li><li>Quarantine, alert, map old to new</li><li>Contracts and versioning</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Column amount renamed to total_amount: batch quarantined, producer notified, mapping added, contract version bumped.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Mention backward vs forward compatibility.</p></div><div class="bad"><div class="lab">AVOID</div><p>Using select * and trusting column order.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> How does a schema registry help?<br><b>How to answer:</b> It stores versioned schemas (Avro/Protobuf) and enforces compatibility rules between producers and consumers.</p></div>
+<details class="scn"><summary>Scenario 1: A source team renamed a column overnight and the pipeline silently produced nulls.</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Was there a contract?</li><li>Did validation run?</li><li>What consumed the nulls?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>No schema check</li><li>select * with positional mapping</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Diff the schema and null rates against yesterday.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Fail fast on breaking changes, quarantine the batch, map the new name, version the contract and alert both teams.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Strictness delays data when changes are harmless.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I enforce a schema contract that fails fast on breaking changes and quarantines the batch.</p></div></div></details><details class="scn"><summary>Scenario 2: A column type changes from int to string and breaks reads.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which consumers read it?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Uncontrolled type change</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Define schema evolution rules, add a casting layer, use table formats and version the schema.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Controlled type evolution with a cast layer.</p></div></div></details><details class="scn"><summary>Scenario 3: A new nullable column is added and a model breaks.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Does the model select features explicitly?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>select * usage</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Select features explicitly, ignore unknown columns and add new ones after review.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Explicit feature selection.</p></div></div></details><details class="scn"><summary>Scenario 4: A producer wants to remove a field.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Who consumes it?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Unknown consumers</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use lineage to find consumers, run a deprecation period and version the contract.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Deprecate with lineage-based impact analysis.</p></div></div></details><details class="scn"><summary>Scenario 5: Nested JSON changes shape.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How frequently?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Schema-on-read surprises</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Validate on read, flatten with defaults and quarantine unmatched records.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Validate and quarantine.</p></div></div></details></div></details><details class="card" id="g6"><summary>Deduplication</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>I pick a business key and a rule for which record wins, usually latest updated_at. Deduplicate inside the batch, at write with upserts, and again on read, because late data and updates can leave multiple versions across partitions.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Define key and tie-break rule</li><li>Within batch, at write, on read</li><li>Exact vs fuzzy duplicates</li><li>Test with replayed data</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Order 1 updated next day exists in two partitions; readers keep the newest row per order_id.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Mention the cross-partition duplicate trap.</p></div><div class="bad"><div class="lab">AVOID</div><p>Dropping duplicates without a defined winner rule.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> Exact vs fuzzy dedup?<br><b>How to answer:</b> Exact uses keys or hashes; fuzzy uses similarity (e.g. names) and needs thresholds and review.</p></div>
+<details class="scn"><summary>Scenario 1: Your dataset contains duplicate records from multiple source systems. How do you prevent duplicate training?</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>What identifies the same entity?</li><li>Which system wins?</li><li>Exact or fuzzy duplicates?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>No global key</li><li>Same event sent by two systems</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Profile duplicate rates and keys.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Define a business key and survivorship rule, dedup at ingestion and again before building the training set, use fuzzy matching with review for near-duplicates, and test for duplicates across train/test.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Aggressive dedup may merge distinct entities.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I define the key and winner rule, dedup at ingestion and training-set build, and verify no duplicates leak across splits.</p></div></div></details><details class="scn"><summary>Scenario 2: Dedup removes legitimate repeated events such as repeat purchases.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What identifies an event?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Key too coarse</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use an event id plus time as the key and define the business key properly.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>The key must identify the event, not the user.</p></div></div></details><details class="scn"><summary>Scenario 3: Fuzzy duplicates exist across customer names.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How many records?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Spelling variants</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use blocking plus similarity scoring, thresholds, human review and a golden record.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Blocking, similarity and review.</p></div></div></details><details class="scn"><summary>Scenario 4: Duplicates across train and test inflate the score.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which entity is repeated?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Entity leakage</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Dedup before splitting and use group splits by entity.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Group split by entity.</p></div></div></details><details class="scn"><summary>Scenario 5: Deduplication is slow at scale.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How many rows?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Global sort or shuffle</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use partition-wise or hash-based dedup, window functions or Spark dropDuplicates on the key.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Hash and partition-wise dedup.</p></div></div></details></div></details><details class="card" id="g7"><summary>Data Lineage</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Lineage records where each dataset came from and which jobs, code versions and runs produced it. It lets me debug bad predictions, prove compliance and reproduce a model. I store source, run id, code version and row counts with every partition.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>What it is</li><li>Why: debugging, audit, reproducibility</li><li>What metadata to capture</li><li>Tools (OpenLineage, DataHub, DVC)</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>An auditor asks which tables fed credit model v12; the lineage metadata answers it.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Distinguish lineage (history) from versioning (snapshots).</p></div><div class="bad"><div class="lab">AVOID</div><p>Confusing it with logging.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> Lineage vs versioning?<br><b>How to answer:</b> Versioning pins a snapshot; lineage explains how it was produced and what depends on it.</p></div>
+<details class="scn"><summary>Scenario 1: An auditor asks which data trained the model that rejected a loan application.</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Which model version?</li><li>Is lineage recorded?</li><li>Is the data still retained?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>No lineage metadata</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Trace model version to run, dataset version and source partitions.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Use registry lineage: model → run → dataset hash → source partitions and code commit; retain data per policy.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Retention costs storage and has privacy implications.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Lineage lets me trace model to run to dataset to sources, and I would retain that metadata by policy.</p></div></div></details><details class="scn"><summary>Scenario 2: An upstream table is being deprecated. Who is affected?</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is there a lineage graph?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Unknown consumers</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Query downstream lineage, notify owners and plan a migration.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Lineage gives the impact list.</p></div></div></details><details class="scn"><summary>Scenario 3: Notebook-created datasets have no lineage.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Who creates them?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Ad-hoc work outside pipelines</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Require pipeline-based datasets, register them and capture metadata automatically.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Move ad-hoc work into registered pipelines.</p></div></div></details><details class="scn"><summary>Scenario 4: You need row-level traceability for one prediction.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What identifiers are logged?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Missing request logging</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Log request id, model version, feature versions and data snapshot ids.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Log the ids that tie a prediction to its inputs.</p></div></div></details><details class="scn"><summary>Scenario 5: Metadata stores are out of sync.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How is lineage captured?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Manual entry</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Emit lineage automatically from the orchestrator (for example OpenLineage).</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Automate lineage capture.</p></div></div></details></div></details><details class="card" id="g8"><summary>Leakage Starting at Ingestion</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>Leakage can begin before modelling: pulling fields that would not exist at prediction time, or overwriting history so old rows show newer values. I keep history, store event time and ingestion time separately, and rebuild features as of each prediction timestamp.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Examples of leaky fields</li><li>Keep history/append-only</li><li>Event time vs ingestion time</li><li>Point-in-time rebuild</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Using final order status (set days later) to predict at order time.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Mention slowly changing dimensions snapshots.</p></div><div class="bad"><div class="lab">AVOID</div><p>Thinking leakage is only a modelling problem.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> What is a point-in-time join?<br><b>How to answer:</b> Joining each row to feature values as they were at that row&#x27;s timestamp, not the latest values.</p></div>
+<details class="scn"><summary>Scenario 1: Offline metrics look too good, and you suspect leakage that started at ingestion.</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>Which features are strongest?</li><li>Is history overwritten?</li><li>Are timestamps stored?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Overwritten rows show later values</li><li>Fields set after the event</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Check top features for post-event info; rebuild a feature as-of the prediction time and compare.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Keep history, store event and ingestion time, rebuild features point-in-time, drop leaky fields.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Keeping history increases storage.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I keep history and rebuild features as-of each timestamp; scores usually drop to realistic levels.</p></div></div></details><details class="scn"><summary>Scenario 2: A feature uses a status field that is updated after the outcome.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>When is the field set?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Post-event update</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use snapshots or an as-of history, or drop the field.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Use as-of values.</p></div></div></details><details class="scn"><summary>Scenario 3: The test set contains data from the future relative to training.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>How was it split?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Random split on temporal data</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Split by time.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Time-based splits.</p></div></div></details><details class="scn"><summary>Scenario 4: Target encoding was computed on all data.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Was it fitted inside CV?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Label leakage</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Compute it out-of-fold with smoothing.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Out-of-fold encoding.</p></div></div></details><details class="scn"><summary>Scenario 5: The same customer appears in train and test.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What is the entity key?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Entity leakage</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Split by group so each entity is in one fold.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Group splits.</p></div></div></details></div></details><details class="card" id="g9"><summary>Scaling Ingestion (100 GB → 5 TB)</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>I profile first to find the bottleneck, then partition the work, move heavy transforms to Spark or Dask, read in parallel by partition key, use columnar partitioned storage and incremental loads, and protect the source with replicas and throttling.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Profile and find the bottleneck</li><li>Parallelise by partition</li><li>Distributed engine and columnar formats</li><li>Protect source; watch skew and cost</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Replace a single-node Pandas job with Spark reading 200 date/key partitions in parallel.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Mention data skew and cost.</p></div><div class="bad"><div class="lab">AVOID</div><p>Just adding a bigger machine.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> How do you handle skew?<br><b>How to answer:</b> Salting hot keys, better partition keys, adaptive query execution, or broadcasting small tables.</p></div>
+<details class="scn"><summary>Scenario 1: Your pipeline processes 100 GB daily but now receives 5 TB. How do you scale?</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>One-off or steady?</li><li>What is the SLA?</li><li>Where is the bottleneck?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Single-node memory</li><li>Single reader</li><li>No partitioning</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Profile read, transform and write throughput.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Move to Spark/Dask, partitioned parallel reads, Parquet, incremental loads, horizontal scaling, protect the source.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Parallelism costs more and can skew.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I profile first, then distribute and partition the work while protecting the source.</p></div></div></details><details class="scn"><summary>Scenario 2: One skewed key keeps a Spark task running for hours.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which key is hot?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Data skew</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Salt the hot key, use adaptive query execution, repartition or broadcast small tables.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Salting and AQE.</p></div></div></details><details class="scn"><summary>Scenario 3: The source cannot handle parallel reads.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What are its limits?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Overloaded source</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use a read replica, throttling, snapshot exports or CDC.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Protect the source with replicas and exports.</p></div></div></details><details class="scn"><summary>Scenario 4: Daily processing cost at 5 TB is too high.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Which stage costs most?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Reading unneeded data</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Filter early, use columnar compression, incremental loads, spot capacity and retention.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Read less data.</p></div></div></details><details class="scn"><summary>Scenario 5: Cross-region transfer is slow.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Where does compute run?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Data far from compute</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Co-locate compute, compress, transfer incrementally or use transfer services.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Move compute to the data.</p></div></div></details></div></details><details class="card" id="g10"><summary>Debugging a Failed Pipeline</summary><div class="cb">
+<div class="say"><div class="lab">SAY THIS FIRST (about 30 seconds)</div><p>I open the task log for the first error, classify it as access, source, data or infrastructure, confirm no partial data was written, fix the cause and re-run the failed partition. Because jobs are idempotent, the re-run is safe, and I add a freshness alert to catch it earlier next time.</p></div>
+<div><div class="lab">THEN EXPAND IN THIS ORDER (about 2 minutes)</div><ol><li>Find first error and when it started</li><li>Classify the cause</li><li>Check partial writes</li><li>Fix, re-run, add prevention</li></ol></div>
+<div><div class="lab">EXAMPLE TO CITE</div><p>Expired credentials caused a 2 AM failure; rotated secret, re-ran the partition, added alert.</p></div>
+<div class="two"><div class="good"><div class="lab">SENIOR SIGNAL</div><p>Show a calm, structured approach and prevention mindset.</p></div><div class="bad"><div class="lab">AVOID</div><p>Randomly re-running until it works.</p></div></div>
+<div class="fu"><div class="lab">LIKELY FOLLOW-UP</div><p><b>Q:</b> How do you backfill 30 missed days?<br><b>How to answer:</b> Run partition-by-partition via the orchestrator&#x27;s backfill, throttled, relying on idempotent writes.</p></div>
+<details class="scn"><summary>Scenario 1: The ingestion job fails only on Mondays. How do you debug it?</summary><div class="scb">
+<div><div class="lab">CLARIFYING QUESTIONS TO ASK</div><ul><li>What is different on Mondays?</li><li>Same error each time?</li><li>What runs before it?</li></ul></div>
+<div><div class="lab">POSSIBLE ROOT CAUSES</div><ul><li>Weekend data volume</li><li>Source maintenance window</li><li>Weekly dependency job overlap</li><li>Schedule or time zone issues</li></ul></div>
+<div><div class="lab">INVESTIGATION</div><p>Compare Monday logs with other days: volume, duration, errors, concurrent jobs.</p></div>
+<div><div class="lab">RECOMMENDED SOLUTION</div><p>Fix the cause: scale for volume, shift the schedule, add dependency sensors, add alerts.</p></div>
+<div><div class="lab">TRADE-OFF</div><p>Shifting the schedule can delay downstream work.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>I compare Monday runs with other days to find the difference, then fix the volume, schedule or dependency problem.</p></div></div></details><details class="scn"><summary>Scenario 2: The pipeline succeeds, but the data is wrong.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What check would have caught it?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>No validation or reconciliation</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Check row counts, freshness and distributions against the source, trace through lineage and add the missing checks.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Success is not correctness; I add reconciliation checks.</p></div></div></details><details class="scn"><summary>Scenario 3: A failure is intermittent.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What correlates with failures?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Flaky dependency</li><li>Resource spikes</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Collect logs and resource metrics, correlate with time and source events, add retries and alerts.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Correlate, then add retries and alerts.</p></div></div></details><details class="scn"><summary>Scenario 4: Nobody noticed a failure for two days.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>What alerting exists?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>No freshness alert</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Add failure and freshness alerts, SLAs, an on-call rotation and dashboards.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Alert on freshness, not only on failure.</p></div></div></details><details class="scn"><summary>Scenario 5: Two teams blame each other for bad data.</summary><div class="scb">
+<div><div class="lab">ASK</div><p>Is there a contract?</p></div>
+<div><div class="lab">LIKELY CAUSES</div><ul><li>Unclear ownership</li></ul></div>
+<div><div class="lab">INVESTIGATE AND FIX</div><p>Use data contracts, lineage, runbooks and explicit ownership.</p></div>
+<div class="say"><div class="lab">INTERVIEW-READY ANSWER</div><p>Contracts and ownership remove blame.</p></div></div></details></div></details>
+
+<h2 id="practice">6. Practice routine (30 minutes a day)</h2>
+<div class="panel"><ol><li>Pick one card. Read only the heading and speak the 30-second answer aloud without looking.</li>
+<li>Record yourself. Check: did you lead with the definition, give one example, name a failure mode?</li>
+<li>Expand to 2 minutes with the 6-step order. Time it.</li>
+<li>Ask the follow-up question from the card and answer it in 30 seconds.</li>
+<li>Repeat the topic after 2 days and 7 days (spaced repetition).</li>
+<li>Once a week, do a full mock: have someone pick random topics and interrupt with "why?" and "what if it fails?".</li></ol></div>
+
+<h2 id="rubric">7. Self-scoring rubric (score each answer 0–2 per row)</h2>
+<table><tr><th>Check</th><th>0</th><th>1</th><th>2</th></tr>
+<tr><td>Clear definition in the first sentence</td><td>Missing</td><td>Vague</td><td>Precise, one line</td></tr>
+<tr><td>Explains why it exists</td><td>No</td><td>Generic</td><td>Linked to a real problem</td></tr>
+<tr><td>Concrete example with numbers</td><td>None</td><td>Generic</td><td>Specific system and numbers</td></tr>
+<tr><td>Failure mode and handling</td><td>None</td><td>Mentioned</td><td>Detection + fix + prevention</td></tr>
+<tr><td>Trade-off or alternative</td><td>None</td><td>Named</td><td>Explained with a decision</td></tr>
+<tr><td>Structure and time</td><td>Rambling</td><td>OK</td><td>30 s summary then clean expansion</td></tr></table>
+<p class="dim">10–12 is interview-ready for that topic; 7–9 needs one more practice round; below 7 revisit the topic itself.</p>
+</main>
+<script>
+document.getElementById('q').addEventListener('input',function(){
+  const t=this.value.toLowerCase().trim();
+  document.querySelectorAll('.card').forEach(c=>{
+    const m=!t||c.textContent.toLowerCase().includes(t);
+    c.classList.toggle('hidden',!m); if(m&&t)c.open=true;
+  });
+});
+</script></body></html>
