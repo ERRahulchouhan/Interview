@@ -1,0 +1,1765 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Machine Learning Interview Guide — Parts 1 &amp; 2 (Advanced + 100 Questions)</title>
+<style>
+:root{--bg:#0f1419;--card:#1c2430;--card2:#10151d;--bd:#2a3444;--tx:#e6edf3;--dim:#9aa8b8;--ac:#5eb3ff;--ac2:#7ee0c1;--warn:#f0b45e}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.55;display:flex}
+nav{width:280px;flex-shrink:0;height:100vh;position:sticky;top:0;overflow-y:auto;background:#0b0f14;border-right:1px solid var(--bd);padding:18px 14px}
+nav h3{margin:0 0 10px;font-size:15px;color:var(--ac2)}
+nav a{display:block;color:var(--dim);text-decoration:none;font-size:13px;padding:5px 8px;border-radius:6px}
+nav a:hover{background:var(--card);color:var(--tx)}
+.navpart{margin:14px 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ac)}
+main{flex:1;min-width:0;max-width:980px;margin:0 auto;padding:28px 24px 80px}
+header h1{margin:0 0 6px;font-size:clamp(22px,3.5vw,32px);background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+header p{color:var(--dim);margin:4px 0}
+.stats{display:flex;gap:26px;flex-wrap:wrap;margin:16px 0 22px}.stats b{display:block;font-size:22px;color:var(--ac)}.stats span{font-size:11px;color:var(--dim);text-transform:uppercase}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px 20px;margin:16px 0}
+.panel h3{margin:0 0 8px;font-size:16px}
+.levels{display:flex;gap:8px;flex-wrap:wrap}.levels span{border:1px solid;border-radius:20px;padding:3px 12px;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}
+th,td{border-bottom:1px solid var(--bd);padding:7px 9px;text-align:left;vertical-align:top}th{color:var(--ac2);font-size:12px;text-transform:uppercase}
+#q{width:100%;background:var(--card);border:1px solid var(--bd);color:var(--tx);padding:10px 14px;border-radius:8px;margin:6px 0 4px;font-size:14px}
+.topic{margin:40px 0;scroll-margin-top:16px}
+.topic h2{font-size:21px;border-bottom:2px solid var(--ac);padding-bottom:8px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.lvl{font-size:11px;border:1px solid;border-radius:20px;padding:2px 10px;font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.box{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px 16px;margin:12px 0}
+.grid .box{margin:0}
+.box h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--ac2)}
+.box p{margin:4px 0;font-size:14px;color:#cfd9e4}.hi{color:var(--warn)!important;font-size:13px!important}
+.box ul{margin:4px 0;padding-left:18px;font-size:14px;color:#cfd9e4}.warn{border-color:#5a4a2a}
+pre{margin:0;overflow-x:auto}pre.m{white-space:pre-wrap;font-family:Consolas,Menlo,monospace;font-size:13px;color:#d4e4f7}
+pre.code{background:#0a0e14;border:1px solid #3a4a5c;border-radius:8px;padding:14px;margin-top:8px}
+pre.code code{font-family:Consolas,Menlo,monospace;font-size:12.3px;line-height:1.55;color:#d4e4f7}
+.qa{background:var(--card2);border:1px solid var(--bd);border-radius:8px;margin:8px 0}
+.qa summary{cursor:pointer;padding:10px 14px;font-size:14px;font-weight:500}.qn{color:var(--ac2);font-weight:700;font-size:12px;margin-right:8px}
+.qa-body{padding:2px 14px 12px 14px;font-size:13.5px;color:#cfd9e4}.qa-body>div{margin:6px 0}.fu{color:var(--dim)}.short{border-left:3px solid var(--ac2);padding-left:10px}
+.hidden{display:none}
+footer{color:var(--dim);font-size:12px;text-align:center;margin-top:50px}
+@media(max-width:900px){nav{display:none}.grid{grid-template-columns:1fr}}
+</style></head><body>
+<nav><h3>ML Interview Guide</h3><a href="#roadmap">Roadmap</a><a href="#compare">Comparison tables</a><div class="navpart">Part A — Python &amp; Math Foundations</div><a href="#numpy-pandas">1. NumPy, Pandas, Matplotlib for ML</a><a href="#stats">2. Statistics &amp; Probability</a><a href="#hypothesis">3. Hypothesis Testing, P-value &amp; Confidence Intervals</a><a href="#linalg-calculus">4. Linear Algebra, Derivatives &amp; Gradients</a><div class="navpart">Part B — Core ML Concepts</div><a href="#bias-variance">5. Bias vs Variance, Overfitting &amp; Regularization</a><a href="#leakage-cv">6. Data Leakage, Cross-Validation &amp; Class Imbalance</a><div class="navpart">Part C — Evaluation Metrics</div><a href="#metrics">7. Classification &amp; Regression Metrics</a><div class="navpart">Part D — Supervised Algorithms</div><a href="#linreg">8. Linear Regression</a><a href="#logreg">9. Logistic Regression</a><a href="#dtree">10. Decision Tree</a><a href="#rf">11. Random Forest &amp; Bagging</a><a href="#gbm">12. Gradient Boosting, XGBoost, LightGBM, CatBoost, AdaBoost</a><a href="#svm">13. Support Vector Machine</a><a href="#knn-nb">14. KNN &amp; Naive Bayes</a><div class="navpart">Part E — Unsupervised Learning</div><a href="#kmeans">15. K-Means, Hierarchical, DBSCAN &amp; GMM</a><a href="#pca">16. PCA &amp; t-SNE</a><div class="navpart">Part F — Advanced Machine Learning</div><a href="#optimizers">17. Gradient Descent Variants &amp; Optimizers</a><a href="#feat-eng">18. Feature Engineering, Selection, Scaling, Missing Values &amp; Outliers</a><a href="#tuning">19. Hyperparameter Tuning: Grid vs Random vs Bayesian Optimization</a><a href="#ensembles">20. Stacking, Voting &amp; Ensemble Design</a><a href="#explain">21. Explainable AI: Permutation Importance, SHAP, LIME &amp; Interpretability</a><a href="#calibration">22. Calibration &amp; Probability Threshold Optimization</a><a href="#gmm-em">23. Gaussian Mixture Models, EM Algorithm &amp; Association Rules</a><div class="navpart">100-Question Bank</div><a href="#bank0">A. Advanced Theory (25)</a><a href="#bank1">B. Mathematical ML (15)</a><a href="#bank2">C. Scenario-Based Production Questions (20)</a><a href="#bank3">D. Python ML Coding (14)</a><a href="#bank4">E. Expert-Level Questions (16)</a><a href="#bank5">F. ML System Design &amp; MLOps (10)</a><a href="#next">Next parts</a></nav>
+<main>
+<header><h1>Machine Learning Interview Guide — Parts 1 &amp; 2</h1>
+<p>Foundations, core algorithms, advanced ML topics and a 100-question interview bank — with code, Hindi notes and follow-ups.</p></header>
+<div class="stats"><div><b>23</b><span>Topics</span></div><div><b>76</b><span>Topic Q&amp;A</span></div><div><b>100</b><span>New bank questions</span></div><div><b>43</b><span>Runnable code blocks</span></div></div>
+<input id="q" placeholder="Search topics, questions, code...">
+
+<section class="panel" id="roadmap"><h3>Learning roadmap</h3>
+<div class="levels"><span style="color:#7ee0c1">Level 1 Beginner</span><span style="color:#5eb3ff">Level 2 Intermediate</span><span style="color:#f0b45e">Level 3 Advanced</span><span style="color:#f07a7a">Level 4 Expert</span><span style="color:#c9a0ff">Level 5 Production ML</span></div>
+<p style="font-size:14px;color:#cfd9e4">Topics follow the 10-step structure (What → Why → When → How → Math → Example → Code → Q&amp;A → Mistakes → Advanced follow-ups). The 100-question bank at the end has no overlap with the topic Q&amp;A and is split into advanced theory, maths, scenarios, coding, expert and system design/MLOps.</p></section>
+
+<section class="panel" id="compare"><h3>Algorithm comparison</h3>
+<table><tr><th>Algorithm</th><th>Task</th><th>Needs scaling</th><th>Interpretability</th><th>Variance</th><th>Best for</th><th>Weak at</th></tr><tr><td>Linear Regression</td><td>Regression</td><td>Yes (for GD)</td><td>High</td><td>Low</td><td>Linear trends, interpretability</td><td>Outliers, non-linearity</td></tr><tr><td>Logistic Regression</td><td>Classification</td><td>Yes</td><td>High</td><td>Low</td><td>Baseline, probabilities</td><td>Non-linear boundaries</td></tr><tr><td>Decision Tree</td><td>Both</td><td>No</td><td>High</td><td>High</td><td>Rules, mixed data</td><td>Overfits, unstable</td></tr><tr><td>Random Forest</td><td>Both</td><td>No</td><td>Medium</td><td>Medium-Low</td><td>Strong tabular default</td><td>Slow inference, big models</td></tr><tr><td>Gradient Boosting / XGB / LGBM</td><td>Both</td><td>No</td><td>Low-Medium</td><td>Low</td><td>Best tabular accuracy</td><td>Tuning, noisy labels</td></tr><tr><td>SVM</td><td>Both</td><td>Yes</td><td>Low</td><td>Medium</td><td>High-dim, small data</td><td>Large n, no native probabilities</td></tr><tr><td>KNN</td><td>Both</td><td>Yes</td><td>Medium</td><td>High</td><td>Tiny data, baseline</td><td>High-dim, slow prediction</td></tr><tr><td>Naive Bayes</td><td>Classification</td><td>No</td><td>High</td><td>Medium</td><td>Text, fast baseline</td><td>Independence assumption</td></tr><tr><td>K-Means</td><td>Clustering</td><td>Yes</td><td>Medium</td><td>Medium</td><td>Spherical clusters</td><td>Needs k, outliers</td></tr><tr><td>GMM</td><td>Clustering / density</td><td>Yes</td><td>Medium</td><td>Medium</td><td>Overlapping elliptical clusters</td><td>Local optima, needs k</td></tr><tr><td>PCA</td><td>Dim. reduction</td><td>Yes</td><td>Medium</td><td>n/a</td><td>Compression, denoising</td><td>Linear only</td></tr></table>
+<h3 style="margin-top:18px">Optimizer comparison</h3>
+<table><tr><th>Optimizer</th><th>Strength</th><th>Watch out</th></tr><tr><td>SGD</td><td>Noisy, cheap, can generalise well</td><td>Needs LR tuning/decay</td></tr><tr><td>Momentum</td><td>Damps oscillation, faster in ravines</td><td>Extra hyperparameter β</td></tr><tr><td>Adagrad</td><td>Good for sparse features</td><td>LR decays to ~0</td></tr><tr><td>RMSProp</td><td>Fixes Adagrad decay</td><td>No bias correction</td></tr><tr><td>Adam</td><td>Fast default, adaptive per-parameter</td><td>May generalise slightly worse; use AdamW</td></tr></table>
+<h3 style="margin-top:18px">Which metric for which problem?</h3>
+<table><tr><th>Business situation</th><th>Use</th></tr><tr><td>Balanced classes, general</td><td>Accuracy, F1, ROC-AUC</td></tr><tr><td>Rare positives (fraud, defects)</td><td>PR-AUC, recall at fixed precision</td></tr><tr><td>Missing a positive is costly (cancer, default)</td><td>Recall, F2, cost-weighted</td></tr><tr><td>False alarms are costly (spam, moderation)</td><td>Precision, F0.5</td></tr><tr><td>Need good probabilities</td><td>Log loss, Brier, calibration curve</td></tr><tr><td>Regression, outliers matter</td><td>RMSE</td></tr><tr><td>Regression, robust to outliers</td><td>MAE, Huber</td></tr><tr><td>Relative error, non-zero targets</td><td>MAPE / sMAPE</td></tr></table></section>
+
+
+<section class="topic" id="numpy-pandas">
+  <h2>NumPy, Pandas, Matplotlib for ML <span class="lvl" style="border-color:#7ee0c1;color:#7ee0c1">Beginner</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>NumPy gives fast n-dimensional arrays; Pandas gives labelled tables (DataFrame); Matplotlib/Seaborn draw plots. Together they are the ML data toolkit.</p><p class="hi">🇮🇳 NumPy = tezz array calculations, Pandas = Excel jaisa table, Matplotlib = graph. ML ka 80% kaam data samajhna aur saaf karna hai.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>Every model consumes numeric arrays. Vectorised NumPy is 10-100x faster than Python loops, which matters for training and feature engineering.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>Always: loading data, EDA, cleaning, feature engineering, visual checks of distributions and residuals.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>NumPy stores data in contiguous typed memory and applies operations in C (vectorisation + broadcasting). Pandas builds on NumPy and adds an index and column labels.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">Broadcasting rule: shapes are compared from the right; dimensions are compatible if equal or one of them is 1.  (n,d) + (d,) works; (n,d) + (n,) does not.</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Cleaning a churn dataset: read CSV, drop duplicates, fill missing tenure with median, one-hot encode contract type, plot churn rate by tenure bucket.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>import numpy as np, pandas as pd
+
+X = np.random.randn(1000, 5)
+X_scaled = (X - X.mean(axis=0)) / X.std(axis=0)   # broadcasting, no loop
+
+df = pd.DataFrame({&quot;age&quot;: [25, None, 40, 40], &quot;city&quot;: [&quot;A&quot;, &quot;B&quot;, &quot;A&quot;, &quot;A&quot;], &quot;churn&quot;: [0, 1, 0, 0]})
+df = df.drop_duplicates()
+df[&quot;age&quot;] = df[&quot;age&quot;].fillna(df[&quot;age&quot;].median())
+df = pd.get_dummies(df, columns=[&quot;city&quot;], drop_first=True)
+print(df.groupby(&quot;churn&quot;)[&quot;age&quot;].mean())</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q1.1</span>Why is NumPy faster than a Python list loop?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Contiguous typed memory plus C-level vectorised operations; no per-element Python overhead.</div>
+          <div class="detail"><b>Detailed:</b> A list stores pointers to boxed Python objects; NumPy stores raw values in one block, enabling SIMD and cache-friendly access. Broadcasting avoids creating copies.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is a view vs a copy? When does reshape copy?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q1.2</span>loc vs iloc in Pandas?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> loc is label-based, iloc is position-based.</div>
+          <div class="detail"><b>Detailed:</b> df.loc[2:5] includes 5 (label slice is inclusive); df.iloc[2:5] excludes 5. Mixing them after a sort or filter is a classic bug.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What does SettingWithCopyWarning mean?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q1.3</span>How do you handle a 10 GB CSV that does not fit in RAM?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Read in chunks, use dtypes/categoricals, or use Dask/Polars/Parquet.</div>
+          <div class="detail"><b>Detailed:</b> pd.read_csv(chunksize=...) for streaming aggregation; downcast dtypes; convert to Parquet for columnar, compressed storage.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Row vs columnar storage?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Chained indexing df[a][b] = v (silent no-op)</li><li>Using apply row-by-row when a vectorised op exists</li><li>Forgetting to set random seeds for reproducibility</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>How does Pandas copy-on-write change behaviour?</li><li>When would you choose Polars over Pandas?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="stats">
+  <h2>Statistics &amp; Probability (mean, variance, distributions, Bayes) <span class="lvl" style="border-color:#7ee0c1;color:#7ee0c1">Beginner</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>Descriptive statistics summarise data; probability models uncertainty; Bayes&#x27; theorem updates belief with evidence.</p><p class="hi">🇮🇳 Statistics batata hai data kaisa dikhta hai, probability batati hai kya hone ke chance hain. Bayes: nayi evidence milne par purana belief update karna.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>Loss functions are likelihoods, metrics are estimators, A/B tests are hypothesis tests, Naive Bayes is literally Bayes. You cannot reason about model uncertainty without this.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>EDA, choosing metrics, detecting outliers, designing experiments, probabilistic models.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>Mean is sensitive to outliers, median is robust. Variance measures spread around the mean. Distributions (Normal, Bernoulli, Binomial, Poisson) are reusable models of how data is generated.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">Mean μ = (1/n)Σx.   Variance σ² = (1/n)Σ(x−μ)² (sample: divide by n−1).   Std σ = √σ².
+Bayes: P(A|B) = P(B|A)·P(A) / P(B).
+Normal: f(x) = 1/(σ√2π) · exp(−(x−μ)²/(2σ²)).   68-95-99.7 rule.</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Disease test: prevalence 1%, sensitivity 99%, false-positive 5%. P(disease | positive) = 0.99·0.01 / (0.99·0.01 + 0.05·0.99) ≈ 16.7%. Most positives are false alarms because the base rate is low.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>import numpy as np
+from scipy import stats
+
+x = np.array([2, 4, 4, 4, 5, 5, 7, 9])
+print(x.mean(), np.median(x), x.var(ddof=1), x.std(ddof=1))
+
+# Bayes
+prior, sens, fpr = 0.01, 0.99, 0.05
+posterior = sens*prior / (sens*prior + fpr*(1-prior))
+print(round(posterior, 3))   # 0.167
+
+# z-score outliers
+z = (x - x.mean()) / x.std()
+print(x[np.abs(z) &gt; 2])</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q2.1</span>Why divide by n−1 for sample variance?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Sample mean is estimated from the same data, which underestimates spread; n−1 (Bessel&#x27;s correction) makes the estimator unbiased.</div>
+          <div class="detail"><b>Detailed:</b> One degree of freedom is used up estimating the mean. With n it is biased low, especially for small n.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Is the sample standard deviation unbiased?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q2.2</span>Explain Bayes&#x27; theorem with an ML use.</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Posterior ∝ likelihood × prior. Naive Bayes classifies by picking the class with the highest posterior.</div>
+          <div class="detail"><b>Detailed:</b> P(spam | words) ∝ P(words | spam)·P(spam). The &#x27;naive&#x27; part assumes words are independent given the class.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What changes when the prior is wrong?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q2.3</span>When mean vs median?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Skewed data or outliers: median. Symmetric data: mean.</div>
+          <div class="detail"><b>Detailed:</b> Income is right-skewed; the mean is dragged up by a few high earners. Median reports the typical person.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is a trimmed mean?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Treating correlation as causation</li><li>Ignoring base rates (base-rate fallacy)</li><li>Using population variance on a sample</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>Difference between MLE and MAP?</li><li>What is the Central Limit Theorem and why does it matter for A/B tests?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="hypothesis">
+  <h2>Hypothesis Testing, P-value &amp; Confidence Intervals <span class="lvl" style="border-color:#7ee0c1;color:#7ee0c1">Beginner</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>A framework to decide if an observed difference is real or due to chance. P-value = probability of data at least this extreme if the null hypothesis is true.</p><p class="hi">🇮🇳 P-value chhota matlab &#x27;agar koi asar hai hi nahi, to yeh result bahut kam chance se aata&#x27;. Yeh probability of hypothesis nahi hai.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>A/B testing, feature significance, comparing models. Prevents shipping noise.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>Comparing two groups/versions, testing whether a coefficient is non-zero, validating an uplift.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>State H0 (no effect) and H1. Pick α (usually 0.05). Compute test statistic, get p-value. If p &lt; α reject H0. A 95% CI is a range produced by a procedure that covers the true value in 95% of repeated experiments.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">Two-sample t: t = (x̄₁ − x̄₂) / √(s₁²/n₁ + s₂²/n₂).   CI: x̄ ± z·σ/√n.   Type I error = α (false positive). Type II = β; power = 1 − β.</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>New checkout page: 5.0% vs 5.4% conversion with 20k users each. A two-proportion z-test gives p ≈ 0.07, so not significant at 5% despite a 0.4-point lift. Collect more data, and always check effect size and CI before shipping.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>from scipy import stats
+import numpy as np
+
+a = np.random.normal(100, 15, 500)
+b = np.random.normal(103, 15, 500)
+t, p = stats.ttest_ind(a, b, equal_var=False)
+print(t, p)
+
+# two proportion z-test (manual, scipy only)
+x1, x2, n1, n2 = 1000, 1080, 20000, 20000
+p1, p2, pp = x1/n1, x2/n2, (x1+x2)/(n1+n2)
+z = (p2 - p1) / np.sqrt(pp*(1-pp)*(1/n1 + 1/n2))
+print(z, 2*(1 - stats.norm.cdf(abs(z))))</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q3.1</span>What does a p-value of 0.03 mean?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> If the null were true, there is a 3% chance of seeing a result this extreme or more.</div>
+          <div class="detail"><b>Detailed:</b> It is not the probability the null is true, nor the probability the result is a fluke.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is p-hacking?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q3.2</span>Type I vs Type II error?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Type I: false positive (reject a true null). Type II: false negative (miss a real effect).</div>
+          <div class="detail"><b>Detailed:</b> Fraud model analogy: flagging a good user (Type I) vs missing a fraudster (Type II). Raising sample size increases power.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you compute required sample size?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q3.3</span>Statistical vs practical significance?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> With huge n, tiny irrelevant effects become significant; check effect size and CI.</div>
+          <div class="detail"><b>Detailed:</b> A 0.01% uplift can have p &lt; 0.001 and still not justify the engineering cost.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is multiple-testing correction?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Peeking at A/B results and stopping early</li><li>Running many tests without Bonferroni/FDR correction</li><li>Reading p-value as effect size</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>How do you do sequential testing safely?</li><li>Bayesian A/B testing vs frequentist?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="linalg-calculus">
+  <h2>Linear Algebra, Derivatives &amp; Gradients <span class="lvl" style="border-color:#7ee0c1;color:#7ee0c1">Beginner</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>Vectors, matrices and dot products represent data and model parameters. Derivatives tell how the loss changes when a parameter changes; the gradient is the vector of all partial derivatives.</p><p class="hi">🇮🇳 Gradient = &#x27;loss ko sabse tezi se badhane wali direction&#x27;. Hum uske ulta chalte hain taaki loss kam ho (gradient descent).</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>Every model is matrix multiplication plus a loss. Training = following gradients. PCA is eigen-decomposition; linear regression has a closed form with matrix inverse.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>Understanding any model internals, debugging exploding/vanishing gradients, dimensionality reduction.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>Dataset X is (n,d). Predictions ŷ = Xw. Loss L(w). Gradient ∇L tells how to update w. Chain rule composes derivatives through layers (backprop).</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">Dot product a·b = Σaᵢbᵢ = |a||b|cosθ.   (AB)ᵢⱼ = Σₖ AᵢₖBₖⱼ.
+MSE L = (1/n)‖y − Xw‖².   ∇L = −(2/n)Xᵀ(y − Xw).
+Normal equation: w = (XᵀX)⁻¹Xᵀy.   Eigen: Av = λv.</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Predict house price from 3 features: w has 3 numbers; each gradient step nudges them to reduce squared error.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>import numpy as np
+X = np.array([[1., 2.], [3., 4.], [5., 6.]])
+w = np.array([0.5, -1.0])
+print(X @ w)                       # predictions
+A = np.array([[2., 0.], [0., 3.]])
+vals, vecs = np.linalg.eig(A)
+print(vals)                        # [2. 3.]
+
+# numeric gradient check
+f = lambda w: ((X @ w - np.array([1., 2., 3.]))**2).mean()
+eps = 1e-6
+grad = np.array([(f(w + eps*np.eye(2)[i]) - f(w - eps*np.eye(2)[i]))/(2*eps) for i in range(2)])
+print(grad)</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q4.1</span>Why is the gradient the direction of steepest ascent?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> It is the vector of partial derivatives; among all unit directions, it maximises the directional derivative.</div>
+          <div class="detail"><b>Detailed:</b> Directional derivative = ∇f·u = |∇f|cosθ, maximal when u aligns with ∇f. So we step along −∇f to descend.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is a Hessian used for?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q4.2</span>What is the normal equation and its drawback?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Closed-form solution w = (XᵀX)⁻¹Xᵀy; costly O(d³) and fails when XᵀX is singular (multicollinearity).</div>
+          <div class="detail"><b>Detailed:</b> Use gradient descent for large d, or add L2 regularisation (ridge) to make XᵀX + λI invertible.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is the pseudo-inverse?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q4.3</span>Relation between PCA and eigenvectors?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Principal components are eigenvectors of the covariance matrix; eigenvalues are explained variances.</div>
+          <div class="detail"><b>Detailed:</b> Equivalently, SVD of the centred data matrix.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why centre the data first?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Shape mismatches (n,) vs (n,1)</li><li>Forgetting to centre data before PCA</li><li>Confusing element-wise * with matrix @</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>Why do ill-conditioned matrices hurt optimisation?</li><li>What is a Jacobian vs Hessian?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="bias-variance">
+  <h2>Bias vs Variance, Overfitting &amp; Regularization <span class="lvl" style="border-color:#5eb3ff;color:#5eb3ff">Intermediate</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>Bias = error from wrong assumptions (underfitting). Variance = sensitivity to training data (overfitting). Regularization adds a penalty to keep the model simple.</p><p class="hi">🇮🇳 High bias: model bahut simple, train aur test dono me kharab. High variance: train me accha, test me kharab (ratta maar liya).</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>It explains why a model fails and which lever to pull: more data, more complexity, or more regularization.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>Every time train and validation scores differ or both are poor.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>Compare train vs validation error. Both high = underfit: add features/complexity. Train low, val high = overfit: more data, regularize, simplify, early stop, ensembling.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">Expected error = Bias² + Variance + Irreducible noise.
+Ridge (L2): L = MSE + λΣw².   Lasso (L1): L = MSE + λΣ|w| (sparse weights, feature selection).   ElasticNet = α·L1 + (1−α)·L2.</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Degree-15 polynomial on 30 points: train R² 0.99, test R² 0.2. Ridge with tuned λ brings test R² to 0.85.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>from sklearn.linear_model import Ridge, Lasso, ElasticNet
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler
+from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import cross_val_score
+import numpy as np
+
+rng = np.random.RandomState(0)
+X = rng.uniform(-3, 3, (60, 1)); y = np.sin(X).ravel() + rng.normal(0, .3, 60)
+for name, reg in [(&quot;ridge&quot;, Ridge(alpha=1.0)), (&quot;lasso&quot;, Lasso(alpha=0.01, max_iter=10000))]:
+    m = make_pipeline(PolynomialFeatures(12), StandardScaler(), reg)
+    print(name, cross_val_score(m, X, y, cv=5, scoring=&quot;r2&quot;).mean())</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q5.1</span>Why does L1 give sparse weights but L2 does not?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> L1&#x27;s constraint region has corners on the axes where the loss contour often touches; L2&#x27;s is a smooth sphere so weights shrink but rarely hit zero.</div>
+          <div class="detail"><b>Detailed:</b> Gradient of |w| is constant (±1) so it pushes small weights all the way to 0; gradient of w² shrinks as w shrinks.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> When pick ElasticNet?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q5.2</span>How do you diagnose overfitting?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Large gap between train and validation metrics, and validation error rising with complexity or epochs (learning curves).</div>
+          <div class="detail"><b>Detailed:</b> Plot learning curves; if val error plateaus high with more data it is bias, if a gap persists it is variance.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What do learning curves look like for each?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q5.3</span>Does regularization strength λ increase bias or variance?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Higher λ: more bias, less variance.</div>
+          <div class="detail"><b>Detailed:</b> Tune λ with cross-validation; λ=0 is plain OLS.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why scale features before regularizing?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Not scaling features before L1/L2</li><li>Tuning on the test set</li><li>Assuming more data always fixes high bias</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>What is double descent?</li><li>Explain the bias-variance tradeoff for k in KNN.</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="leakage-cv">
+  <h2>Data Leakage, Cross-Validation &amp; Class Imbalance <span class="lvl" style="border-color:#5eb3ff;color:#5eb3ff">Intermediate</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>Leakage = information from outside the training data (future or test) sneaking into training. Cross-validation estimates generalization by rotating validation folds. Class imbalance = rare positive class.</p><p class="hi">🇮🇳 Leakage = exam ke answers pehle se pata hone jaisa. Model ka score jhootha accha dikhega, production me fail.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>Leakage is the #1 reason models look great offline and fail live. Imbalance breaks accuracy as a metric.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>Always split first, then fit preprocessing on train only. Use stratified CV for imbalance, time-series split for temporal data.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>Put scalers/imputers/encoders inside a Pipeline so each CV fold fits them on its own train part. For imbalance: class weights, resampling (SMOTE on train only), threshold tuning, PR-AUC.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">k-fold score = (1/k)Σ score_i.   SMOTE: new point = x + λ(x_neighbor − x), λ~U(0,1).</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Fraud at 0.2% positive: predicting all &#x27;not fraud&#x27; gives 99.8% accuracy and zero value. Use recall at fixed precision and PR-AUC.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import StratifiedKFold, cross_val_score, TimeSeriesSplit
+
+pipe = Pipeline([(&quot;scale&quot;, StandardScaler()),
+                 (&quot;clf&quot;, LogisticRegression(class_weight=&quot;balanced&quot;, max_iter=1000))])
+cv = StratifiedKFold(5, shuffle=True, random_state=42)
+# scores = cross_val_score(pipe, X, y, cv=cv, scoring=&quot;average_precision&quot;)
+
+# SMOTE only inside training folds
+# from imblearn.pipeline import Pipeline as ImbPipeline
+# from imblearn.over_sampling import SMOTE
+# ImbPipeline([(&quot;smote&quot;, SMOTE()), (&quot;clf&quot;, LogisticRegression())])
+
+tscv = TimeSeriesSplit(n_splits=5)   # for forecasting: never train on the future</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q6.1</span>Give three examples of data leakage.</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Scaling before the split; a feature derived from the target or from the future (e.g. &#x27;refund_issued&#x27; to predict churn); duplicate rows across train and test.</div>
+          <div class="detail"><b>Detailed:</b> Fix with Pipelines, time-based splits, and feature audits asking &#x27;is this available at prediction time?&#x27;.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you detect leakage after the fact?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q6.2</span>Why not apply SMOTE before the split?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Synthetic points built from test neighbours leak test information and inflate scores.</div>
+          <div class="detail"><b>Detailed:</b> Resample only the training folds, ideally inside an imblearn Pipeline.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Is SMOTE always better than class weights?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q6.3</span>How do you choose k in k-fold?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> 5 or 10 balances bias and variance of the estimate; use stratified for classification, grouped for repeated entities, time-series split for temporal data.</div>
+          <div class="detail"><b>Detailed:</b> Leave-one-out is nearly unbiased but high variance and expensive.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is nested CV?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Fitting scaler on full data</li><li>Random split on time-dependent data</li><li>Reporting accuracy for imbalanced problems</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>How does group leakage (same user in train and test) show up?</li><li>Cost-sensitive learning vs resampling?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="metrics">
+  <h2>Classification &amp; Regression Metrics <span class="lvl" style="border-color:#5eb3ff;color:#5eb3ff">Intermediate</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>Numbers that measure how good a model is. Choose by business cost of each error type.</p><p class="hi">🇮🇳 Accuracy hamesha sahi metric nahi. Cancer detection me recall zaroori hai, spam filter me precision.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>The wrong metric optimises the wrong behaviour.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>Balanced classes: accuracy/F1. Imbalanced: PR-AUC, recall at precision. Ranking: ROC-AUC. Probabilities: log loss and calibration. Regression: MAE (robust), RMSE (penalises large errors), MAPE (relative, breaks near 0), R².</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>Build the confusion matrix (TP, FP, FN, TN) at a threshold; derive metrics. ROC and PR curves sweep the threshold.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">Precision = TP/(TP+FP).  Recall = TP/(TP+FN).  F1 = 2PR/(P+R).  Accuracy = (TP+TN)/N.
+LogLoss = −(1/n)Σ[y log p + (1−y) log(1−p)].
+MAE = (1/n)Σ|y−ŷ|.  RMSE = √MSE.  R² = 1 − SS_res/SS_tot.  Adj R² = 1 − (1−R²)(n−1)/(n−p−1).</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Loan default: a missed defaulter (FN) costs far more than a rejected good customer (FP). Optimise recall subject to a minimum precision, then pick the threshold from the PR curve.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>import numpy as np
+from sklearn.metrics import (confusion_matrix, precision_score, recall_score, f1_score,
+                             roc_auc_score, average_precision_score, log_loss, mean_absolute_error,
+                             mean_squared_error, r2_score)
+
+y_true = np.array([1,0,1,1,0,0,1,0])
+y_prob = np.array([.9,.2,.6,.4,.3,.7,.8,.1])
+y_pred = (y_prob &gt;= 0.5).astype(int)
+
+tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+precision = tp / (tp + fp); recall = tp / (tp + fn)
+f1 = 2*precision*recall/(precision+recall)
+print(precision, recall, f1, roc_auc_score(y_true, y_prob), average_precision_score(y_true, y_prob))</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q7.1</span>ROC-AUC vs PR-AUC for imbalanced data?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> PR-AUC; ROC-AUC can look great because true negatives dominate the false-positive rate.</div>
+          <div class="detail"><b>Detailed:</b> With 0.1% positives, 1000 false positives barely move FPR but destroy precision.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Interpret AUC=0.5 and AUC=1.0.</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q7.2</span>When is accuracy misleading?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Imbalanced classes: a majority-class predictor scores high with zero usefulness.</div>
+          <div class="detail"><b>Detailed:</b> Report per-class precision/recall, PR-AUC, and cost-weighted metrics.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is balanced accuracy?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q7.3</span>MAE vs RMSE?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> RMSE penalises large errors more; MAE is robust to outliers and in original units.</div>
+          <div class="detail"><b>Detailed:</b> Use RMSE if big misses are disproportionately costly (e.g. demand under-forecast).</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why can MAPE be dangerous?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q7.4</span>Why is adjusted R² needed?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> R² never decreases when adding features; adjusted R² penalises useless predictors.</div>
+          <div class="detail"><b>Detailed:</b> Prefer cross-validated error for model selection anyway.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Can R² be negative?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Optimising threshold 0.5 by default</li><li>Comparing AUC across different datasets</li><li>Reporting only a single metric</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>What is calibration and how do you fix it (Platt, isotonic)?</li><li>How do you pick a threshold given costs?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="linreg">
+  <h2>Linear Regression (Simple, Multiple, Polynomial) <span class="lvl" style="border-color:#7ee0c1;color:#7ee0c1">Beginner</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>Predicts a continuous target as a weighted sum of features: ŷ = w·x + b.</p><p class="hi">🇮🇳 Data me ek seedhi line (ya plane) fit karna jo error ko minimum kare.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>Simple, fast, interpretable baseline; coefficients explain feature impact.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>Roughly linear relationship, need interpretability, small/medium data. Polynomial features handle curvature.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>Minimise sum of squared errors either by the normal equation or gradient descent. Assumptions: linearity, independent errors, constant variance, no strong multicollinearity.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">ŷ = Xw.   L = (1/n)‖y − Xw‖².   ∂L/∂w = −(2/n)Xᵀ(y − Xw).   Update: w ← w − η∇L.</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Predict house price from area, bedrooms, age.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>import numpy as np
+
+class LinearRegressionScratch:
+    def __init__(self, lr=0.01, epochs=1000):
+        self.lr, self.epochs = lr, epochs
+    def fit(self, X, y):
+        n, d = X.shape
+        self.w, self.b = np.zeros(d), 0.0
+        for _ in range(self.epochs):
+            err = X @ self.w + self.b - y          # (n,)
+            self.w -= self.lr * (2/n) * (X.T @ err)
+            self.b -= self.lr * (2/n) * err.sum()
+        return self
+    def predict(self, X):
+        return X @ self.w + self.b
+
+rng = np.random.RandomState(0)
+X = rng.randn(200, 3); y = X @ [3, -2, 1] + 5 + rng.randn(200)*0.1
+m = LinearRegressionScratch(lr=0.1).fit(X, y)
+print(m.w.round(2), round(m.b, 2))        # ~[3,-2,1], ~5
+
+from sklearn.linear_model import LinearRegression
+print(LinearRegression().fit(X, y).coef_)</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q8.1</span>State the assumptions of linear regression.</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Linearity, independence, homoscedasticity, normally distributed residuals (for inference), no perfect multicollinearity.</div>
+          <div class="detail"><b>Detailed:</b> Check residual plots, Durbin-Watson, VIF. Violations hurt inference more than prediction.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What does VIF &gt; 10 mean?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q8.2</span>Why does gradient descent need feature scaling here?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Unscaled features make the loss surface elongated, so one learning rate is too big for one axis and too small for another.</div>
+          <div class="detail"><b>Detailed:</b> Standardising makes contours rounder and convergence much faster.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Does the normal equation need scaling?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q8.3</span>How do you interpret a coefficient?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Expected change in y for a one-unit change in that feature, holding others fixed.</div>
+          <div class="detail"><b>Detailed:</b> Only meaningful if features are on comparable scales or standardised.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What if features are correlated?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q8.4</span>What is multicollinearity and its fix?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Highly correlated predictors make coefficients unstable.</div>
+          <div class="detail"><b>Detailed:</b> Drop/combine features, PCA, or Ridge regression.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Does it hurt predictions?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Extrapolating far outside the training range</li><li>Ignoring outliers (squared loss amplifies them)</li><li>Reading coefficients without scaling</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>Derive the normal equation.</li><li>Why are OLS estimators BLUE (Gauss-Markov)?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="logreg">
+  <h2>Logistic Regression <span class="lvl" style="border-color:#7ee0c1;color:#7ee0c1">Beginner</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>A linear model passed through a sigmoid to output the probability of class 1.</p><p class="hi">🇮🇳 Line ka output seedha 0-1 me nahi aata, isliye sigmoid lagate hain jo kisi bhi number ko probability bana deta hai.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>Strong baseline for classification; calibrated probabilities; interpretable log-odds.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>Binary classification, need probabilities and explainability, roughly linearly separable data.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>Compute z = w·x + b, p = σ(z). Train by minimising log loss with gradient descent. Decision boundary w·x + b = 0.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">σ(z) = 1/(1+e^(−z)).   L = −(1/n)Σ[y log p + (1−y) log(1−p)].   ∇w = (1/n)Xᵀ(p − y).   Odds = p/(1−p); log-odds = w·x + b.</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Predict loan default from income, debt ratio, credit history.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>import numpy as np
+
+def sigmoid(z): return 1 / (1 + np.exp(-z))
+
+class LogisticRegressionScratch:
+    def __init__(self, lr=0.1, epochs=2000, l2=0.0):
+        self.lr, self.epochs, self.l2 = lr, epochs, l2
+    def fit(self, X, y):
+        n, d = X.shape
+        self.w, self.b = np.zeros(d), 0.0
+        for _ in range(self.epochs):
+            p = sigmoid(X @ self.w + self.b)
+            grad_w = X.T @ (p - y) / n + self.l2 * self.w
+            self.w -= self.lr * grad_w
+            self.b -= self.lr * (p - y).mean()
+        return self
+    def predict_proba(self, X): return sigmoid(X @ self.w + self.b)
+    def predict(self, X, t=0.5): return (self.predict_proba(X) &gt;= t).astype(int)
+
+from sklearn.datasets import make_classification
+X, y = make_classification(500, 4, random_state=0)
+print((LogisticRegressionScratch().fit(X, y).predict(X) == y).mean())</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q9.1</span>Why not use MSE for logistic regression?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> MSE with a sigmoid is non-convex and gives tiny gradients when confidently wrong; log loss is convex and gives a clean gradient (p − y).</div>
+          <div class="detail"><b>Detailed:</b> Log loss is also the negative log-likelihood of a Bernoulli model.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Derive the gradient.</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q9.2</span>How do you interpret a coefficient?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> exp(w) is the multiplicative change in odds for a one-unit increase in the feature.</div>
+          <div class="detail"><b>Detailed:</b> w = 0.7 means odds multiply by about 2.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why is it log-odds linear?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q9.3</span>Is logistic regression a regression or classifier?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Classifier; it regresses the log-odds then thresholds probability.</div>
+          <div class="detail"><b>Detailed:</b> Threshold is a business decision, not always 0.5.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How extend to multiclass (softmax / OvR)?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q9.4</span>What happens with perfectly separable data?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Weights grow without bound; use regularization.</div>
+          <div class="detail"><b>Detailed:</b> sklearn applies L2 by default (C=1.0).</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What does C control?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Leaving threshold at 0.5 for imbalanced data</li><li>Unscaled features with regularization</li><li>Treating output as calibrated after heavy class weighting</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>Relationship between logistic regression and a single neuron?</li><li>How would you calibrate the probabilities?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="dtree">
+  <h2>Decision Tree <span class="lvl" style="border-color:#5eb3ff;color:#5eb3ff">Intermediate</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>A flowchart of if/else splits that partitions feature space into regions with a constant prediction.</p><p class="hi">🇮🇳 Sawaalon ka tree: &#x27;age &gt; 30?&#x27; &#x27;income &gt; 5L?&#x27; — har sawaal data ko saaf groups me baantta hai.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>Handles non-linearity and mixed data, no scaling, interpretable.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>Tabular data, need rules, mixed categorical/numeric features, quick baseline.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>Greedy recursive splitting: at each node choose the feature/threshold that most reduces impurity; stop at max depth, min samples, or pure node. Prune to reduce variance.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">Gini = 1 − Σpₖ².   Entropy = −Σpₖ log₂ pₖ.   Information gain = H(parent) − Σ(nᵢ/n)H(childᵢ).   Regression trees minimise variance/MSE.</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Approve a loan: income &gt; X → credit score &gt; Y → approve.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>import numpy as np
+from collections import Counter
+
+def gini(y):
+    p = np.array(list(Counter(y).values())) / len(y)
+    return 1 - (p**2).sum()
+
+def best_split(X, y):
+    best = (None, None, 1.0)
+    for f in range(X.shape[1]):
+        for t in np.unique(X[:, f]):
+            l, r = y[X[:, f] &lt;= t], y[X[:, f] &gt; t]
+            if len(l) == 0 or len(r) == 0: continue
+            g = (len(l)*gini(l) + len(r)*gini(r)) / len(y)
+            if g &lt; best[2]: best = (f, t, g)
+    return best
+
+def build(X, y, depth=0, max_depth=3):
+    if depth == max_depth or len(set(y)) == 1:
+        return Counter(y).most_common(1)[0][0]
+    f, t, _ = best_split(X, y)
+    if f is None: return Counter(y).most_common(1)[0][0]
+    m = X[:, f] &lt;= t
+    return (f, t, build(X[m], y[m], depth+1, max_depth), build(X[~m], y[~m], depth+1, max_depth))
+
+def predict(tree, x):
+    while isinstance(tree, tuple):
+        f, t, l, r = tree
+        tree = l if x[f] &lt;= t else r
+    return tree
+
+from sklearn.datasets import load_iris
+X, y = load_iris(return_X_y=True)
+tree = build(X, y)
+print(np.mean([predict(tree, x) == t for x, t in zip(X, y)]))</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q10.1</span>Gini vs entropy?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Both measure impurity and usually give similar trees; Gini is slightly cheaper (no log).</div>
+          <div class="detail"><b>Detailed:</b> Entropy is more sensitive to changes at pure nodes.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is gain ratio?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q10.2</span>Why do trees overfit and how to control it?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Unlimited depth memorises noise. Limit max_depth, min_samples_leaf, or use cost-complexity pruning (ccp_alpha).</div>
+          <div class="detail"><b>Detailed:</b> High variance is why we ensemble trees.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Pre-pruning vs post-pruning?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q10.3</span>Do trees need feature scaling?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> No; splits depend on order, not magnitude.</div>
+          <div class="detail"><b>Detailed:</b> They are also invariant to monotonic transforms.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do trees handle missing values?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q10.4</span>How is feature importance computed?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Total impurity reduction attributed to each feature across splits.</div>
+          <div class="detail"><b>Detailed:</b> Biased toward high-cardinality features; prefer permutation importance or SHAP.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why is impurity importance biased?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Using unconstrained depth</li><li>Trusting impurity importance blindly</li><li>Expecting extrapolation (trees predict constants)</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>Why can trees not extrapolate?</li><li>How does CART handle categorical splits?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="rf">
+  <h2>Random Forest &amp; Bagging <span class="lvl" style="border-color:#5eb3ff;color:#5eb3ff">Intermediate</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>An ensemble of decision trees trained on bootstrap samples with random feature subsets; predictions are averaged or voted.</p><p class="hi">🇮🇳 Bahut saare alag-alag trees ki voting — ek tree galat ho sakta hai, bheed kam galat hoti hai.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>Averaging many high-variance, low-bias trees cuts variance without much bias increase.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>Strong default for tabular data, noisy features, minimal tuning.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>For each tree: sample n rows with replacement, at each split consider only m = √d (classification) or d/3 (regression) random features. OOB samples (≈37%) give a free validation score.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">Var of average of B correlated models = ρσ² + (1−ρ)σ²/B. Random features reduce correlation ρ, making averaging more effective.
+P(row not in bootstrap) = (1 − 1/n)ⁿ ≈ 0.368.</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Customer churn with 60 mixed features.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>from sklearn.ensemble import RandomForestClassifier
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+
+X, y = make_classification(2000, 20, n_informative=8, random_state=0)
+Xtr, Xte, ytr, yte = train_test_split(X, y, stratify=y, random_state=0)
+rf = RandomForestClassifier(n_estimators=300, max_features=&quot;sqrt&quot;, min_samples_leaf=2,
+                            oob_score=True, n_jobs=-1, random_state=0).fit(Xtr, ytr)
+print(rf.oob_score_, rf.score(Xte, yte))</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q11.1</span>Why does Random Forest beat a single tree?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Bagging reduces variance; feature subsampling decorrelates trees.</div>
+          <div class="detail"><b>Detailed:</b> Bias stays similar, variance drops roughly by 1/B for uncorrelated trees.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What if trees are highly correlated?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q11.2</span>What is OOB score?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Evaluation of each tree on rows it did not see; an unbiased generalization estimate without a validation set.</div>
+          <div class="detail"><b>Detailed:</b> About 37% of rows are out-of-bag per tree.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Is OOB a replacement for CV?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q11.3</span>Bagging vs boosting?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Bagging trains models in parallel on resamples to cut variance; boosting trains sequentially on errors to cut bias.</div>
+          <div class="detail"><b>Detailed:</b> Boosting is more accurate but easier to overfit and slower to tune.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Which is more sensitive to noisy labels?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Too few trees</li><li>Using it for extrapolation</li><li>Ignoring class_weight on imbalanced data</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>How does max_features affect bias/variance?</li><li>Why can RF importance mislead with correlated features?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="gbm">
+  <h2>Gradient Boosting, XGBoost, LightGBM, CatBoost, AdaBoost <span class="lvl" style="border-color:#f0b45e;color:#f0b45e">Advanced</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>Sequentially add weak learners (shallow trees), each fitted to the errors (negative gradient) of the current ensemble.</p><p class="hi">🇮🇳 Pehla tree galtiyan karta hai, doosra un galtiyon ko sudharta hai, teesra bachi galtiyan... aise error kam hota jaata hai.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>State-of-the-art for tabular data; flexible loss functions.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>Structured data where accuracy matters, with some tuning budget.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>F₀ = constant. For m = 1..M: compute pseudo-residuals r = −∂L/∂F, fit a tree h_m to r, update Fₘ = Fₘ₋₁ + η·hₘ. XGBoost adds second-order gradients and regularization; LightGBM uses histogram binning and leaf-wise growth; CatBoost uses ordered target statistics for categoricals. AdaBoost reweights misclassified samples.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">Squared loss: residual = y − F(x).   Log loss: residual = y − p.   F_m(x) = F_{m−1}(x) + η·h_m(x).   XGBoost objective: Σl(y, ŷ) + γT + ½λΣw².</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Click-through-rate prediction, credit scoring, Kaggle tabular tasks.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+# import xgboost as xgb, lightgbm as lgb, catboost
+
+X, y = make_classification(3000, 20, random_state=1)
+Xtr, Xte, ytr, yte = train_test_split(X, y, random_state=1)
+gb = GradientBoostingClassifier(n_estimators=300, learning_rate=0.05, max_depth=3,
+                                subsample=0.8, validation_fraction=0.1, n_iter_no_change=20).fit(Xtr, ytr)
+print(gb.n_estimators_, gb.score(Xte, yte))
+
+# xgb.XGBClassifier(n_estimators=1000, learning_rate=0.05, max_depth=4, subsample=0.8,
+#                   colsample_bytree=0.8, early_stopping_rounds=50, eval_metric=&quot;logloss&quot;)</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q12.1</span>Explain gradient boosting in 3 lines.</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Start with a constant; repeatedly fit a small tree to the negative gradient of the loss; add it scaled by the learning rate.</div>
+          <div class="detail"><b>Detailed:</b> It is gradient descent in function space.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why is a small learning rate with more trees better?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q12.2</span>XGBoost vs LightGBM vs CatBoost?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> XGBoost: robust, regularized, level-wise. LightGBM: fastest on large data (histograms, leaf-wise, GOSS/EFB). CatBoost: best native categorical handling, less tuning.</div>
+          <div class="detail"><b>Detailed:</b> Leaf-wise growth can overfit small data; limit num_leaves.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> When would you pick CatBoost?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q12.3</span>Which hyperparameters matter most?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> learning_rate, n_estimators (with early stopping), max_depth/num_leaves, subsample, colsample, min_child_weight, reg_lambda.</div>
+          <div class="detail"><b>Detailed:</b> Tune with Bayesian optimisation (Optuna) and early stopping on a validation fold.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you prevent overfitting?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q12.4</span>Boosting vs bagging bias/variance?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Boosting mainly reduces bias; bagging mainly reduces variance.</div>
+          <div class="detail"><b>Detailed:</b> Hence boosting uses weak (high-bias) learners, bagging uses strong deep trees.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Which handles label noise better?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>No early stopping</li><li>Target leakage in categorical encodings</li><li>Tuning on the test set</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>Why does XGBoost use second-order gradients?</li><li>How does LightGBM&#x27;s GOSS work?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="svm">
+  <h2>Support Vector Machine <span class="lvl" style="border-color:#5eb3ff;color:#5eb3ff">Intermediate</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>Finds the hyperplane that maximises the margin between classes; the kernel trick handles non-linear boundaries.</p><p class="hi">🇮🇳 Do classes ke beech sabse chaudi &#x27;sadak&#x27; (margin) banane wali line dhundhna.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>Strong with high-dimensional, small/medium datasets; margin maximisation gives good generalization.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>Text classification, small data with many features, clear margin. Avoid for very large n (training ~O(n²-n³)).</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>Minimise ‖w‖² subject to margin constraints, with slack for soft margin (C). Only support vectors define the boundary. Kernels (RBF, polynomial) compute inner products in a higher-dimensional space implicitly.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">Hard margin: min ½‖w‖²  s.t. yᵢ(w·xᵢ + b) ≥ 1.   Soft: + CΣξᵢ.   Margin = 2/‖w‖.   RBF: K(x,x&#x27;) = exp(−γ‖x−x&#x27;‖²).</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Spam/ham with TF-IDF features.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>from sklearn.svm import SVC
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import GridSearchCV
+from sklearn.datasets import make_moons
+
+X, y = make_moons(500, noise=0.25, random_state=0)
+pipe = make_pipeline(StandardScaler(), SVC(kernel=&quot;rbf&quot;))
+gs = GridSearchCV(pipe, {&quot;svc__C&quot;: [0.1, 1, 10], &quot;svc__gamma&quot;: [0.1, 1, &quot;scale&quot;]}, cv=5).fit(X, y)
+print(gs.best_params_, gs.best_score_)</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q13.1</span>What do C and gamma do?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> C: penalty for misclassification (large C = narrow margin, risk of overfit). gamma: reach of one point&#x27;s influence in RBF (large = wiggly boundary).</div>
+          <div class="detail"><b>Detailed:</b> Tune both on a log grid with CV.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What happens as gamma→0?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q13.2</span>What is the kernel trick?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Compute K(x,x&#x27;) = φ(x)·φ(x&#x27;) without explicitly mapping to high dimensions.</div>
+          <div class="detail"><b>Detailed:</b> Works because the dual SVM only needs inner products.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why must features be scaled for RBF?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q13.3</span>Why does SVM scale poorly?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Kernel matrix is n×n; training is roughly O(n²) to O(n³).</div>
+          <div class="detail"><b>Detailed:</b> Use LinearSVC / SGDClassifier or approximate kernels for large n.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> When does linear SVM suffice?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Not scaling features</li><li>Using SVC on millions of rows</li><li>Expecting probabilities without Platt scaling</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>Derive the dual form.</li><li>SVM loss vs hinge loss vs logistic loss?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="knn-nb">
+  <h2>KNN &amp; Naive Bayes <span class="lvl" style="border-color:#7ee0c1;color:#7ee0c1">Beginner</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>KNN predicts by majority/average of the k nearest training points. Naive Bayes applies Bayes&#x27; theorem assuming features are conditionally independent.</p><p class="hi">🇮🇳 KNN: &#x27;tere paas ke k padosi jo bolein wahi tera label&#x27;. Naive Bayes: har word ko alag-alag evidence maanna.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>KNN: no training, intuitive baseline. NB: very fast, works well on text with little data.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>KNN: small data, low dimension, scaled features. NB: text, spam, quick baseline.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>KNN stores all data, computes distances at prediction (lazy learner). NB estimates P(class) and P(feature|class) by counting, multiplies them (adds logs) and picks the max posterior. Laplace smoothing avoids zero probabilities.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">Euclidean d = √Σ(xᵢ−yᵢ)².   NB: ŷ = argmax_c P(c)ΠP(xᵢ|c).   Laplace: P(w|c) = (count(w,c)+α)/(N_c + α|V|).</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>KNN: recommend similar products. NB: classify emails as spam.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>import numpy as np
+from collections import Counter
+
+def knn_predict(Xtr, ytr, x, k=5):
+    d = np.sqrt(((Xtr - x)**2).sum(axis=1))
+    idx = np.argsort(d)[:k]
+    return Counter(ytr[idx]).most_common(1)[0][0]
+
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.feature_extraction.text import CountVectorizer
+docs = [&quot;win free money now&quot;, &quot;meeting at noon&quot;, &quot;free prize claim now&quot;, &quot;project review notes&quot;]
+labels = [1, 0, 1, 0]
+vec = CountVectorizer(); Xc = vec.fit_transform(docs)
+nb = MultinomialNB(alpha=1.0).fit(Xc, labels)
+print(nb.predict(vec.transform([&quot;claim free money&quot;])))</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q14.1</span>How to choose k in KNN?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Cross-validate; small k = low bias/high variance, large k = smoother boundary. Use odd k for binary problems.</div>
+          <div class="detail"><b>Detailed:</b> Always scale features and consider distance weighting.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why does KNN suffer in high dimensions?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q14.2</span>Why is Naive Bayes &#x27;naive&#x27; yet effective?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Independence is rarely true, but the argmax decision often stays correct even when probabilities are poorly calibrated.</div>
+          <div class="detail"><b>Detailed:</b> Probabilities from NB are typically over-confident.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is the zero-frequency problem?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q14.3</span>KNN complexity?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Training O(1); prediction O(n·d) per query. Use KD-tree/ball-tree/ANN for speed.</div>
+          <div class="detail"><b>Detailed:</b> Also memory heavy.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> When do KD-trees stop helping?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Unscaled features in KNN</li><li>Forgetting smoothing in NB</li><li>Using KNN on high-dimensional sparse data</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>Gaussian vs Multinomial vs Bernoulli NB?</li><li>What is the curse of dimensionality for distances?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="kmeans">
+  <h2>K-Means, Hierarchical, DBSCAN &amp; GMM <span class="lvl" style="border-color:#5eb3ff;color:#5eb3ff">Intermediate</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>Clustering groups similar points without labels.</p><p class="hi">🇮🇳 Bina label ke data ko similar groups me baantna, jaise customers ko segments me.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>Customer segmentation, anomaly detection, compression, exploratory analysis.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>K-Means: roughly spherical, similar-size clusters. Hierarchical: want a dendrogram. DBSCAN: arbitrary shapes + noise. GMM: soft assignments and elliptical clusters.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>K-Means: initialise k centroids (k-means++), assign points to nearest, recompute means, repeat until stable. DBSCAN: grow clusters from core points with ≥ minPts within ε. GMM: EM algorithm alternates responsibilities and parameter updates.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">K-Means minimises inertia Σ‖x − μ_c‖².   Silhouette s = (b − a)/max(a, b).   GMM: p(x) = Σπₖ N(x|μₖ,Σₖ).</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Segment customers by recency, frequency, monetary value (RFM).</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>import numpy as np
+
+def kmeans(X, k, iters=100, seed=0):
+    rng = np.random.RandomState(seed)
+    C = X[rng.choice(len(X), k, replace=False)]
+    for _ in range(iters):
+        labels = np.argmin(((X[:, None] - C[None])**2).sum(-1), axis=1)
+        newC = np.array([X[labels == j].mean(0) if (labels == j).any() else C[j] for j in range(k)])
+        if np.allclose(newC, C): break
+        C = newC
+    return labels, C
+
+from sklearn.datasets import make_blobs
+from sklearn.metrics import silhouette_score
+X, _ = make_blobs(600, centers=4, random_state=1)
+labels, C = kmeans(X, 4)
+print(silhouette_score(X, labels))
+
+from sklearn.cluster import DBSCAN
+print(set(DBSCAN(eps=0.8, min_samples=5).fit_predict(X)))</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q15.1</span>How do you choose k?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Elbow on inertia, silhouette score, gap statistic, plus business interpretability.</div>
+          <div class="detail"><b>Detailed:</b> Elbow is often ambiguous; combine methods.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What does a silhouette near 0 mean?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q15.2</span>K-Means limitations?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Needs k, assumes spherical equal-variance clusters, sensitive to scale/outliers and initialisation.</div>
+          <div class="detail"><b>Detailed:</b> Use k-means++, scale features, or DBSCAN/GMM for other shapes.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Does K-Means always converge?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q15.3</span>DBSCAN vs K-Means?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> DBSCAN finds arbitrary shapes and labels noise but struggles with varying densities and needs ε tuning.</div>
+          <div class="detail"><b>Detailed:</b> Use a k-distance plot to choose ε.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is HDBSCAN?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Not scaling features</li><li>Choosing k by elbow alone</li><li>Treating cluster labels as ground truth</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>Prove K-Means monotonically decreases inertia.</li><li>EM algorithm for GMM, step by step?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="pca">
+  <h2>PCA &amp; t-SNE (Dimensionality Reduction) <span class="lvl" style="border-color:#5eb3ff;color:#5eb3ff">Intermediate</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>PCA projects data onto orthogonal directions of maximum variance. t-SNE embeds high-dimensional data in 2-3D preserving local neighbourhoods for visualisation.</p><p class="hi">🇮🇳 Bahut saari columns ko kam columns me compress karna bina zyada information khoye.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>Remove redundancy and noise, speed up models, fight the curse of dimensionality, visualise.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>PCA: many correlated numeric features, before KNN/SVM/clustering. t-SNE/UMAP: visualisation only, not as model input features.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>Centre data, compute covariance, eigen-decompose (or SVD), keep top-k eigenvectors, project. Explained variance ratio guides k.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">C = (1/(n−1))XᵀX (centred X).   Cv = λv.   Z = X·V_k.   Explained ratio = λᵢ/Σλ.</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Compress 784 pixel features of MNIST to 50 components retaining ~95% variance.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>import numpy as np
+
+def pca(X, k):
+    Xc = X - X.mean(0)
+    cov = np.cov(Xc, rowvar=False)
+    vals, vecs = np.linalg.eigh(cov)
+    order = np.argsort(vals)[::-1]
+    vals, vecs = vals[order], vecs[:, order]
+    return Xc @ vecs[:, :k], vals[:k] / vals.sum()
+
+from sklearn.datasets import load_digits
+X, _ = load_digits(return_X_y=True)
+Z, ratio = pca(X, 10)
+print(Z.shape, ratio.sum().round(3))
+
+from sklearn.decomposition import PCA
+print(PCA(10).fit(X).explained_variance_ratio_.sum().round(3))</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q16.1</span>Why standardise before PCA?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> PCA maximises variance, so large-scale features dominate otherwise.</div>
+          <div class="detail"><b>Detailed:</b> Standardise unless units are already comparable.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Is PCA sensitive to outliers?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q16.2</span>PCA vs t-SNE?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> PCA is linear, deterministic, keeps global variance, can transform new data. t-SNE is non-linear, stochastic, keeps local structure, distances/cluster sizes are not meaningful.</div>
+          <div class="detail"><b>Detailed:</b> Use PCA first to ~50 dims then t-SNE/UMAP.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why can&#x27;t you apply t-SNE to new points?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q16.3</span>How many components to keep?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Enough for 90–99% explained variance, or the elbow of the scree plot, or by downstream CV score.</div>
+          
+          <div class="fu"><b>Interviewer follow-up:</b> PCA vs feature selection?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Not centring/scaling</li><li>Using t-SNE axes as meaningful features</li><li>Fitting PCA on test data</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>Relationship between PCA and SVD?</li><li>Kernel PCA / autoencoders as non-linear alternatives?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="optimizers">
+  <h2>Gradient Descent Variants &amp; Optimizers (SGD, Momentum, RMSProp, Adagrad, Adam) <span class="lvl" style="border-color:#f0b45e;color:#f0b45e">Advanced</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>Algorithms that move parameters downhill on the loss. Batch GD uses all rows per step, SGD one row, mini-batch a small group. Momentum, RMSProp, Adagrad and Adam adapt the step using gradient history.</p><p class="hi">🇮🇳 Learning rate = kadam ka size. Bahut bada to loss uchhal jaata hai, bahut chhota to training bahut slow. Adam har parameter ka kadam apne aap adjust karta hai.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>The optimizer decides whether training converges, how fast, and how well it generalizes. Interviewers expect you to write the update rules.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>Mini-batch + Adam is the default for large/non-convex problems; SGD with momentum often generalizes best for vision; plain GD for small convex problems.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>SGD is noisy but cheap and can escape shallow minima. Momentum accumulates a velocity to damp oscillations. Adagrad scales by the sum of past squared gradients (learning rate decays too aggressively). RMSProp uses an exponential average instead. Adam = momentum + RMSProp with bias correction.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">GD: θ ← θ − η∇L.   Momentum: v ← βv + ∇L ; θ ← θ − ηv.
+Adagrad: G ← G + g² ; θ ← θ − η g/(√G+ε).   RMSProp: s ← ρs + (1−ρ)g² ; θ ← θ − η g/(√s+ε).
+Adam: m ← β₁m + (1−β₁)g ; v ← β₂v + (1−β₂)g² ; m̂ = m/(1−β₁ᵗ), v̂ = v/(1−β₂ᵗ) ; θ ← θ − η m̂/(√v̂+ε).  Defaults β₁=0.9, β₂=0.999, ε=1e-8.</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Training logistic regression on 10M click records: mini-batches of 1024 with Adam and a decaying learning rate.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>import numpy as np
+
+rng = np.random.RandomState(0)
+X = rng.randn(2000, 5); true_w = np.array([2., -1., 0.5, 0., 3.])
+y = X @ true_w + rng.randn(2000) * 0.1
+
+def grad(w, Xb, yb): return 2 * Xb.T @ (Xb @ w - yb) / len(yb)
+
+def train(opt, lr=0.05, epochs=30, bs=64):
+    w = np.zeros(5); v = np.zeros(5); m = np.zeros(5); s = np.zeros(5); t = 0
+    for _ in range(epochs):
+        idx = rng.permutation(len(y))
+        for i in range(0, len(y), bs):
+            b = idx[i:i+bs]; g = grad(w, X[b], y[b]); t += 1
+            if opt == &quot;sgd&quot;: w -= lr * g
+            elif opt == &quot;momentum&quot;: v = 0.9*v + g; w -= lr * v
+            elif opt == &quot;rmsprop&quot;: s = 0.9*s + 0.1*g**2; w -= lr * g / (np.sqrt(s) + 1e-8)
+            elif opt == &quot;adam&quot;:
+                m = 0.9*m + 0.1*g; s = 0.999*s + 0.001*g**2
+                w -= lr * (m/(1-0.9**t)) / (np.sqrt(s/(1-0.999**t)) + 1e-8)
+    return np.mean((X @ w - y)**2)
+
+for o in [&quot;sgd&quot;, &quot;momentum&quot;, &quot;rmsprop&quot;, &quot;adam&quot;]:
+    print(o, round(train(o, lr=0.01 if o != &quot;sgd&quot; else 0.05), 5))</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q17.1</span>Batch vs SGD vs mini-batch?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Batch: exact gradient, slow, smooth. SGD: noisy, fast updates. Mini-batch: best trade-off and uses GPU vectorisation.</div>
+          <div class="detail"><b>Detailed:</b> Noise in SGD acts as mild regularization.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you pick batch size?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q17.2</span>Why does Adam need bias correction?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> m and v start at zero, so early estimates are biased toward zero; dividing by (1−βᵗ) fixes it.</div>
+          <div class="detail"><b>Detailed:</b> Matters most in the first few hundred steps.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is AdamW and why decoupled weight decay?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q17.3</span>What happens if learning rate is too high or too low?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Too high: divergence or oscillation. Too low: very slow, can get stuck on plateaus.</div>
+          <div class="detail"><b>Detailed:</b> Use LR range test, warm-up, and decay schedules (cosine, step).</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is a learning-rate warm-up?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q17.4</span>Why can Adam generalize worse than SGD with momentum?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Adaptive methods can converge to sharper minima; SGD noise favours flatter minima that generalize better.</div>
+          <div class="detail"><b>Detailed:</b> Empirical, not universal; AdamW with tuning often closes the gap.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is a flat vs sharp minimum?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Not shuffling data each epoch</li><li>Using Adagrad for long training (LR decays to ~0)</li><li>Forgetting to scale features, which makes GD slow</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>Why does gradient clipping help?</li><li>Explain second-order methods (Newton, L-BFGS) and why they are rare in deep learning.</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="feat-eng">
+  <h2>Feature Engineering, Selection, Scaling, Missing Values &amp; Outliers <span class="lvl" style="border-color:#5eb3ff;color:#5eb3ff">Intermediate</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>Turning raw data into informative model inputs, removing weak or redundant ones, and handling missing and extreme values safely.</p><p class="hi">🇮🇳 Achhe features = achha model. Kai baar simple feature (jaise &#x27;last 30 din ke orders&#x27;) complex model se zyada fayda deta hai.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>On tabular data, feature quality usually moves metrics more than algorithm choice.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>Always; most important before linear/KNN/SVM models and for any production pipeline.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>Numeric: log/power transforms for skew, binning, ratios, interactions. Categorical: one-hot (low cardinality), target/frequency/hash encoding (high cardinality, fit inside CV). Dates: hour, weekday, recency. Missing: median/mode/model-based imputation plus a missing-indicator flag. Outliers: IQR/z-score, winsorise, or robust models. Scaling: Standard (z), MinMax, Robust (median/IQR). Selection: filter (variance, mutual info), wrapper (RFE), embedded (L1, tree importance).</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">z = (x − μ)/σ.   MinMax = (x − min)/(max − min).   Robust = (x − median)/IQR.   IQR rule: outlier if x &lt; Q1 − 1.5·IQR or x &gt; Q3 + 1.5·IQR.   Mutual info I(X;Y) = ΣΣ p(x,y) log[p(x,y)/(p(x)p(y))].</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Churn: add days_since_last_login, orders_last_30d / orders_last_90d ratio, support_tickets_count, and a flag for missing payment method.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>import numpy as np, pandas as pd
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.feature_selection import SelectKBest, mutual_info_classif
+from sklearn.ensemble import RandomForestClassifier
+
+df = pd.DataFrame({
+    &quot;age&quot;: [25, np.nan, 40, 35, 29, 51, 44, 60]*10,
+    &quot;income&quot;: [30e3, 50e3, 1e6, 42e3, 38e3, 70e3, np.nan, 65e3]*10,
+    &quot;plan&quot;: [&quot;a&quot;, &quot;b&quot;, &quot;a&quot;, &quot;c&quot;, &quot;b&quot;, &quot;a&quot;, &quot;c&quot;, &quot;b&quot;]*10,
+    &quot;y&quot;: [0, 1, 0, 0, 1, 1, 0, 1]*10})
+X, y = df.drop(columns=&quot;y&quot;), df[&quot;y&quot;]
+num, cat = [&quot;age&quot;, &quot;income&quot;], [&quot;plan&quot;]
+
+prep = ColumnTransformer([
+    (&quot;num&quot;, Pipeline([(&quot;imp&quot;, SimpleImputer(strategy=&quot;median&quot;, add_indicator=True)),
+                      (&quot;sc&quot;, StandardScaler())]), num),
+    (&quot;cat&quot;, OneHotEncoder(handle_unknown=&quot;ignore&quot;), cat)])
+model = Pipeline([(&quot;prep&quot;, prep), (&quot;sel&quot;, SelectKBest(mutual_info_classif, k=4)),
+                  (&quot;rf&quot;, RandomForestClassifier(100, random_state=0))]).fit(X, y)
+print(model.score(X, y))
+
+q1, q3 = df[&quot;income&quot;].quantile([.25, .75]); iqr = q3 - q1
+df[&quot;income_w&quot;] = df[&quot;income&quot;].clip(q1 - 1.5*iqr, q3 + 1.5*iqr)   # winsorise</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q18.1</span>How do you encode a categorical with 50,000 levels?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Target/frequency encoding with out-of-fold fitting, feature hashing, or learned embeddings; one-hot is infeasible.</div>
+          <div class="detail"><b>Detailed:</b> Naive target encoding leaks the label; compute it inside CV folds with smoothing.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why does smoothing help target encoding?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q18.2</span>Mean vs median vs model-based imputation?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Median for skewed numerics, mode for categoricals, model-based (KNN/iterative) when features are correlated; always add a missing indicator when missingness may be informative.</div>
+          <div class="detail"><b>Detailed:</b> Missing completely at random vs not at random changes the choice.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What are MCAR, MAR, MNAR?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q18.3</span>Normalization vs standardization?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> MinMax squeezes to [0,1] and is outlier-sensitive; standardization centres at 0 with unit variance and suits most gradient/distance models.</div>
+          <div class="detail"><b>Detailed:</b> Trees need neither.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> When prefer RobustScaler?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q18.4</span>Filter vs wrapper vs embedded selection?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Filter: fast, model-agnostic statistics. Wrapper: search subsets with a model (RFE), accurate but costly. Embedded: selection during training (L1, tree importance).</div>
+          <div class="detail"><b>Detailed:</b> Do selection inside CV or you leak.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why is correlation-based filtering insufficient?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Fitting encoders/imputers on all data</li><li>Dropping outliers that are real, important events (fraud)</li><li>Creating features unavailable at prediction time</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>How do you build point-in-time-correct features?</li><li>What is a feature store and how does it prevent training-serving skew?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="tuning">
+  <h2>Hyperparameter Tuning: Grid vs Random vs Bayesian Optimization <span class="lvl" style="border-color:#f0b45e;color:#f0b45e">Advanced</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>Searching for the model settings (not learned from data) that give the best validation performance.</p><p class="hi">🇮🇳 Parameters model khud seekhta hai, hyperparameters hum set karte hain (depth, learning rate). Unhe sahi dhundhna ek search problem hai.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>Defaults are rarely optimal; tuning can add several points of performance, but careless tuning overfits the validation set.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>After a solid baseline and features. Grid for 1–2 params, random for many, Bayesian when each trial is expensive.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>Grid tries every combination (exponential). Random samples configurations and covers important dimensions better. Bayesian optimization fits a surrogate (GP or TPE) to past trials and picks the next point by an acquisition function (expected improvement). Successive halving/Hyperband stop bad trials early.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">Grid size = Π|values|. Random search finds a top-5% config with probability 1 − 0.95ⁿ (n=60 gives ≈95%). Expected improvement EI(x) = E[max(f(x) − f*, 0)].</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Tuning LightGBM: 60 random trials over learning_rate (log-uniform), num_leaves, min_child_samples, subsample with early stopping, then final check on a held-out set.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>from scipy.stats import loguniform, randint
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold
+from sklearn.datasets import make_classification
+
+X, y = make_classification(1500, 20, random_state=0)
+space = {&quot;learning_rate&quot;: loguniform(1e-3, 3e-1), &quot;max_depth&quot;: randint(2, 6),
+         &quot;n_estimators&quot;: randint(50, 300), &quot;subsample&quot;: [0.6, 0.8, 1.0]}
+rs = RandomizedSearchCV(GradientBoostingClassifier(random_state=0), space, n_iter=15,
+                        cv=StratifiedKFold(3, shuffle=True, random_state=0),
+                        scoring=&quot;average_precision&quot;, n_jobs=-1, random_state=0).fit(X, y)
+print(rs.best_params_, round(rs.best_score_, 3))
+
+# Bayesian (Optuna TPE):
+# import optuna
+# def objective(trial):
+#     p = {&quot;learning_rate&quot;: trial.suggest_float(&quot;lr&quot;, 1e-3, 3e-1, log=True),
+#          &quot;max_depth&quot;: trial.suggest_int(&quot;depth&quot;, 2, 6)}
+#     return cross_val_score(GradientBoostingClassifier(**p), X, y, cv=3).mean()
+# optuna.create_study(direction=&quot;maximize&quot;).optimize(objective, n_trials=50)</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q19.1</span>Why is random search often better than grid search?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Only a few hyperparameters matter; random search tries more distinct values of each, so it hits good regions with fewer trials.</div>
+          <div class="detail"><b>Detailed:</b> Bergstra &amp; Bengio showed this empirically.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> When is grid still fine?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q19.2</span>How does Bayesian optimization work?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Build a probabilistic surrogate of the objective from past trials, then choose the next trial by balancing exploitation and exploration with an acquisition function.</div>
+          <div class="detail"><b>Detailed:</b> Great when each evaluation is expensive; sequential nature limits parallelism.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is TPE vs Gaussian-process BO?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q19.3</span>How do you avoid overfitting the validation set while tuning?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Use nested CV or a final untouched test set; limit the number of trials; prefer simpler configs within one standard error of the best.</div>
+          <div class="detail"><b>Detailed:</b> The more you tune on one split, the more optimistic its score.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is nested cross-validation?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Tuning on the test set</li><li>Searching learning_rate on a linear scale</li><li>Not using early stopping for boosting</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>Explain Hyperband and successive halving.</li><li>How do you tune under a fixed compute budget?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="ensembles">
+  <h2>Stacking, Voting &amp; Ensemble Design <span class="lvl" style="border-color:#f0b45e;color:#f0b45e">Advanced</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>Combining several models. Voting averages predictions; stacking trains a meta-model on base-model predictions.</p><p class="hi">🇮🇳 Alag-alag tarah ke models ki raay milakar final decision — jaise ek panel of experts.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>Diverse models make different errors; combining them reduces variance and often bias.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>Final push on a competition/production model when single models plateau and latency budget allows.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>Hard voting = majority class, soft voting = average probabilities. Stacking: generate out-of-fold predictions from base models, train a simple meta-learner (logistic/ridge) on them. Using in-fold predictions leaks and overfits.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">Soft vote: p = Σwᵢpᵢ.   Ensemble error variance ≈ ρσ² + (1−ρ)σ²/M — diversity (low ρ) matters more than the count M.</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Fraud: stack gradient boosting, logistic regression on aggregates, and a KNN on embeddings; meta-model is logistic regression.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>from sklearn.ensemble import StackingClassifier, VotingClassifier, RandomForestClassifier, GradientBoostingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.model_selection import cross_val_score
+from sklearn.datasets import make_classification
+
+X, y = make_classification(1500, 20, n_informative=10, random_state=0)
+base = [(&quot;rf&quot;, RandomForestClassifier(200, random_state=0)),
+        (&quot;gb&quot;, GradientBoostingClassifier(random_state=0)),
+        (&quot;svm&quot;, SVC(probability=True, random_state=0))]
+vote = VotingClassifier(base, voting=&quot;soft&quot;)
+stack = StackingClassifier(base, final_estimator=LogisticRegression(), cv=5)   # OOF predictions
+for n, m in [(&quot;vote&quot;, vote), (&quot;stack&quot;, stack)]:
+    print(n, cross_val_score(m, X, y, cv=3).mean().round(4))</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q20.1</span>Why must stacking use out-of-fold predictions?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> In-fold base predictions are over-optimistic, so the meta-model learns to trust overfit models and fails on new data.</div>
+          <div class="detail"><b>Detailed:</b> StackingClassifier(cv=5) does this for you.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you stack with time-series data?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q20.2</span>When does ensembling not help?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> When models are highly correlated or all share the same bias/data problem.</div>
+          <div class="detail"><b>Detailed:</b> Diversity via different algorithms, features, or seeds is key.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you measure diversity?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q20.3</span>Hard vs soft voting?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Soft voting uses probabilities and is usually better if models are calibrated.</div>
+          <div class="detail"><b>Detailed:</b> Hard voting ignores confidence.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What if models are miscalibrated?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Stacking with leakage</li><li>Ensembling near-identical models</li><li>Ignoring inference latency and maintenance cost</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>Explain blending vs stacking.</li><li>How would you weight models in a time-varying setting?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="explain">
+  <h2>Explainable AI: Permutation Importance, SHAP, LIME &amp; Interpretability <span class="lvl" style="border-color:#f0b45e;color:#f0b45e">Advanced</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>Methods to understand why a model made a prediction: global (which features matter) and local (why this prediction).</p><p class="hi">🇮🇳 Model black box na rahe — hum bata sakein ki kis feature ne prediction ko kitna upar ya neeche kiya.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>Needed for debugging, trust, regulation (credit, healthcare) and detecting leakage or bias.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>Before deployment, for audits, and when stakeholders ask &#x27;why was I rejected?&#x27;.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>Permutation importance shuffles one feature and measures the score drop (model-agnostic, uses a validation set). LIME fits a simple local surrogate around one prediction. SHAP assigns each feature a Shapley value: its average marginal contribution over all feature orderings; TreeSHAP computes it exactly and fast for trees.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">Shapley: φᵢ = Σ_{S⊆F\{i}} [|S|!(|F|−|S|−1)!/|F|!]·[f(S∪{i}) − f(S)].   Efficiency: Σφᵢ = f(x) − E[f(X)].</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Loan rejection: SHAP shows high debt-to-income (+0.31) and short credit history (+0.12) pushed risk up; income pulled it down (−0.08).</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>from sklearn.inspection import permutation_importance, PartialDependenceDisplay
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import make_classification
+
+X, y = make_classification(1500, 8, n_informative=3, shuffle=False, random_state=0)
+Xtr, Xte, ytr, yte = train_test_split(X, y, random_state=0)
+rf = RandomForestClassifier(200, random_state=0).fit(Xtr, ytr)
+r = permutation_importance(rf, Xte, yte, n_repeats=10, random_state=0)
+for i in r.importances_mean.argsort()[::-1][:4]:
+    print(f&quot;feature {i}: {r.importances_mean[i]:.3f}&quot;)
+
+# SHAP:
+# import shap
+# ex = shap.TreeExplainer(rf); sv = ex.shap_values(Xte)
+# shap.summary_plot(sv[1], Xte)</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q21.1</span>SHAP vs LIME?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> SHAP has consistent theoretical guarantees (efficiency, symmetry) and gives global + local views; LIME is a fast local approximation that can be unstable across runs.</div>
+          <div class="detail"><b>Detailed:</b> TreeSHAP is exact for trees; KernelSHAP is slow for large models.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What are Shapley axioms?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q21.2</span>Why is permutation importance better than impurity importance?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> It is computed on held-out data and is not biased toward high-cardinality features.</div>
+          <div class="detail"><b>Detailed:</b> Correlated features can split or hide importance; group them.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How to handle correlated features?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q21.3</span>Does feature importance imply causation?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> No. It describes the model&#x27;s reliance, not causal effect.</div>
+          <div class="detail"><b>Detailed:</b> Use causal methods or experiments to claim causality.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What are partial dependence plots and their pitfalls?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Computing importance on training data</li><li>Treating SHAP as causal</li><li>Ignoring correlated features</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>Explain ICE and ALE plots.</li><li>Interpretable-by-design models (GAMs, EBM) vs post-hoc explanations?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="calibration">
+  <h2>Calibration &amp; Probability Threshold Optimization <span class="lvl" style="border-color:#f0b45e;color:#f0b45e">Advanced</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>Calibration means predicted probabilities match observed frequencies (of items scored 0.8, about 80% are positive). Threshold optimization picks the cutoff that maximises business value.</p><p class="hi">🇮🇳 Model bole 70% chance, to 100 me se lagbhag 70 sach me positive hone chahiye. Aur 0.5 cutoff hamesha sahi nahi hota.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>Probabilities drive pricing, risk and ranking decisions; thresholds convert them into actions with costs.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>After training any classifier whose probabilities are used directly, or whenever FP and FN costs differ.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>Check a reliability curve and Brier score. Fix with Platt scaling (sigmoid) or isotonic regression fitted on held-out data. Choose a threshold by sweeping the PR curve and minimising expected cost or maximising F-beta.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">Brier = (1/n)Σ(p − y)².   Expected cost(t) = C_FP·FP(t) + C_FN·FN(t).   Optimal threshold for calibrated p: t* = C_FP/(C_FP + C_FN).</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>If a missed fraud costs ₹5,000 and a false review ₹200, t* = 200/5200 ≈ 0.038: flag anything above ~4% risk.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>import numpy as np
+from sklearn.calibration import CalibratedClassifierCV, calibration_curve
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import brier_score_loss, precision_recall_curve
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import make_classification
+
+X, y = make_classification(6000, 15, weights=[0.95], random_state=0)
+Xtr, Xte, ytr, yte = train_test_split(X, y, stratify=y, random_state=0)
+raw = RandomForestClassifier(200, random_state=0).fit(Xtr, ytr)
+cal = CalibratedClassifierCV(RandomForestClassifier(200, random_state=0), method=&quot;isotonic&quot;, cv=5).fit(Xtr, ytr)
+print(&quot;brier raw&quot;, round(brier_score_loss(yte, raw.predict_proba(Xte)[:, 1]), 4),
+      &quot;cal&quot;, round(brier_score_loss(yte, cal.predict_proba(Xte)[:, 1]), 4))
+
+p = cal.predict_proba(Xte)[:, 1]
+prec, rec, thr = precision_recall_curve(yte, p)
+C_FP, C_FN = 200, 5000
+costs = [C_FP*((p &gt;= t) &amp; (yte == 0)).sum() + C_FN*((p &lt; t) &amp; (yte == 1)).sum() for t in thr]
+print(&quot;best threshold&quot;, thr[int(np.argmin(costs))].round(3))</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q22.1</span>Why are Random Forest probabilities poorly calibrated?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Averaging trees pulls scores away from 0 and 1 (under-confident); boosting and SVM also distort. Logistic regression is usually well calibrated.</div>
+          <div class="detail"><b>Detailed:</b> Calibrate with isotonic (needs more data) or Platt (few data).</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Isotonic vs Platt?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q22.2</span>Is a high AUC enough?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> No. AUC measures ranking only; probabilities can still be badly calibrated.</div>
+          <div class="detail"><b>Detailed:</b> Use reliability plots and Brier/ECE when probabilities matter.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is Expected Calibration Error?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q22.3</span>How do you choose the threshold?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> From business costs or a precision/recall target, using validation data, not the default 0.5.</div>
+          <div class="detail"><b>Detailed:</b> Re-check when class prior shifts.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How to adjust for prior shift?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Calibrating on training data</li><li>Choosing a threshold on the test set</li><li>Class weights change probabilities and need recalibration</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>How does undersampling distort probabilities and how do you correct it?</li><li>Multi-class calibration (temperature scaling)?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="gmm-em">
+  <h2>Gaussian Mixture Models, EM Algorithm &amp; Association Rules <span class="lvl" style="border-color:#f0b45e;color:#f0b45e">Advanced</span></h2>
+  <div class="grid">
+    <div class="box"><h4>1. What is it?</h4><p>GMM models data as a mix of Gaussians with soft cluster membership, trained by Expectation-Maximisation. Association rules (Apriori/FP-Growth) find items that occur together.</p><p class="hi">🇮🇳 GMM: har point kisi ek cluster ka nahi balki alag-alag clusters ka probability hissa hota hai. Association rule: &#x27;bread kharidne wale butter bhi kharidte hain&#x27;.</p></div>
+    <div class="box"><h4>2. Why do we need it?</h4><p>Soft clustering, density estimation, anomaly scoring; market-basket analysis for cross-selling.</p></div>
+    <div class="box"><h4>3. When should we use it?</h4><p>GMM: elliptical overlapping clusters. Rules: transaction data with item co-occurrence.</p></div>
+    <div class="box"><h4>4. How does it work internally?</h4><p>EM: E-step computes responsibilities γᵢₖ = P(cluster k | xᵢ); M-step re-estimates π, μ, Σ using those weights; repeat until log-likelihood stops improving (guaranteed non-decreasing, may hit local optimum). Apriori prunes itemsets using the rule that every subset of a frequent itemset is frequent.</p></div>
+  </div>
+  <div class="box math"><h4>5. Mathematical intuition</h4><pre class="m">γᵢₖ = πₖN(xᵢ|μₖ,Σₖ)/Σⱼπⱼ N(xᵢ|μⱼ,Σⱼ).   μₖ = Σγᵢₖxᵢ/Σγᵢₖ.   πₖ = Σγᵢₖ/n.
+Support(A→B) = P(A∩B).  Confidence = P(B|A).  Lift = Confidence/P(B)  (&gt;1 means positive association).</pre></div>
+  <div class="box"><h4>6. Real-world example</h4><p>Retail: {diapers} → {beer} with lift 1.8 suggests a promotion bundle. GMM: segment drivers into overlapping behaviour groups.</p></div>
+  <div class="box"><h4>7. Python code</h4><pre class="code"><code>import numpy as np
+from sklearn.mixture import GaussianMixture
+
+rng = np.random.RandomState(0)
+x = np.r_[rng.normal(0, 1, 300), rng.normal(5, 1.2, 200)]
+
+# EM from scratch, 1D, 2 components
+pi, mu, sd = np.array([.5, .5]), np.array([-1., 6.]), np.array([1., 1.])
+pdf = lambda x, m, s: np.exp(-(x-m)**2/(2*s**2)) / (s*np.sqrt(2*np.pi))
+for _ in range(50):
+    r = np.stack([pi[k]*pdf(x, mu[k], sd[k]) for k in range(2)], 1)
+    r /= r.sum(1, keepdims=True)                                   # E-step
+    nk = r.sum(0); pi = nk/len(x)                                  # M-step
+    mu = (r*x[:, None]).sum(0)/nk
+    sd = np.sqrt((r*(x[:, None]-mu)**2).sum(0)/nk)
+print(pi.round(2), mu.round(2), sd.round(2))
+
+g = GaussianMixture(2, random_state=0).fit(x[:, None])
+print(g.weights_.round(2), g.means_.ravel().round(2), &quot;BIC&quot;, round(g.bic(x[:, None]), 1))</code></pre></div>
+  <div class="box"><h4>8. Interview questions &amp; answers</h4>
+      <details class="qa"><summary><span class="qn">Q23.1</span>K-Means vs GMM?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> K-Means: hard assignment, spherical clusters. GMM: soft assignment, learns covariances and weights; K-Means is a special case with equal spherical covariance and hard assignment.</div>
+          <div class="detail"><b>Detailed:</b> GMM gives density, so you can score anomalies.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you choose the number of components?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q23.2</span>Why does EM never decrease the likelihood?</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Each E-step builds a lower bound that is tight at current parameters and the M-step maximises it.</div>
+          <div class="detail"><b>Detailed:</b> It can converge to a local optimum; use several restarts.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is the ELBO?</div>
+        </div></details>
+      <details class="qa"><summary><span class="qn">Q23.3</span>Explain support, confidence and lift.</summary>
+        <div class="qa-body">
+          <div class="short"><b>Short answer (3–5 lines):</b> Support: how often the itemset appears. Confidence: P(B|A). Lift: how much more often B occurs with A than by chance.</div>
+          <div class="detail"><b>Detailed:</b> Confidence alone is misleading for popular items; check lift.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Apriori vs FP-Growth?</div>
+        </div></details></div>
+  <div class="grid">
+    <div class="box warn"><h4>9. Common mistakes</h4><ul><li>Singular covariance (collapsed component) without regularisation</li><li>Reading rules with high confidence but lift ≈ 1 as meaningful</li><li>Not scaling features for GMM</li></ul></div>
+    <div class="box"><h4>10. Advanced follow-ups</h4><ul><li>Use BIC/AIC for model selection - when do they disagree?</li><li>How do variational GMMs infer the number of components?</li></ul></div>
+  </div>
+</section>
+<section class="topic" id="bank0"><h2>A. Advanced Theory <span class="lvl" style="border-color:#c9a0ff;color:#c9a0ff">25 questions</span></h2><details class="qa"><summary><span class="qn">B1</span>Why do ensembles only help when base models are diverse?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> The error of an average depends on both individual variance and the correlation between models: Var ≈ ρσ² + (1−ρ)σ²/M. If ρ≈1, adding models changes nothing.</div>
+          <div><b>Why it matters:</b> Explains why random feature subsets, different algorithms and different data views are used.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How would you measure diversity between two classifiers?</div></div></details><details class="qa"><summary><span class="qn">B2</span>How does early stopping act as regularization?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Stopping training when validation loss rises limits how far weights move from their small initial values, similar in effect to L2 for linear models.</div>
+          <div><b>Why it matters:</b> It is the cheapest regularizer and is standard in boosting and neural nets.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you choose patience?</div></div></details><details class="qa"><summary><span class="qn">B3</span>Generative vs discriminative models?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Discriminative models learn P(y|x) directly (logistic regression, trees, SVM). Generative models learn P(x,y) = P(x|y)P(y) (Naive Bayes, GMM) and classify with Bayes&#x27; rule.</div>
+          <div><b>Why it matters:</b> Generative models can handle missing data and generate samples, discriminative ones usually give higher accuracy with enough data.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Which one is better with very little data?</div></div></details><details class="qa"><summary><span class="qn">B4</span>Parametric vs non-parametric models?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Parametric models have a fixed number of parameters regardless of data size (linear regression). Non-parametric models grow with data (KNN, kernel SVM, trees).</div>
+          <div><b>Why it matters:</b> Determines memory, flexibility and risk of underfitting vs overfitting.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Is a decision tree parametric?</div></div></details><details class="qa"><summary><span class="qn">B5</span>How do you handle high-cardinality categorical features?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Frequency or target encoding computed out-of-fold with smoothing, feature hashing, or learned embeddings; group rare levels into &#x27;other&#x27;.</div>
+          <div><b>Why it matters:</b> One-hot explodes dimensionality and naive target encoding leaks the label.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How would you implement leak-free target encoding?</div></div></details><details class="qa"><summary><span class="qn">B6</span>What is feature hashing and its trade-off?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Hash feature names into a fixed-size vector (hashing trick) so no vocabulary is stored. Trade-off: collisions add noise and you lose interpretability.</div>
+          <div><b>Why it matters:</b> Used for huge sparse text/ID features in streaming systems.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you reduce collision impact?</div></div></details><details class="qa"><summary><span class="qn">B7</span>Explain the curse of dimensionality.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> As dimensions grow, data becomes sparse and distances between points concentrate, so nearest-neighbour methods and density estimates degrade; required data grows exponentially.</div>
+          <div><b>Why it matters:</b> Motivates feature selection, PCA and regularization.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why does the ratio of nearest to farthest distance approach 1?</div></div></details><details class="qa"><summary><span class="qn">B8</span>MLE vs MAP and the link to regularization?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> MLE maximises P(data|θ). MAP maximises P(data|θ)P(θ). A Gaussian prior on weights gives L2 regularization; a Laplace prior gives L1.</div>
+          <div><b>Why it matters:</b> Connects regularization to Bayesian thinking, a favourite interview bridge question.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is the fully Bayesian alternative?</div></div></details><details class="qa"><summary><span class="qn">B9</span>Beyond VIF, how do you detect and handle multicollinearity?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Look at the condition number of XᵀX, correlation clusters, and unstable coefficients across bootstrap samples. Fix by dropping/combining features, PCA, or ridge/elastic net.</div>
+          <div><b>Why it matters:</b> It hurts interpretation and inference more than raw prediction.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Does multicollinearity affect tree models?</div></div></details><details class="qa"><summary><span class="qn">B10</span>ROC-AUC vs PR-AUC when the class prior changes?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> ROC-AUC is invariant to class prior because TPR and FPR are per-class rates; PR-AUC depends on prevalence because precision does.</div>
+          <div><b>Why it matters:</b> Choose PR-AUC for rare-event problems and be careful comparing it across datasets.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why can ROC-AUC look good while precision is terrible?</div></div></details><details class="qa"><summary><span class="qn">B11</span>Covariate shift vs label shift vs concept drift?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Covariate shift: P(x) changes, P(y|x) same. Label shift: P(y) changes, P(x|y) same. Concept drift: P(y|x) itself changes.</div>
+          <div><b>Why it matters:</b> Each needs a different fix: reweighting, prior correction, or retraining.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How would you detect each in production?</div></div></details><details class="qa"><summary><span class="qn">B12</span>Cross-entropy and KL divergence?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Cross-entropy H(p,q) = H(p) + KL(p‖q). Minimising cross-entropy against fixed true labels is equal to minimising KL divergence.</div>
+          <div><b>Why it matters:</b> Explains why log loss is the natural classification loss.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why is KL divergence not symmetric?</div></div></details><details class="qa"><summary><span class="qn">B13</span>Bagging vs pasting vs random subspaces vs random patches?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Bagging samples rows with replacement; pasting without; random subspaces samples features; random patches samples both.</div>
+          <div><b>Why it matters:</b> Different ways to inject diversity into an ensemble.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Which does Random Forest use?</div></div></details><details class="qa"><summary><span class="qn">B14</span>What are monotonic constraints in gradient boosting?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> You force predictions to increase (or decrease) with a feature, e.g. higher income never lowers credit score.</div>
+          <div><b>Why it matters:</b> Adds domain knowledge, improves trust and robustness, often required in regulated settings.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is the accuracy cost?</div></div></details><details class="qa"><summary><span class="qn">B15</span>class_weight vs oversampling?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> class_weight rescales the loss with no data duplication; oversampling changes the training distribution. Both shift decision boundaries and distort probabilities.</div>
+          <div><b>Why it matters:</b> Cheap and effective for imbalance; recalibrate if you need probabilities.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> When does SMOTE hurt?</div></div></details><details class="qa"><summary><span class="qn">B16</span>What is selection bias in training data? Give an example.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Training rows are not representative of the deployment population, e.g. a credit model trained only on approved applicants never sees rejected ones.</div>
+          <div><b>Why it matters:</b> A key reason offline metrics overstate production quality.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How can reject inference help?</div></div></details><details class="qa"><summary><span class="qn">B17</span>Online vs batch learning?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Batch retrains on the full dataset periodically. Online updates incrementally per example/mini-batch (partial_fit, SGD) and adapts to drift with small memory.</div>
+          <div><b>Why it matters:</b> Choose based on data volume, drift speed and latency.</div><pre class="code"><code>from sklearn.linear_model import SGDClassifier
+import numpy as np
+clf = SGDClassifier(loss=&quot;log_loss&quot;, random_state=0)
+rng = np.random.RandomState(0)
+for _ in range(20):                       # stream of mini-batches
+    X = rng.randn(100, 5); y = (X[:, 0] + X[:, 1] &gt; 0).astype(int)
+    clf.partial_fit(X, y, classes=[0, 1])
+print(clf.score(X, y))</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> What are the risks of online learning?</div></div></details><details class="qa"><summary><span class="qn">B18</span>How does LightGBM handle categorical features?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> It sorts categories by their gradient statistics and finds the best split on that ordering, avoiding one-hot expansion.</div>
+          <div><b>Why it matters:</b> Faster and often better than one-hot for medium-cardinality features.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What overfitting risk exists for rare categories?</div></div></details><details class="qa"><summary><span class="qn">B19</span>Target leakage vs train-test contamination?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Target leakage: a feature contains information about the label not available at prediction time. Contamination: test information influences training (scaling on all data, duplicates across splits).</div>
+          <div><b>Why it matters:</b> Both inflate offline scores; they have different fixes (feature audit vs strict pipeline/split hygiene).</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Give one example of each.</div></div></details><details class="qa"><summary><span class="qn">B20</span>Stratified vs group k-fold?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Stratified keeps class ratios per fold. Group k-fold keeps all rows of the same entity (user, patient) in one fold to avoid leakage across folds.</div>
+          <div><b>Why it matters:</b> Using plain KFold with repeated entities gives overly optimistic scores.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> When do you need both (StratifiedGroupKFold)?</div></div></details><details class="qa"><summary><span class="qn">B21</span>StandardScaler vs MinMax vs RobustScaler?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Standard: zero mean, unit variance. MinMax: bounded range, outlier-sensitive. Robust: median/IQR, resistant to outliers.</div>
+          <div><b>Why it matters:</b> Right choice depends on outliers and algorithm; trees need none.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Which for neural-network inputs?</div></div></details><details class="qa"><summary><span class="qn">B22</span>Why are tree ensembles poorly calibrated?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Averaging leaf proportions across trees pulls scores away from 0 and 1 (random forest), while boosting pushes them to extremes. Probabilities do not reflect true frequencies.</div>
+          <div><b>Why it matters:</b> Matters whenever scores feed pricing or risk decisions.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Platt vs isotonic?</div></div></details><details class="qa"><summary><span class="qn">B23</span>How does Isolation Forest detect anomalies?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> It builds random trees by random splits; anomalies are isolated in fewer splits, so shorter average path length means a higher anomaly score.</div>
+          <div><b>Why it matters:</b> Fast, unsupervised, works in high dimensions.</div><pre class="code"><code>from sklearn.ensemble import IsolationForest
+import numpy as np
+rng = np.random.RandomState(0)
+X = np.r_[rng.randn(500, 2), rng.uniform(-6, 6, (10, 2))]
+iso = IsolationForest(contamination=0.02, random_state=0).fit(X)
+print((iso.predict(X) == -1).sum())</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> What contamination parameter should you set?</div></div></details><details class="qa"><summary><span class="qn">B24</span>Why does stacking need out-of-fold predictions?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Using in-sample base predictions lets the meta-model trust overfit models. OOF predictions mimic what base models do on unseen data.</div>
+          <div><b>Why it matters:</b> Prevents leakage in stacked ensembles.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How is stacking done on time-series data?</div></div></details><details class="qa"><summary><span class="qn">B25</span>What is adversarial validation and when do you use it?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Train a classifier to tell train rows from test/production rows. AUC near 0.5 means similar distributions; high AUC reveals shift, and top features show which ones drifted.</div>
+          <div><b>Why it matters:</b> Quick, practical drift/leak detector before deployment.</div><pre class="code"><code>import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import cross_val_score
+rng = np.random.RandomState(0)
+train = rng.randn(500, 4); test = rng.randn(500, 4); test[:, 2] += 1.5   # feature 2 drifted
+X = np.r_[train, test]; y = np.r_[np.zeros(500), np.ones(500)]
+auc = cross_val_score(RandomForestClassifier(100, random_state=0), X, y, cv=3, scoring=&quot;roc_auc&quot;).mean()
+print(round(auc, 3))   # &gt;&gt; 0.5 means shift</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> How can you use its predictions to reweight training data?</div></div></details></section><section class="topic" id="bank1"><h2>B. Mathematical ML <span class="lvl" style="border-color:#c9a0ff;color:#c9a0ff">15 questions</span></h2><details class="qa"><summary><span class="qn">B26</span>Derive the gradient of logistic regression log loss.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> With p=σ(z), dσ/dz=p(1−p). L = −[y ln p + (1−y)ln(1−p)] gives dL/dz = p − y, so ∇w = Xᵀ(p − y)/n.</div>
+          <div><b>Why it matters:</b> The clean (p − y) form is why log loss pairs with sigmoid.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What changes for softmax?</div></div></details><details class="qa"><summary><span class="qn">B27</span>Derive the closed form of ridge regression.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Minimise ‖y−Xw‖² + λ‖w‖². Setting the gradient to zero gives w = (XᵀX + λI)⁻¹Xᵀy.</div>
+          <div><b>Why it matters:</b> λI makes the matrix invertible even with collinear features.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What happens to coefficients as λ→∞?</div></div></details><details class="qa"><summary><span class="qn">B28</span>Why is the MSE loss of linear regression convex?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> The Hessian is (2/n)XᵀX, which is positive semi-definite because vᵀXᵀXv = ‖Xv‖² ≥ 0, so any local minimum is global.</div>
+          <div><b>Why it matters:</b> Guarantees gradient descent finds the optimum.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Is logistic loss convex? Why?</div></div></details><details class="qa"><summary><span class="qn">B29</span>Define KL divergence and say why it is asymmetric.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> KL(p‖q) = Σ p(x) log(p(x)/q(x)). It weights errors by p, so the cost of q missing mass where p is large differs from the reverse.</div>
+          <div><b>Why it matters:</b> Appears in VAEs, t-SNE and distillation.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Forward vs reverse KL behaviour?</div></div></details><details class="qa"><summary><span class="qn">B30</span>What does the rank of XᵀX tell you?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> If rank &lt; d, columns are linearly dependent (perfect multicollinearity), so OLS has no unique solution.</div>
+          <div><b>Why it matters:</b> Motivates regularization or dropping redundant features.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How can rank deficiency arise from dummy variables?</div></div></details><details class="qa"><summary><span class="qn">B31</span>What is the maximum entropy of a binary variable and when?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> H = −p log₂p − (1−p)log₂(1−p) is maximal at p=0.5 with value 1 bit.</div>
+          <div><b>Why it matters:</b> Trees pick splits that reduce entropy toward 0.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is the Gini value at p=0.5?</div></div></details><details class="qa"><summary><span class="qn">B32</span>Worked example: TP=40, FP=10, FN=20, TN=930. Precision, recall, F1, accuracy?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Precision=40/50=0.80; recall=40/60=0.667; F1=2·0.8·0.667/1.467=0.727; accuracy=970/1000=0.97.</div>
+          <div><b>Why it matters:</b> Shows accuracy hiding mediocre recall in imbalanced data.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is specificity here?</div></div></details><details class="qa"><summary><span class="qn">B33</span>Two independent positive tests (sens 0.99, FPR 0.05, prevalence 1%). Posterior after both?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> After test 1: 0.167. Use it as the prior: 0.99·0.167/(0.99·0.167+0.05·0.833) ≈ 0.80.</div>
+          <div><b>Why it matters:</b> Shows sequential Bayesian updating.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What if the tests are not independent?</div></div></details><details class="qa"><summary><span class="qn">B34</span>What fraction of unique rows appears in a bootstrap sample?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> P(row included) = 1−(1−1/n)ⁿ → 1−1/e ≈ 63.2%; about 36.8% are out-of-bag.</div>
+          <div><b>Why it matters:</b> Basis for OOB error in Random Forest.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is the .632 bootstrap estimator?</div></div></details><details class="qa"><summary><span class="qn">B35</span>Variance of the average of M correlated models?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Var = ρσ² + (1−ρ)σ²/M for equal variance σ² and pairwise correlation ρ.</div>
+          <div><b>Why it matters:</b> Shows a floor of ρσ² no matter how many models.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How does Random Forest reduce ρ?</div></div></details><details class="qa"><summary><span class="qn">B36</span>How does the CLT help with sample size for an A/B test?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> The sample mean is approx normal, so n ≈ 2(z_{α/2}+z_β)²σ²/δ² per group for detecting difference δ.</div>
+          <div><b>Why it matters:</b> Lets you plan experiment duration before running it.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What changes for proportions?</div></div></details><details class="qa"><summary><span class="qn">B37</span>When does gradient descent diverge on a quadratic?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> For L with curvature (largest Hessian eigenvalue) λmax, step size η must satisfy η &lt; 2/λmax; otherwise iterates oscillate and blow up.</div>
+          <div><b>Why it matters:</b> Explains why feature scaling and lower LR fix divergence.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is the optimal fixed step for a quadratic?</div></div></details><details class="qa"><summary><span class="qn">B38</span>Is the MLE variance estimator biased?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Yes. σ̂²=(1/n)Σ(x−x̄)² has expectation (n−1)/n·σ², so it underestimates; divide by n−1 for unbiased.</div>
+          <div><b>Why it matters:</b> Foundation for Bessel&#x27;s correction.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Is it consistent?</div></div></details><details class="qa"><summary><span class="qn">B39</span>Relation between cosine similarity and Euclidean distance for unit vectors?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> ‖a−b‖² = 2 − 2cos(a,b), so ranking by smaller distance is the same as ranking by larger cosine.</div>
+          <div><b>Why it matters:</b> Lets you use L2 ANN indexes for cosine search after normalising.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What if the vectors are not normalised?</div></div></details><details class="qa"><summary><span class="qn">B40</span>Relation between covariance eigenvalues and SVD?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> For centred X with SVD X=UΣVᵀ, covariance eigenvalues are λᵢ=σᵢ²/(n−1) and eigenvectors are the columns of V.</div>
+          <div><b>Why it matters:</b> SVD is the numerically stable way to run PCA.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why is SVD preferred over eigen-decomposition of covariance?</div></div></details></section><section class="topic" id="bank2"><h2>C. Scenario-Based Production Questions <span class="lvl" style="border-color:#c9a0ff;color:#c9a0ff">20 questions</span></h2><details class="qa"><summary><span class="qn">B41</span>Offline accuracy is 98% but production accuracy is 70%. What do you check?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Suspect leakage first (features unavailable at serving, future info, duplicates), then train-serving skew (different preprocessing), data/concept drift, and a non-representative offline split. Compare feature distributions and replay production inputs through the offline pipeline.</div>
+          <div><b>Why it matters:</b> Most real failures are pipeline issues, not algorithm issues.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you build a regression test for training-serving skew?</div></div></details><details class="qa"><summary><span class="qn">B42</span>Fraud model recall dropped after a routine retrain. Steps?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Compare label quality and time window, check class prior, feature pipeline changes and threshold; evaluate old vs new model on the same recent holdout; roll back via the registry if needed, then investigate.</div>
+          <div><b>Why it matters:</b> Tests rollback discipline and structured debugging.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What guardrails should block a worse model from promotion?</div></div></details><details class="qa"><summary><span class="qn">B43</span>You have 500 labeled rows and 200 features. Approach?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Strong regularization (L1/elastic net), simple models, feature selection inside CV, repeated stratified CV, domain-driven features, maybe transfer learning or pretrained embeddings and more labels via active learning.</div>
+          <div><b>Why it matters:</b> Small-n, large-d is high variance territory; complexity must be penalised.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you report uncertainty on the final score?</div></div></details><details class="qa"><summary><span class="qn">B44</span>A regulator needs explanations for credit rejections. What do you build?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Use an interpretable model (logistic regression/GAM, monotonic GBM) or SHAP reason codes, document features, test for bias, keep model cards and audit logs.</div>
+          <div><b>Why it matters:</b> Explainability is a requirement, not a nice-to-have, in regulated domains.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is adverse-action reason code generation?</div></div></details><details class="qa"><summary><span class="qn">B45</span>Production class prior doubles versus training. What changes?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Rankings (AUC) stay similar, but calibrated probabilities and the best threshold shift. Re-estimate the prior and adjust probabilities/thresholds, or recalibrate on recent labels.</div>
+          <div><b>Why it matters:</b> Shows understanding of label shift.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How can you estimate the new prior without labels?</div></div></details><details class="qa"><summary><span class="qn">B46</span>Training takes 10 hours. How do you speed it up?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Profile first; use fewer/lower-cardinality features, sampling for tuning, histogram-based GBMs, early stopping, more efficient dtypes, incremental/warm-start training, distributed or GPU training, and cached preprocessing.</div>
+          <div><b>Why it matters:</b> Shows engineering pragmatism.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Which of these risks changing model quality?</div></div></details><details class="qa"><summary><span class="qn">B47</span>A feature is available in training but only after 2 hours in production. What do you do?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Do not use it as is: build it point-in-time-correct with the same delay, replace it with an available proxy, or use a two-stage model that updates when the feature arrives.</div>
+          <div><b>Why it matters:</b> Classic train-serving mismatch.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you enforce point-in-time correctness in a feature store?</div></div></details><details class="qa"><summary><span class="qn">B48</span>Stakeholder asks for 100% recall. Response?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Recall 100% is achievable by flagging everything; explain the precision cost, quantify FP and FN costs, and propose a threshold or tiered workflow (auto-block, review queue, allow).</div>
+          <div><b>Why it matters:</b> Tests stakeholder communication and cost thinking.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How would you present the precision-recall trade-off to a non-technical manager?</div></div></details><details class="qa"><summary><span class="qn">B49</span>Two models have the same AUC. How do you choose?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Compare at the operating point that matters (precision at recall target), calibration, stability across segments and time, latency, cost, interpretability and maintenance burden.</div>
+          <div><b>Why it matters:</b> AUC is one summary, deployment has more constraints.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What statistical test can tell if two AUCs differ?</div></div></details><details class="qa"><summary><span class="qn">B50</span>Churn model is accurate but business wants actionable reasons. What is the issue?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Prediction is not causation. For action you need uplift/causal modelling (who changes behaviour because of an intervention) or experiments, not just feature importance.</div>
+          <div><b>Why it matters:</b> Separating prediction from decision making.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is uplift modelling?</div></div></details><details class="qa"><summary><span class="qn">B51</span>Labels are noisy (say 15% wrong). How do you handle it?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Use robust losses, label smoothing, cleaning with confident learning/cross-validated predictions, more regularization, and measure on a clean validation subset.</div>
+          <div><b>Why it matters:</b> Real labels from humans or heuristics are rarely perfect.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How does noise affect boosting more than bagging?</div></div></details><details class="qa"><summary><span class="qn">B52</span>A key feature is 40% missing. What now?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Understand why it is missing (MAR/MNAR), add a missing indicator, impute with a model or median, use algorithms that handle NaN natively (XGBoost/LightGBM), and check that the missingness pattern is the same in production.</div>
+          <div><b>Why it matters:</b> Missingness itself is often a signal.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> When is dropping the column the right call?</div></div></details><details class="qa"><summary><span class="qn">B53</span>Random CV on a demand forecasting model gave great scores but live results are poor. Why?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Random splits leak the future into training and ignore autocorrelation. Use time-based splits (walk-forward/TimeSeriesSplit) and lag features built only from past data.</div>
+          <div><b>Why it matters:</b> Time-series evaluation hygiene.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is a gap or embargo in time-series CV?</div></div></details><details class="qa"><summary><span class="qn">B54</span>Model metrics improved but the business KPI did not move. Why?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Metric mismatch (optimising AUC while the business needs top-k precision), offline-online gap, no action taken on predictions, or the problem is elsewhere in the funnel. Define the metric from business value and verify with an online experiment.</div>
+          <div><b>Why it matters:</b> Tests product thinking.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How would you design the A/B test?</div></div></details><details class="qa"><summary><span class="qn">B55</span>A new category appears in a categorical feature at serving. Handling?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Use an encoder with handle_unknown=&#x27;ignore&#x27; or an &#x27;unknown&#x27; bucket, hashing or embeddings, log the event and retrain periodically.</div>
+          <div><b>Why it matters:</b> Robust pipelines must not crash on unseen values.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How does CatBoost treat unseen categories?</div></div></details><details class="qa"><summary><span class="qn">B56</span>Feature drift is flagged but model metrics are fine. Do you act?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Investigate: drift in an unimportant feature may be harmless. Check importance, performance by segment, label delay, and set alerts on prediction/score drift as well. Retrain when drift impacts performance or key features.</div>
+          <div><b>Why it matters:</b> Avoids both alert fatigue and ignoring real risk.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What are PSI and KS tests, and their thresholds?</div></div></details><details class="qa"><summary><span class="qn">B57</span>The model performs worse for one demographic group. What do you do?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Measure fairness metrics (equal opportunity, demographic parity) per group, inspect data representation and proxies, reweight/collect data, adjust thresholds per policy and legal advice, and document trade-offs.</div>
+          <div><b>Why it matters:</b> Responsible ML is asked in product companies.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Can all fairness definitions hold simultaneously?</div></div></details><details class="qa"><summary><span class="qn">B58</span>1000+ classes with a long tail. Approach?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Hierarchical or embedding-based classification, class-balanced loss/sampling, top-k metrics, grouping rare classes, and per-class monitoring.</div>
+          <div><b>Why it matters:</b> Checks handling of extreme multiclass problems.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why is accuracy misleading here?</div></div></details><details class="qa"><summary><span class="qn">B59</span>A 500-tree model is too slow at inference. Options?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Reduce trees/depth, distil into a smaller model, prune, quantize, compile the model (Treelite/ONNX), batch requests, cache results, or use a two-stage cascade where a cheap model filters easy cases.</div>
+          <div><b>Why it matters:</b> Latency vs accuracy trade-off.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you validate that distillation preserved quality?</div></div></details><details class="qa"><summary><span class="qn">B60</span>How do you handle the cold-start problem in a recommender?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> New users: popularity, context/demographics, onboarding questions, content-based recommendations, bandit exploration. New items: content features/embeddings and exploration slots.</div>
+          <div><b>Why it matters:</b> Common product-company question.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How does a bandit balance exploration and exploitation?</div></div></details></section><section class="topic" id="bank3"><h2>D. Python ML Coding <span class="lvl" style="border-color:#c9a0ff;color:#c9a0ff">14 questions</span></h2><details class="qa"><summary><span class="qn">B61</span>Implement a stratified train_test_split from scratch.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Group indices by class, shuffle each, take the test fraction from each group, then concatenate.</div>
+          <div><b>Why it matters:</b> Preserves class ratios; tests NumPy fluency.</div><pre class="code"><code>import numpy as np
+
+def stratified_split(y, test_size=0.2, seed=0):
+    rng = np.random.RandomState(seed)
+    train_idx, test_idx = [], []
+    for c in np.unique(y):
+        idx = rng.permutation(np.where(y == c)[0])
+        k = int(round(len(idx) * test_size))
+        test_idx += list(idx[:k]); train_idx += list(idx[k:])
+    return np.array(train_idx), np.array(test_idx)
+
+y = np.array([0]*90 + [1]*10)
+tr, te = stratified_split(y)
+print(y[te].mean(), y[tr].mean())</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you extend it to multiple labels?</div></div></details><details class="qa"><summary><span class="qn">B62</span>Write a k-fold cross-validation index generator.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Shuffle indices, split into k nearly equal folds, and yield (train, val) by holding one fold out each time.</div>
+          <div><b>Why it matters:</b> Core of CV; tests understanding of splits.</div><pre class="code"><code>import numpy as np
+
+def kfold(n, k=5, seed=0):
+    idx = np.random.RandomState(seed).permutation(n)
+    folds = np.array_split(idx, k)
+    for i in range(k):
+        val = folds[i]
+        train = np.concatenate([folds[j] for j in range(k) if j != i])
+        yield train, val
+
+for tr, va in kfold(10, 5):
+    print(len(tr), len(va))</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> How would you make it group-aware?</div></div></details><details class="qa"><summary><span class="qn">B63</span>Compute confusion matrix, precision, recall, F1 without sklearn.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Count TP/FP/FN/TN with boolean masks; apply the formulas and guard against division by zero.</div>
+          <div><b>Why it matters:</b> Frequent screening question.</div><pre class="code"><code>import numpy as np
+
+def metrics(y_true, y_pred):
+    y_true, y_pred = np.asarray(y_true), np.asarray(y_pred)
+    tp = ((y_true == 1) &amp; (y_pred == 1)).sum(); fp = ((y_true == 0) &amp; (y_pred == 1)).sum()
+    fn = ((y_true == 1) &amp; (y_pred == 0)).sum(); tn = ((y_true == 0) &amp; (y_pred == 0)).sum()
+    p = tp / (tp + fp) if tp + fp else 0.0
+    r = tp / (tp + fn) if tp + fn else 0.0
+    f1 = 2*p*r/(p + r) if p + r else 0.0
+    return dict(tp=tp, fp=fp, fn=fn, tn=tn, precision=p, recall=r, f1=f1)
+
+print(metrics([1,0,1,1,0,0,1,0], [1,0,1,0,0,1,1,0]))</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you extend to multiclass macro/micro F1?</div></div></details><details class="qa"><summary><span class="qn">B64</span>Compute ROC-AUC without sklearn.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> AUC equals the probability a random positive scores higher than a random negative (Mann-Whitney U). Rank scores, sum positive ranks, normalise.</div>
+          <div><b>Why it matters:</b> Shows you know AUC is a ranking metric.</div><pre class="code"><code>import numpy as np
+from scipy.stats import rankdata
+
+def auc(y, s):
+    y, s = np.asarray(y), np.asarray(s)
+    r = rankdata(s)                       # average ranks handle ties
+    n1, n0 = (y == 1).sum(), (y == 0).sum()
+    return (r[y == 1].sum() - n1*(n1 + 1)/2) / (n1 * n0)
+
+from sklearn.metrics import roc_auc_score
+y = [1,0,1,1,0,0,1,0]; s = [.9,.2,.6,.4,.3,.7,.8,.1]
+print(auc(y, s), roc_auc_score(y, s))</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you handle ties?</div></div></details><details class="qa"><summary><span class="qn">B65</span>Write a StandardScaler class with fit/transform.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Store mean and std from training data in fit; transform subtracts and divides, with std=0 guarded.</div>
+          <div><b>Why it matters:</b> Tests API design and leakage awareness.</div><pre class="code"><code>import numpy as np
+
+class MyStandardScaler:
+    def fit(self, X):
+        self.mean_ = X.mean(axis=0)
+        self.std_ = X.std(axis=0)
+        self.std_[self.std_ == 0] = 1.0
+        return self
+    def transform(self, X): return (X - self.mean_) / self.std_
+    def fit_transform(self, X): return self.fit(X).transform(X)
+
+X = np.array([[1., 10.], [2., 10.], [3., 10.]])
+print(MyStandardScaler().fit_transform(X))</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> Why must fit run only on the training set?</div></div></details><details class="qa"><summary><span class="qn">B66</span>Impute missing values with the group median in Pandas.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Use groupby + transform so the result keeps the original index, then fall back to the global median for groups that are all NaN.</div>
+          <div><b>Why it matters:</b> Common data-cleaning task.</div><pre class="code"><code>import pandas as pd, numpy as np
+df = pd.DataFrame({&quot;city&quot;: [&quot;A&quot;,&quot;A&quot;,&quot;B&quot;,&quot;B&quot;,&quot;C&quot;], &quot;income&quot;: [10., np.nan, 30., 50., np.nan]})
+df[&quot;income&quot;] = df[&quot;income&quot;].fillna(df.groupby(&quot;city&quot;)[&quot;income&quot;].transform(&quot;median&quot;))
+df[&quot;income&quot;] = df[&quot;income&quot;].fillna(df[&quot;income&quot;].median())
+print(df)</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you avoid leakage when doing this in CV?</div></div></details><details class="qa"><summary><span class="qn">B67</span>Vectorised cosine similarity matrix.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Normalise rows to unit length, then a single matrix product gives all pairwise similarities.</div>
+          <div><b>Why it matters:</b> Used in recommenders and retrieval.</div><pre class="code"><code>import numpy as np
+A = np.random.RandomState(0).randn(5, 8)
+An = A / np.linalg.norm(A, axis=1, keepdims=True)
+S = An @ An.T
+print(S.round(2)[0])</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you do top-k efficiently for millions of vectors?</div></div></details><details class="qa"><summary><span class="qn">B68</span>Write a mini-batch generator for training.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Shuffle indices each epoch and yield slices of the arrays.</div>
+          <div><b>Why it matters:</b> Used in every SGD loop.</div><pre class="code"><code>import numpy as np
+
+def batches(X, y, bs=32, seed=0):
+    idx = np.random.RandomState(seed).permutation(len(X))
+    for i in range(0, len(X), bs):
+        b = idx[i:i + bs]
+        yield X[b], y[b]
+
+X = np.arange(100).reshape(50, 2); y = np.arange(50)
+print([len(xb) for xb, _ in batches(X, y, 16)])</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> Why drop_last sometimes?</div></div></details><details class="qa"><summary><span class="qn">B69</span>Compute entropy and information gain of a split.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Entropy −Σp log₂p; gain = parent entropy minus weighted child entropies.</div>
+          <div><b>Why it matters:</b> The decision-tree primitive.</div><pre class="code"><code>import numpy as np
+
+def entropy(y):
+    _, c = np.unique(y, return_counts=True); p = c / c.sum()
+    return -(p * np.log2(p)).sum()
+
+def info_gain(y, mask):
+    l, r = y[mask], y[~mask]
+    return entropy(y) - (len(l)*entropy(l) + len(r)*entropy(r)) / len(y)
+
+y = np.array([1,1,1,0,0,0,1,0])
+x = np.array([5,6,7,1,2,3,8,2])
+print(round(info_gain(y, x &gt; 4), 3))</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> How does gain ratio fix bias to many-valued features?</div></div></details><details class="qa"><summary><span class="qn">B70</span>Detect outliers per column using the IQR rule in Pandas.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Compute Q1, Q3, IQR per column and flag values outside [Q1−1.5·IQR, Q3+1.5·IQR].</div>
+          <div><b>Why it matters:</b> Standard EDA step.</div><pre class="code"><code>import pandas as pd, numpy as np
+df = pd.DataFrame({&quot;a&quot;: [1,2,3,4,100], &quot;b&quot;: [10,11,12,13,14]})
+q1, q3 = df.quantile(.25), df.quantile(.75); iqr = q3 - q1
+mask = (df &lt; q1 - 1.5*iqr) | (df &gt; q3 + 1.5*iqr)
+print(mask.sum())</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> When is the IQR rule inappropriate?</div></div></details><details class="qa"><summary><span class="qn">B71</span>Do a time-based train/validation split in Pandas.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Sort by timestamp and cut at a date; never shuffle. Optionally add a gap to avoid label overlap.</div>
+          <div><b>Why it matters:</b> Prevents leakage in forecasting/risk models.</div><pre class="code"><code>import pandas as pd
+df = pd.DataFrame({&quot;ts&quot;: pd.date_range(&quot;2024-01-01&quot;, periods=100), &quot;x&quot;: range(100)})
+cut = pd.Timestamp(&quot;2024-03-01&quot;)
+train, valid = df[df.ts &lt; cut], df[df.ts &gt;= cut]
+print(len(train), len(valid))</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you do walk-forward validation?</div></div></details><details class="qa"><summary><span class="qn">B72</span>Implement a one-hot encoder that handles unseen categories.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Learn the category list on training data; at transform, unknown values map to an all-zero row.</div>
+          <div><b>Why it matters:</b> Prevents production crashes.</div><pre class="code"><code>import numpy as np
+
+class OneHot:
+    def fit(self, values):
+        self.cats_ = sorted(set(values)); self.idx_ = {c: i for i, c in enumerate(self.cats_)}; return self
+    def transform(self, values):
+        out = np.zeros((len(values), len(self.cats_)))
+        for r, v in enumerate(values):
+            if v in self.idx_: out[r, self.idx_[v]] = 1
+        return out
+
+enc = OneHot().fit([&quot;red&quot;, &quot;blue&quot;, &quot;red&quot;])
+print(enc.transform([&quot;red&quot;, &quot;green&quot;]))</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> How would you handle rare categories?</div></div></details><details class="qa"><summary><span class="qn">B73</span>Create rolling features without leaking the future.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Compute the rolling statistic and shift by one so each row only uses earlier data.</div>
+          <div><b>Why it matters:</b> Typical time-series feature pitfall.</div><pre class="code"><code>import pandas as pd, numpy as np
+s = pd.DataFrame({&quot;sales&quot;: np.arange(10, dtype=float)})
+s[&quot;roll3_mean&quot;] = s[&quot;sales&quot;].rolling(3).mean().shift(1)    # shift prevents using the current value
+s[&quot;lag1&quot;] = s[&quot;sales&quot;].shift(1)
+print(s.tail(4))</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> What about leakage from target-derived lags at forecast horizon h?</div></div></details><details class="qa"><summary><span class="qn">B74</span>Bootstrap a 95% confidence interval for a metric.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Resample the evaluation set with replacement many times, compute the metric each time, and take the 2.5th and 97.5th percentiles.</div>
+          <div><b>Why it matters:</b> Quantifies uncertainty in model comparison.</div><pre class="code"><code>import numpy as np
+rng = np.random.RandomState(0)
+y = rng.randint(0, 2, 300); pred = np.where(rng.rand(300) &lt; 0.8, y, 1 - y)   # ~80% accurate
+accs = [ (y[i] == pred[i]).mean() for i in (rng.randint(0, 300, 300) for _ in range(2000)) ]
+print(np.percentile(accs, [2.5, 97.5]).round(3))</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> When does the bootstrap fail?</div></div></details></section><section class="topic" id="bank4"><h2>E. Expert-Level Questions <span class="lvl" style="border-color:#c9a0ff;color:#c9a0ff">16 questions</span></h2><details class="qa"><summary><span class="qn">B75</span>Why do gradient-boosted trees often beat deep networks on tabular data?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Tabular features are heterogeneous, often irregular and with few samples; trees handle mixed scales, missing values, uninformative features and sharp thresholds naturally, while networks need careful preprocessing and are rotation-invariant in a way tabular data is not.</div>
+          <div><b>Why it matters:</b> Guides model choice instead of defaulting to deep learning.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> When would a neural network still win on tabular data?</div></div></details><details class="qa"><summary><span class="qn">B76</span>How does XGBoost find the best split efficiently?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> It computes gradient/hessian statistics per candidate split; exact greedy scans sorted values, approximate/histogram methods bucket values, and a sparsity-aware algorithm learns a default direction for missing values. Gain = ½[G_L²/(H_L+λ) + G_R²/(H_R+λ) − G²/(H+λ)] − γ.</div>
+          <div><b>Why it matters:</b> Shows depth beyond &#x27;it is boosting&#x27;.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What do λ and γ do?</div></div></details><details class="qa"><summary><span class="qn">B77</span>Explain double descent.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Test error decreases, spikes near the interpolation threshold (parameters ≈ samples), then decreases again as models get far larger, contradicting the classic U-shaped bias-variance curve.</div>
+          <div><b>Why it matters:</b> Modern view of overparameterised models.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How does regularization or early stopping change the peak?</div></div></details><details class="qa"><summary><span class="qn">B78</span>What is conformal prediction?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> A distribution-free method that wraps any model to output prediction sets/intervals with guaranteed coverage (e.g. 90%) under exchangeability, calibrated on held-out residuals.</div>
+          <div><b>Why it matters:</b> Gives trustworthy uncertainty without Bayesian assumptions.</div><pre class="code"><code>import numpy as np
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+rng = np.random.RandomState(0)
+X = rng.randn(2000, 4); y = X[:, 0]*2 + rng.randn(2000)*0.5
+Xtr, Xrest, ytr, yrest = train_test_split(X, y, test_size=0.5, random_state=0)
+Xcal, Xte, ycal, yte = train_test_split(Xrest, yrest, test_size=0.5, random_state=0)
+m = RandomForestRegressor(100, random_state=0).fit(Xtr, ytr)
+q = np.quantile(np.abs(ycal - m.predict(Xcal)), 0.9)           # 90% conformal radius
+pred = m.predict(Xte)
+print(&quot;coverage&quot;, np.mean((yte &gt;= pred - q) &amp; (yte &lt;= pred + q)).round(3))</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> How does split-conformal regression compute the interval?</div></div></details><details class="qa"><summary><span class="qn">B79</span>Prediction vs causal inference: what is the difference and the main risk?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Prediction learns correlations to forecast outcomes; causal inference estimates what happens under an intervention. Confounders can make a predictive feature look causal and mislead decisions.</div>
+          <div><b>Why it matters:</b> Critical for product, pricing and policy decisions.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What are propensity scores and what do they do?</div></div></details><details class="qa"><summary><span class="qn">B80</span>What is uplift modelling?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> It estimates the incremental effect of a treatment per person, P(y|treated) − P(y|control), to target those who respond because of the action (persuadables), not those who would convert anyway.</div>
+          <div><b>Why it matters:</b> Better ROI than plain propensity targeting.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you evaluate uplift (Qini curve)?</div></div></details><details class="qa"><summary><span class="qn">B81</span>How does Bayesian optimization choose the next point?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> A surrogate (Gaussian process or TPE) models the objective and uncertainty; an acquisition function like expected improvement balances exploitation of promising regions and exploration of uncertain ones.</div>
+          <div><b>Why it matters:</b> Efficient when each trial is expensive.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why does it struggle in high dimensions?</div></div></details><details class="qa"><summary><span class="qn">B82</span>Explain learning-to-rank approaches.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Pointwise predicts relevance per item, pairwise learns which of two items ranks higher (RankNet), listwise optimises list metrics such as NDCG (LambdaMART uses lambda gradients weighted by ΔNDCG).</div>
+          <div><b>Why it matters:</b> Used in search and recommendations.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why is NDCG not directly differentiable?</div></div></details><details class="qa"><summary><span class="qn">B83</span>Properties and cost of Shapley values?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> They satisfy efficiency, symmetry, dummy and additivity. Exact computation is exponential in features; TreeSHAP is polynomial for trees, KernelSHAP approximates for any model.</div>
+          <div><b>Why it matters:</b> Explains when SHAP is cheap vs expensive.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do correlated features affect SHAP?</div></div></details><details class="qa"><summary><span class="qn">B84</span>What is positive-unlabeled (PU) learning?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Only positives are labeled and the rest is unlabeled (mixed). Methods estimate the class prior and use non-negative risk estimators or treat unlabeled as noisy negatives.</div>
+          <div><b>Why it matters:</b> Common in fraud, churn and recommendations where negatives are unknown.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Why is treating unlabeled as negative biased?</div></div></details><details class="qa"><summary><span class="qn">B85</span>When would you use Poisson or Tweedie regression instead of linear regression?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> For non-negative skewed or count targets (claims, demand, clicks) where variance grows with the mean and zeros are common. A log link keeps predictions positive and the deviance loss matches the data better than squared error.</div>
+          <div><b>Why it matters:</b> Right loss for the target distribution often beats more tuning.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you handle overdispersion (negative binomial)?</div></div></details><details class="qa"><summary><span class="qn">B86</span>Why log-transform the target and what is retransformation bias?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> It stabilises variance and handles multiplicative effects. But exp(E[log y]) underestimates E[y]; correct with a smearing factor or model the mean on the original scale (e.g. Poisson/Gamma GLM).</div>
+          <div><b>Why it matters:</b> Common mistake in price/demand forecasting.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How does a Tweedie loss help?</div></div></details><details class="qa"><summary><span class="qn">B87</span>Explain quantile regression and the pinball loss.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> It predicts a conditional quantile τ by minimising L = max(τ(y−ŷ), (τ−1)(y−ŷ)); the median (τ=0.5) is MAE. Gives prediction intervals without a normality assumption.</div>
+          <div><b>Why it matters:</b> Needed for demand/risk forecasting.</div><pre class="code"><code>import numpy as np
+from sklearn.ensemble import GradientBoostingRegressor
+rng = np.random.RandomState(0)
+X = rng.rand(1500, 1) * 10; y = X.ravel() + rng.randn(1500) * (0.3 + 0.3 * X.ravel())
+lo = GradientBoostingRegressor(loss=&quot;quantile&quot;, alpha=0.05, random_state=0).fit(X, y)
+hi = GradientBoostingRegressor(loss=&quot;quantile&quot;, alpha=0.95, random_state=0).fit(X, y)
+print(np.mean((y &gt;= lo.predict(X)) &amp; (y &lt;= hi.predict(X))).round(3))</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you avoid quantile crossing?</div></div></details><details class="qa"><summary><span class="qn">B88</span>Active learning vs semi-supervised learning?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Active learning picks the most informative unlabeled samples to send for labelling (uncertainty, margin, query-by-committee). Semi-supervised uses unlabeled data directly (pseudo-labels, consistency) without extra labelling.</div>
+          <div><b>Why it matters:</b> Both reduce labelling cost; they can be combined.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is the risk of pseudo-labelling?</div></div></details><details class="qa"><summary><span class="qn">B89</span>Variance of CV estimates and the one-standard-error rule?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> CV scores vary across folds; the one-SE rule picks the simplest model whose score is within one standard error of the best, favouring parsimony. Nested CV gives an unbiased estimate when tuning inside.</div>
+          <div><b>Why it matters:</b> Avoids over-tuned, unstable models.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How many repeats of CV are enough?</div></div></details><details class="qa"><summary><span class="qn">B90</span>What is exchangeability vs i.i.d., and why does it matter for evaluation?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Exchangeable data&#x27;s joint distribution does not change when reordered; i.i.d. implies it. Time series and grouped data violate it, so random CV and standard confidence intervals are invalid.</div>
+          <div><b>Why it matters:</b> Underlies correct validation design.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Give an example where data is exchangeable but not i.i.d.</div></div></details></section><section class="topic" id="bank5"><h2>F. ML System Design &amp; MLOps <span class="lvl" style="border-color:#c9a0ff;color:#c9a0ff">10 questions</span></h2><details class="qa"><summary><span class="qn">B91</span>Design a real-time fraud detection system (&lt;100 ms).</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Event stream (Kafka) → feature service combining real-time aggregates (Redis/feature store) and precomputed features → lightweight model (GBM) served behind FastAPI/gRPC → rules + threshold → decision. Log everything for labels, monitor drift, shadow-test new models, review queue for borderline cases.</div>
+          <div><b>Why it matters:</b> Tests end-to-end thinking with latency constraints.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you handle delayed labels (chargebacks after 60 days)?</div></div></details><details class="qa"><summary><span class="qn">B92</span>Design a recommender system.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Two stages: candidate generation (collaborative filtering/embeddings with ANN retrieval) then ranking (GBM or deep model on rich features), followed by re-ranking for diversity and business rules; handle cold start, feedback loops and offline + online evaluation (A/B).</div>
+          <div><b>Why it matters:</b> Standard architecture at product companies.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you evaluate offline vs online?</div></div></details><details class="qa"><summary><span class="qn">B93</span>How do you monitor a model in production?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Track system metrics (latency, errors), input data quality and drift (PSI, KS), prediction/score drift, performance when labels arrive (with delay), segment metrics and business KPIs, with alerts and dashboards.</div>
+          <div><b>Why it matters:</b> Monitoring is half of production ML.</div><pre class="code"><code>import numpy as np
+
+def psi(expected, actual, bins=10):
+    cuts = np.quantile(expected, np.linspace(0, 1, bins + 1)); cuts[0], cuts[-1] = -np.inf, np.inf
+    e = np.histogram(expected, cuts)[0] / len(expected) + 1e-6
+    a = np.histogram(actual, cuts)[0] / len(actual) + 1e-6
+    return float(np.sum((a - e) * np.log(a / e)))
+
+rng = np.random.RandomState(0)
+print(round(psi(rng.randn(5000), rng.randn(5000)), 3),          # ~0
+      round(psi(rng.randn(5000), rng.randn(5000) + 0.5), 3))    # &gt; 0.1 suggests drift</code></pre>
+          <div class="fu"><b>Interviewer follow-up:</b> What do you do when labels are delayed or unavailable?</div></div></details><details class="qa"><summary><span class="qn">B94</span>Batch vs real-time inference: how do you choose?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Batch for non-urgent, large-scale scoring (nightly churn lists), cheaper and simpler. Real-time for decisions in the user flow (fraud, search) needing low latency and fresh features. Hybrid: precompute heavy features, compute light ones online.</div>
+          <div><b>Why it matters:</b> Cost/latency trade-off.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What is near-real-time (micro-batch) inference?</div></div></details><details class="qa"><summary><span class="qn">B95</span>What is training-serving skew and how does a feature store help?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Differences between how features are computed in training and serving cause silent degradation. A feature store defines features once, serves them offline (point-in-time correct) and online from the same logic.</div>
+          <div><b>Why it matters:</b> Top cause of production bugs.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you test for skew automatically?</div></div></details><details class="qa"><summary><span class="qn">B96</span>A/B test vs shadow vs canary deployment?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Shadow: new model gets live traffic but its output is not used; compare offline. Canary: gradually send a small % of real traffic with rollback. A/B: randomised comparison on business metrics for statistical conclusions.</div>
+          <div><b>Why it matters:</b> Safe-release vocabulary.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> Which would you use first for a risky model?</div></div></details><details class="qa"><summary><span class="qn">B97</span>Retraining strategy: scheduled vs trigger-based?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Scheduled retraining is simple and predictable; trigger-based retrains on drift or performance drops and saves cost. Many teams combine both, with automated validation gates before promotion.</div>
+          <div><b>Why it matters:</b> Shows lifecycle management.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What checks block a bad model from deploying?</div></div></details><details class="qa"><summary><span class="qn">B98</span>How do you version and roll back models?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Use a registry (MLflow) storing model artifacts, code commit, data version (DVC), metrics and stage (staging/production); deployments reference a version so rollback is a pointer change.</div>
+          <div><b>Why it matters:</b> Reproducibility and safe rollback.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> What must be versioned besides the model file?</div></div></details><details class="qa"><summary><span class="qn">B99</span>How do you monitor performance when labels arrive late?</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Use proxies (score distribution, input drift, business signals) for early warning, backfill true metrics when labels land, and evaluate on matured cohorts.</div>
+          <div><b>Why it matters:</b> Realistic issue in fraud, credit and churn.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you estimate performance without labels?</div></div></details><details class="qa"><summary><span class="qn">B100</span>Design a churn prediction pipeline end to end.</summary>
+          <div class="qa-body"><div class="short"><b>Answer:</b> Airflow DAG: extract events → build point-in-time features → train with CV and MLflow tracking → validate gates → register model → batch-score customers → write to CRM; add a drift/performance monitor and retraining trigger, plus A/B test of retention actions.</div>
+          <div><b>Why it matters:</b> Ties modelling to a business loop.</div>
+          <div class="fu"><b>Interviewer follow-up:</b> How do you turn scores into actions with limited budget?</div></div></details></section>
+
+<section class="panel" id="next"><h3>Coming next</h3>
+<p style="font-size:14px;color:#cfd9e4"><b>Part 3:</b> deep learning (ANN, backprop, CNN, RNN/LSTM/GRU, Transformers, attention, transfer learning, fine-tuning) with Mermaid diagrams and PyTorch code.<br>
+<b>Part 4:</b> full ML system-design projects (fraud, churn, recommender, forecasting) and MLOps deep dive (MLflow, DVC, Airflow, Docker, Kubernetes, FastAPI, drift, canary/shadow) with architecture diagrams.<br>
+<b>Part 5:</b> more question banks (beginner, intermediate, advanced), line-by-line coding drills with dry runs, and tracks by experience (0–2 to 8+ years).</p></section>
+<footer>Machine Learning Interview Guide — Parts 1 &amp; 2</footer>
+</main>
+<script>
+document.getElementById('q').addEventListener('input',function(){
+  const t=this.value.toLowerCase().trim();
+  document.querySelectorAll('.topic').forEach(s=>{
+    const m=!t||s.textContent.toLowerCase().includes(t);
+    s.classList.toggle('hidden',!m);
+    if(m&&t)s.querySelectorAll('.qa').forEach(d=>d.open=d.textContent.toLowerCase().includes(t));
+  });
+});
+</script></body></html>
