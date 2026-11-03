@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enterprise RAG Pipeline: Topic Guide</title>
+<style>
+:root{--bg:#f6f8f7;--surface:#fff;--ink:#16211e;--muted:#52605b;--line:#d5deda;--accent:#0b6e5f;--accent-soft:#e1f1ed;--tag:#e9edf5;--tag-ink:#2d3f66}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1715;--surface:#17221f;--ink:#e6efec;--muted:#9bada7;--line:#2a3a36;--accent:#5fd0bb;--accent-soft:#183530;--tag:#232d45;--tag-ink:#b9c8ee}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:32px 20px 64px}
+h1{font:700 2rem/1.2 Georgia,"Times New Roman",serif;margin:0 0 8px}
+.lead{color:var(--muted);margin:0 0 24px;max-width:62ch}
+.flow{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:24px}
+.flow h2{font-size:1rem;margin:0 0 8px}
+.flow p{margin:4px 0;font-size:.95rem}
+.flow b{color:var(--accent)}
+.tools{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+input[type=search]{flex:1;min-width:200px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit}
+input[type=search]:focus,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
+details{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:10px}
+summary{cursor:pointer;padding:14px 16px;font-weight:600;list-style:none;display:flex;gap:12px;align-items:baseline}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"+";color:var(--accent);font-weight:700;width:1ch}
+details[open] summary::before{content:"\2212"}
+.m{color:var(--accent);min-width:3ch}
+.body{padding:0 16px 16px 16px;border-top:1px solid var(--line)}
+.body p{margin:12px 0 8px}
+.body ul{margin:6px 0 10px;padding-left:20px}
+.body li{margin:3px 0}
+.k{display:inline-block;background:var(--accent-soft);color:var(--accent);border-radius:6px;padding:1px 8px;font-size:.8rem;font-weight:600;margin-right:6px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tags span{background:var(--tag);color:var(--tag-ink);border-radius:6px;padding:2px 8px;font-size:.8rem}
+.hi{color:var(--muted);font-size:.9rem}
+.sec{font:700 1.4rem/1.3 Georgia,"Times New Roman",serif;margin:32px 0 6px}
+.body ol{margin:6px 0 10px;padding-left:22px}
+.body ol li{margin:4px 0}
+pre{background:var(--tag);color:var(--ink);border-radius:8px;padding:12px;overflow-x:auto;font-size:.82rem;line-height:1.5}
+.mm{border-top:1px dashed var(--line);margin-top:12px;padding-top:4px}
+.tw{overflow-x:auto;margin:10px 0}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:.88rem}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:var(--accent-soft)}
+.q{border-left:3px solid var(--accent);padding:2px 0 2px 12px;margin:14px 0}
+.q p{margin:4px 0}
+.say{background:var(--accent-soft);border-radius:8px;padding:10px 12px;margin:10px 0}
+footer{color:var(--muted);font-size:.85rem;margin-top:24px}
+@media print{details:not([open]) .body{display:block}.tools{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Enterprise RAG Pipeline: Topic Guide</h1>
+<p class="lead">A brief explanation of every module in the learning path, from ingestion to production monitoring. Open a topic to see what it is, why it matters, and the key tools.</p>
+
+<div class="flow">
+<h2>How the pieces fit together</h2>
+<p><b>Offline path (index time):</b> Sources → Ingestion → Parsing → Cleaning → Chunking → Metadata → Embeddings → Vector DB.</p>
+<p><b>Online path (query time):</b> Query → Preprocess → Transform → Hybrid retrieval → Rerank → Compress → Prompt → LLM → Validate → Cited answer.</p>
+<p class="hi">Evaluation, caching, security and monitoring wrap around both paths.</p>
+</div>
+
+<div class="tools">
+<input type="search" id="q" placeholder="Search topics (e.g. chunking, BM25, Qdrant)" aria-label="Search topics">
+<button id="expand">Expand all</button>
+<button id="collapse">Collapse all</button>
+</div>
+
+<div id="list">
+
+<details><summary><span class="m">M1</span>Architecture and data flow</summary><div class="body">
+<p>The map of the whole system. A RAG app has an offline path that prepares knowledge and an online path that answers questions.</p>
+<ul>
+<li><span class="k">Sync vs async:</span> sync answers inside the request; async queues heavy work such as ingestion.</li>
+<li><span class="k">Batch vs real-time:</span> batch re-indexes on a schedule; real-time updates on every change.</li>
+<li><span class="k">Stateless vs stateful:</span> stateless services scale easily; stateful ones keep chat memory.</li>
+</ul>
+<div class="tags"><span>Mermaid</span><span>Scaling</span><span>Reliability</span></div>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>FastAPI:</b> <code>BackgroundTasks.add_task()</code> or Celery <code>task.delay()</code> to keep ingestion off the request path; <code>async def</code> endpoints for query</li><li><b>asyncio:</b> <code>asyncio.gather()</code> to run dense and keyword retrieval in parallel</li><li><b>Mermaid:</b> <code>flowchart TD</code> to draw the offline and online paths</li><li><b>Redis / Postgres:</b> shared state outside the app so the query service stays stateless</li></ul></div></div></details>
+
+<details><summary><span class="m">M2</span>Document ingestion</summary><div class="body">
+<p>Getting documents from many sources into the pipeline safely. Production ingestion must handle huge files, scanned PDFs, corrupted files, duplicates and incremental updates.</p>
+<ul>
+<li>Formats: PDF, DOCX, TXT, CSV, Excel, HTML, Markdown, JSON, databases, APIs, web crawls, SharePoint.</li>
+<li>Use content hashes to skip duplicates; process only new or changed files.</li>
+<li>Quarantine bad files instead of failing the whole batch.</li>
+</ul>
+<div class="tags"><span>LangChain loaders</span><span>LlamaIndex</span><span>Unstructured</span><span>PyMuPDF</span><span>Docling</span><span>Apache Tika</span></div>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>Docling (PDF, DOCX):</b> <code>DocumentConverter().convert(path).document</code>, then <code>export_to_markdown()</code></li><li><b>PyMuPDF (PDF, fast):</b> <code>pymupdf.open(path)</code>, loop <code>for page in doc: page.get_text()</code></li><li><b>Unstructured (many formats):</b> <code>partition(filename=path)</code>; <code>partition_pdf(strategy="hi_res")</code> for scans; <code>partition_docx</code>, <code>partition_html</code></li><li><b>CSV / Excel (pandas):</b> <code>pd.read_csv(path, chunksize=50000)</code>; <code>pd.read_excel(path, sheet_name=None)</code> reads all sheets</li><li><b>JSON:</b> LangChain <code>JSONLoader(file_path, jq_schema=".items[]")</code></li><li><b>HTML / Web:</b> <code>WebBaseLoader(urls).load()</code>; <code>RecursiveUrlLoader</code> to crawl; Playwright for JavaScript-heavy pages</li><li><b>Markdown:</b> <code>UnstructuredMarkdownLoader</code> or read text then split with <code>MarkdownHeaderTextSplitter</code></li><li><b>Database:</b> <code>pd.read_sql(query, engine)</code> with SQLAlchemy, or LangChain <code>SQLDatabaseLoader</code></li><li><b>SharePoint / enterprise:</b> LangChain <code>SharePointLoader</code> or Microsoft Graph API with delta queries for changes</li><li><b>Any format fallback:</b> Apache Tika <code>parser.from_file(path)</code></li><li><b>Large files:</b> <code>loader.lazy_load()</code> (generator), page-by-page processing, batch size limits</li><li><b>Scanned PDFs:</b> Docling <code>PdfPipelineOptions(do_ocr=True)</code>, or render <code>page.get_pixmap(dpi=300)</code> then <code>pytesseract.image_to_string()</code></li></ul><p><span class="k">Step by step (how to explain it)</span></p><ol>
+<li><b>Discover:</b> list new and changed files with <code>Path.rglob("*")</code>, S3 <code>list_objects_v2</code>, or a Graph API delta query for SharePoint.</li>
+<li><b>Fingerprint:</b> <code>hashlib.sha256(file_bytes).hexdigest()</code>; for S3 you can also compare the ETag and last-modified time.</li>
+<li><b>Compare to the registry:</b> look up the doc in a Postgres table; same hash means skip, different hash means update, missing means new.</li>
+<li><b>Route by type:</b> pick a parser from the file extension or MIME type (for example with <code>mimetypes.guess_type</code>).</li>
+<li><b>Parse:</b> call the right method from the list above; process large files page by page or with <code>lazy_load()</code>.</li>
+<li><b>Handle failure:</b> wrap in <code>try/except</code>, retry transient errors, and move unreadable files to a quarantine folder with the error saved.</li>
+<li><b>Queue and record:</b> send work to Celery with <code>.delay()</code> and save status (queued, parsed, indexed, failed) per document.</li>
+</ol>
+<p><b>Interview line:</b> "Ingestion is idempotent: the hash decides whether a file is new, unchanged or modified, so reruns never duplicate data and failures are isolated per document."</p></div></div></details>
+
+<details><summary><span class="m">M3</span>Parsing and cleaning</summary><div class="body">
+<p>Turns raw files into clean, structured text. Bad parsing (wrong reading order, broken tables, repeated headers) silently ruins retrieval, so quality here caps quality everywhere else.</p>
+<ul>
+<li>Layout-aware parsing and table extraction keep structure intact.</li>
+<li>OCR for scanned pages; multilingual handling for non-English content.</li>
+<li>Remove headers, footers, page numbers; normalize whitespace and special characters.</li>
+</ul>
+<div class="tags"><span>Docling</span><span>Unstructured</span><span>Tesseract</span><span>PaddleOCR</span></div>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>Docling:</b> <code>PdfPipelineOptions(do_ocr=True, do_table_structure=True)</code>; iterate <code>doc.iterate_items()</code> and skip items labeled page header or footer</li><li><b>Unstructured:</b> filter elements: <code>[e for e in elements if e.category not in ("Header", "Footer")]</code></li><li><b>PyMuPDF:</b> <code>page.get_text("blocks")</code> for reading order and coordinates; <code>page.find_tables()</code> for tables</li><li><b>Cleaning (Python):</b> <code>unicodedata.normalize("NFKC", text)</code>; <code>re.sub(r"\s+", " ", text)</code>; count repeated lines across pages with <code>collections.Counter</code> to detect headers and footers</li><li><b>OCR:</b> <code>pytesseract.image_to_string(img, lang="eng+hin")</code>; PaddleOCR for layout-heavy or multilingual pages</li><li><b>Debugging reading order:</b> export <code>page.get_text("blocks")</code> and compare with the rendered page image</li></ul></div></div></details>
+
+<details><summary><span class="m">M4</span>Chunking</summary><div class="body">
+<p>Splitting documents into pieces that are small enough to retrieve precisely and large enough to keep meaning. Large chunks dilute relevance; tiny chunks lose context.</p>
+<ul>
+<li>Fixed, recursive, token, sentence, semantic, document-based.</li>
+<li>Parent-child and hierarchical: search small chunks, return larger parents.</li>
+<li>Agentic and contextual chunking add LLM-generated context to each chunk.</li>
+<li>Tune size and overlap by measuring retrieval, not by guessing.</li>
+</ul>
+<div class="tags"><span>LangChain splitters</span><span>LlamaIndex</span><span>Semantic chunkers</span></div>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>LangChain:</b> <code>RecursiveCharacterTextSplitter.from_tiktoken_encoder(chunk_size=400, chunk_overlap=60)</code>; <code>MarkdownHeaderTextSplitter</code>; <code>RecursiveCharacterTextSplitter.from_language(Language.PYTHON)</code> for code</li><li><b>LangChain semantic:</b> <code>SemanticChunker(embeddings)</code> from <code>langchain_experimental</code></li><li><b>Docling:</b> <code>HybridChunker().chunk(dl_doc=doc)</code> and <code>chunker.contextualize(chunk=c)</code></li><li><b>LlamaIndex:</b> <code>SentenceSplitter</code>; <code>HierarchicalNodeParser</code> with <code>AutoMergingRetriever</code></li><li><b>Parent-child:</b> LangChain <code>ParentDocumentRetriever(vectorstore, docstore, child_splitter, parent_splitter)</code></li><li><b>Tables:</b> keep a table as one chunk in Markdown with its caption, never split rows mid-table</li></ul></div></div></details>
+
+<details><summary><span class="m">M5</span>Metadata and document versioning</summary><div class="body">
+<p>Every chunk carries identity and context: document ID, chunk ID, page, source, timestamp, version, department, permissions and content hash. This enables filtering, access control and safe updates.</p>
+<ul>
+<li>Detect new, unchanged, modified or deleted documents by comparing hashes.</li>
+<li>Remove stale vectors so old content never answers new questions.</li>
+<li>Reindex only changed pages or chunks.</li>
+</ul>
+<div class="tags"><span>Content hash</span><span>Change detection</span><span>ACL metadata</span></div>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>Hashing:</b> <code>hashlib.sha256(text.encode()).hexdigest()</code> for document and chunk hashes</li><li><b>Postgres registry:</b> <code>INSERT ... ON CONFLICT (doc_id) DO UPDATE</code> for doc_id, version, hash, status, ACL</li><li><b>Change detection:</b> compare stored hash with new hash: missing means new, equal means unchanged, different means modified; ids missing from the source mean deleted</li><li><b>Qdrant delete:</b> <code>client.delete(collection, points_selector=FilterSelector(filter=Filter(must=[FieldCondition(key="doc_id", match=MatchValue(value=doc_id))])))</code></li><li><b>Qdrant payload:</b> <code>client.set_payload()</code> to update metadata without re-embedding; <code>client.scroll()</code> to list a document's chunks</li><li><b>Deterministic IDs:</b> <code>uuid.uuid5(NAMESPACE_URL, f"{doc_id}:{chunk_index}")</code> so reruns overwrite instead of duplicate</li></ul></div></div></details>
+
+<details><summary><span class="m">M6</span>Embedding generation</summary><div class="body">
+<p>Embeddings convert text into vectors so similar meanings sit close together. Choice of model, dimension and similarity metric affects both quality and cost.</p>
+<ul>
+<li>Dense vs sparse; cosine, dot product, Euclidean; normalization.</li>
+<li>Batch and async generation, caching, retries and rate-limit handling.</li>
+<li>Version your embeddings: changing the model means re-embedding everything.</li>
+</ul>
+<div class="tags"><span>Sentence Transformers</span><span>BGE</span><span>E5</span><span>Nomic</span><span>OpenAI</span></div>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>Sentence Transformers:</b> <code>SentenceTransformer("BAAI/bge-m3").encode(texts, batch_size=64, normalize_embeddings=True)</code></li><li><b>E5:</b> add <code>"query: "</code> and <code>"passage: "</code> prefixes before encoding</li><li><b>OpenAI:</b> <code>client.embeddings.create(model="text-embedding-3-small", input=batch)</code></li><li><b>Retries:</b> tenacity <code>@retry(wait=wait_exponential(), stop=stop_after_attempt(5))</code></li><li><b>Async and rate limits:</b> <code>asyncio.Semaphore(n)</code> with <code>asyncio.gather()</code> to cap concurrency</li><li><b>Caching:</b> LangChain <code>CacheBackedEmbeddings.from_bytes_store(emb, store, namespace=model_name)</code></li><li><b>Versioning:</b> store model name in payload and use collection names like <code>docs_bge_m3_v1</code></li></ul></div></div></details>
+
+<details><summary><span class="m">M7</span>Vector database and indexing</summary><div class="body">
+<p>Stores vectors and finds nearest neighbors fast. Index type trades speed, memory and accuracy.</p>
+<ul>
+<li><span class="k">HNSW:</span> fast, high recall, memory heavy. <span class="k">IVF:</span> clustered, memory efficient. <span class="k">Flat:</span> exact but slow at scale.</li>
+<li>Payload indexes for metadata filtering; upsert, delete, backup and recovery.</li>
+<li>Multi-tenancy via collections, namespaces or filters; zero-downtime reindexing with aliases.</li>
+</ul>
+<div class="tags"><span>Qdrant</span><span>pgvector</span><span>Milvus</span><span>Weaviate</span><span>Chroma</span><span>FAISS</span></div>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>Qdrant:</b> <code>create_collection(vectors_config=VectorParams(size=1024, distance=Distance.COSINE))</code>; <code>upsert()</code> in batches; <code>create_payload_index()</code>; <code>query_points()</code>; <code>update_collection_aliases()</code> to switch versions</li><li><b>Qdrant tuning:</b> <code>hnsw_config</code> (m, ef_construct) at creation; <code>search_params=SearchParams(hnsw_ef=128)</code> at query time</li><li><b>pgvector:</b> <code>CREATE EXTENSION vector</code>; column <code>vector(1024)</code>; <code>CREATE INDEX ... USING hnsw (embedding vector_cosine_ops)</code>; query with <code>ORDER BY embedding &lt;=&gt; :q LIMIT 10</code></li><li><b>FAISS:</b> <code>IndexHNSWFlat</code> or <code>IndexIVFFlat</code> with <code>index.add()</code> and <code>index.search()</code></li><li><b>Backup:</b> Qdrant snapshots via <code>client.create_snapshot()</code>; Postgres <code>pg_dump</code> or managed backups</li></ul></div></div></details>
+
+<details><summary><span class="m">M8</span>Retrieval</summary><div class="body">
+<p>Finds the right chunks for a question. Dense search understands meaning; BM25 matches exact terms such as product IDs. Hybrid search combines both.</p>
+<ul>
+<li>Reciprocal Rank Fusion (RRF) merges ranked lists without score tuning.</li>
+<li>Query rewriting, multi-query, expansion and HyDE improve weak queries.</li>
+<li>Self-query turns natural language into metadata filters.</li>
+<li>Tune top-K, fetch-K and similarity thresholds; more is not always better.</li>
+</ul>
+<div class="tags"><span>LangChain</span><span>Qdrant</span><span>BM25</span><span>RRF</span></div>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>LangChain dense:</b> <code>vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 5, "fetch_k": 30})</code></li><li><b>LangChain hybrid:</b> <code>BM25Retriever.from_documents(docs)</code> + <code>EnsembleRetriever(retrievers=[bm25, dense], weights=[0.5, 0.5])</code></li><li><b>Qdrant hybrid:</b> <code>query_points(prefetch=[dense, sparse], query=FusionQuery(fusion=Fusion.RRF))</code></li><li><b>Query transformation:</b> <code>MultiQueryRetriever.from_llm()</code>; HyDE via <code>HypotheticalDocumentEmbedder</code>; <code>SelfQueryRetriever</code> for metadata filters</li><li><b>Keyword scoring:</b> <code>BM25Okapi(tokenized_corpus).get_scores(query_tokens)</code> from rank_bm25</li><li><b>Parent expansion:</b> <code>ParentDocumentRetriever</code></li></ul></div></div></details>
+
+<details><summary><span class="m">M9</span>Reranking</summary><div class="body">
+<p>A second, more accurate pass over the top candidates. Bi-encoders are fast but coarse; cross-encoders read the query and chunk together for better ordering.</p>
+<ul>
+<li>Retrieve about 20 to 100 candidates, rerank, keep the best few.</li>
+<li>Cost is latency; reduce it with fewer candidates, smaller models or caching.</li>
+<li>Skip reranking when the corpus is tiny or latency is critical.</li>
+</ul>
+<div class="tags"><span>BGE reranker</span><span>Cohere Rerank</span><span>FlashRank</span><span>ColBERT</span></div>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>Sentence Transformers:</b> <code>CrossEncoder("BAAI/bge-reranker-v2-m3").predict([(query, chunk), ...])</code> then sort by score</li><li><b>FlashRank:</b> <code>Ranker().rerank(RerankRequest(query=q, passages=p))</code></li><li><b>Cohere:</b> <code>co.rerank(model=..., query=q, documents=docs, top_n=5)</code></li><li><b>LangChain:</b> <code>ContextualCompressionRetriever(base_compressor=CrossEncoderReranker(model=HuggingFaceCrossEncoder(...), top_n=5), base_retriever=r)</code></li><li><b>Latency:</b> rerank only 30 to 50 candidates, batch pairs, cache scores by (query hash, chunk id)</li></ul></div></div></details>
+
+<details><summary><span class="m">M10</span>Context compression and management</summary><div class="body">
+<p>Fits the best evidence into a limited context window. Too much context raises cost and can bury the answer.</p>
+<ul>
+<li>Token budgeting, deduplication, filtering and prioritization.</li>
+<li>Expand to parent context when a small chunk matched.</li>
+<li>Lost-in-the-middle: models miss content in the center, so place key chunks first or last.</li>
+</ul>
+<div class="tags"><span>ContextualCompressionRetriever</span><span>Token budgets</span></div>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>LangChain:</b> <code>EmbeddingsFilter(embeddings, similarity_threshold=0.75)</code>; <code>LLMChainExtractor.from_llm(llm)</code>; <code>DocumentCompressorPipeline(transformers=[...])</code></li><li><b>Lost in the middle:</b> <code>LongContextReorder().transform_documents(docs)</code></li><li><b>Token budget:</b> count with <code>tiktoken.encoding_for_model(...).encode(text)</code> and add chunks until the budget is reached</li><li><b>Deduplication:</b> drop chunks with the same hash or with cosine similarity above 0.95 to a chunk already chosen</li></ul></div></div></details>
+
+<details><summary><span class="m">M11</span>Prompting and generation</summary><div class="body">
+<p>Instructs the LLM to answer only from retrieved context, cite sources and say "I don't know" when evidence is missing.</p>
+<ul>
+<li>System prompts, context injection, structured output with Pydantic.</li>
+<li>Citations tied to chunk IDs so claims are verifiable.</li>
+<li>Defend against prompt injection hidden inside retrieved documents.</li>
+<li>Version and test prompts like code.</li>
+</ul>
+<div class="tags"><span>LangChain</span><span>Pydantic</span><span>Abstention</span></div>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>Prompt:</b> <code>ChatPromptTemplate.from_messages([("system", rules), ("human", "{context}\n\n{question}")])</code></li><li><b>Structured output:</b> <code>llm.with_structured_output(AnswerModel)</code> where the Pydantic model has answer, citations and confidence</li><li><b>Citations:</b> label each chunk <code>[doc_id:chunk_index]</code> in the context and validate returned citations against retrieved ids</li><li><b>Abstention:</b> if the retriever returns nothing above threshold, return "not found" without calling the LLM</li><li><b>Prompt versions:</b> Langfuse <code>langfuse.get_prompt("rag-answer")</code></li><li><b>Injection defense:</b> wrap context in delimiters and instruct the model to treat it as data, never as instructions</li></ul></div></div></details>
+
+<details><summary><span class="m">M12</span>Evaluation</summary><div class="body">
+<p>Measures whether the system actually works, separately for retrieval and generation, so you know what to fix.</p>
+<ul>
+<li><span class="k">Retrieval:</span> Recall@K, Precision@K, MRR, Hit Rate, nDCG.</li>
+<li><span class="k">Generation:</span> faithfulness, answer relevancy, context precision and recall.</li>
+<li>Build golden datasets, compare chunking, embeddings and retrievers, set quality thresholds, and catch regressions in CI.</li>
+</ul>
+<div class="tags"><span>Ragas</span><span>DeepEval</span><span>TruLens</span><span>Arize Phoenix</span><span>LangSmith</span></div>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>Ragas:</b> <code>evaluate(dataset, metrics=[faithfulness, answer_relevancy, context_precision, context_recall])</code>; <code>TestsetGenerator</code> for synthetic questions</li><li><b>DeepEval:</b> <code>assert_test(test_case, [FaithfulnessMetric(threshold=0.8)])</code> inside pytest</li><li><b>Retrieval metrics (custom):</b> Recall@K = relevant found in top K divided by total relevant; MRR = average of 1 divided by rank of first relevant</li><li><b>Tracking:</b> log runs to Langfuse or Phoenix; fail the CI job if a metric drops below the threshold</li></ul></div></div></details>
+
+<details><summary><span class="m">M13</span>Advanced RAG architectures</summary><div class="body">
+<p>Patterns that go beyond a single retrieve-then-generate step.</p>
+<ul>
+<li><span class="k">Naive / Advanced / Modular:</span> from simple to pluggable pipelines.</li>
+<li><span class="k">CRAG:</span> grades retrieved results and corrects or falls back. <span class="k">Self-RAG:</span> model decides when to retrieve and critiques itself.</li>
+<li><span class="k">Adaptive:</span> routes by query complexity. <span class="k">Agentic:</span> an agent plans tools and retrieval steps.</li>
+<li><span class="k">Graph RAG:</span> uses entity relationships. <span class="k">Multi-hop:</span> chains retrievals for composite questions.</li>
+<li><span class="k">Hierarchical / Query-focused:</span> summarize or navigate by level and focus.</li>
+</ul>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>LangGraph:</b> <code>StateGraph(State)</code>, <code>add_node()</code>, <code>add_conditional_edges()</code> for routing and corrective loops</li><li><b>CRAG:</b> a grader node scores retrieved docs; low score routes to query rewrite or web search</li><li><b>Agentic RAG:</b> <code>create_react_agent(llm, tools=[retriever_tool, sql_tool])</code> from langgraph.prebuilt</li><li><b>Graph RAG:</b> Neo4j with LangChain <code>GraphCypherQAChain</code>, LlamaIndex <code>PropertyGraphIndex</code>, or Microsoft GraphRAG</li><li><b>Multi-hop:</b> loop: retrieve, extract sub-question, retrieve again, with a max step count</li></ul></div></div></details>
+
+<details><summary><span class="m">M14</span>Caching and performance</summary><div class="body">
+<p>Cuts latency and cost by reusing work.</p>
+<ul>
+<li>Exact-match and semantic caches for queries and LLM responses; embedding and retrieval caches.</li>
+<li>Cache keys include query, filters, user permissions and index version.</li>
+<li>Invalidate on document updates; use TTLs to limit stale answers.</li>
+<li>Async I/O, connection pooling and parallel retrieval for concurrency.</li>
+</ul>
+<div class="tags"><span>Redis</span><span>TTL</span><span>Semantic cache</span></div>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>Redis exact cache:</b> <code>r.set(key, value, ex=300)</code> and <code>r.get(key)</code> with <code>redis.asyncio</code></li><li><b>Cache key:</b> hash of normalized query + filters + user permissions + index version</li><li><b>Invalidation:</b> <code>r.scan_iter(match=f"rag:doc:{doc_id}:*")</code> then <code>r.delete()</code>, or bump the index version in the key</li><li><b>Semantic cache:</b> LangChain <code>set_llm_cache(RedisSemanticCache(...))</code> with a high similarity threshold</li><li><b>In-process:</b> <code>functools.lru_cache</code> for small pure functions</li></ul></div></div></details>
+
+<details><summary><span class="m">M15</span>Security and guardrails</summary><div class="body">
+<p>Protects data and users. Authorization must happen at retrieval time, not after the LLM has seen the content.</p>
+<ul>
+<li>Document-level and user-level access control; tenant isolation.</li>
+<li>Prompt injection (including indirect, via documents) and output validation.</li>
+<li>PII detection and redaction before sending context to external LLMs.</li>
+<li>Audit logs for who retrieved what.</li>
+</ul>
+<div class="tags"><span>LLM Guard</span><span>Guardrails AI</span><span>Presidio</span><span>NeMo Guardrails</span></div>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>Access control:</b> Qdrant filter <code>FieldCondition(key="allowed_groups", match=MatchAny(any=user_groups))</code> applied in the search call</li><li><b>PII:</b> Presidio <code>AnalyzerEngine().analyze()</code> then <code>AnonymizerEngine().anonymize()</code></li><li><b>Injection:</b> LLM Guard <code>scan_prompt([PromptInjection()], text)</code>; sanitize retrieved text</li><li><b>Output checks:</b> Guardrails AI <code>Guard().use(...)</code> validators; NeMo Guardrails <code>LLMRails</code></li><li><b>Audit:</b> log user id, query hash, returned chunk ids and timestamps to an append-only store</li></ul></div></div></details>
+
+<details><summary><span class="m">M16</span>Deployment and observability</summary><div class="body">
+<p>Runs the system reliably and lets you see inside it.</p>
+<ul>
+<li>FastAPI service, Docker, Docker Compose, Kubernetes, autoscaling and load balancing.</li>
+<li>CI/CD with GitHub Actions or Jenkins, including evaluation gates.</li>
+<li>Tracing a query end to end; metrics, logs and alerts.</li>
+<li>Retries, circuit breakers, health checks, fallbacks and disaster recovery.</li>
+</ul>
+<div class="tags"><span>Langfuse</span><span>OpenTelemetry</span><span>Prometheus</span><span>Grafana</span><span>Loki</span><span>ClickHouse</span></div>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>FastAPI:</b> <code>lifespan</code> context to load models once; <code>/health</code> route; <code>Depends(HTTPBearer())</code> for auth</li><li><b>Docker:</b> <code>docker build -t rag-api:1.0 .</code>; <code>HEALTHCHECK</code> in the Dockerfile; <code>docker compose up -d</code></li><li><b>Kubernetes:</b> <code>kubectl apply -f</code>; <code>kubectl rollout status deploy/rag-api</code>; <code>kubectl rollout undo deploy/rag-api</code></li><li><b>Metrics:</b> <code>prometheus_client.Histogram</code> for stage latency; <code>prometheus-fastapi-instrumentator</code></li><li><b>Tracing:</b> Langfuse <code>@observe()</code>; OpenTelemetry <code>FastAPIInstrumentor.instrument_app(app)</code></li><li><b>Resilience:</b> tenacity retries, timeouts, and a circuit breaker around the LLM and vector DB calls</li></ul></div></div></details>
+
+<details><summary><span class="m">M17</span>Capstone: complete enterprise RAG project</summary><div class="body">
+<p>Combines every module into one production-grade system with multi-format ingestion, versioned incremental indexing, hybrid retrieval with reranking, cited answers, caching, access control, evaluation and monitoring.</p>
+<ul>
+<li>Deliverables: architecture diagram, folder structure, config, Pydantic schemas, tests, Dockerfile, Compose, Kubernetes manifests, CI/CD, evaluation scripts, dashboards and README.</li>
+</ul>
+<div class="tags"><span>FastAPI</span><span>PostgreSQL</span><span>Qdrant</span><span>Redis</span><span>Docker</span><span>Kubernetes</span></div>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>Local run:</b> <code>docker compose up -d</code> starts API, Qdrant, Postgres and Redis</li><li><b>Database:</b> <code>alembic upgrade head</code> for the metadata schema</li><li><b>Quality:</b> <code>pytest</code> for unit and integration tests; <code>ruff check .</code> for linting</li><li><b>Evaluation:</b> a script that runs Ragas on the golden set and exits non-zero below thresholds</li><li><b>CI:</b> GitHub Actions: lint, test, evaluate, build image, push, deploy</li></ul></div></div></details>
+
+<details><summary><span class="m">M18</span>Senior scenario bank and mock interviews</summary><div class="body">
+<p>Practice for real interviews. Each scenario covers the problem, clarifying questions, likely root causes, investigation steps, architecture solution, trade-offs and a concise spoken answer.</p>
+<ul>
+<li>Examples: 10M-document design, embedding migration without downtime, outdated answers, hybrid worse than dense, 10,000 concurrent users, 50% token-cost reduction.</li>
+</ul>
+<div class="mm"><p><span class="k">Methods to use in this module</span></p><ul><li><b>Find the failing stage:</b> open the Langfuse or Phoenix trace and check retrieval, rerank and generation separately</li><li><b>Retrieval debugging:</b> Qdrant <code>scroll()</code> to confirm the chunk exists; run the query with and without filters</li><li><b>Slow database:</b> Postgres <code>EXPLAIN ANALYZE</code>; check Qdrant <code>hnsw_ef</code> and payload indexes</li><li><b>Service health:</b> <code>kubectl logs</code>, <code>kubectl top pods</code>, Grafana latency and error-rate panels</li><li><b>Answer format:</b> problem, clarifying questions, root causes, investigation, solution, trade-offs, short answer</li></ul></div></div></details>
+
+<h2 class="sec" id="deploy">Production Deployment Guide</h2>
+<p class="lead">How any project goes from a laptop to a production server. Each topic is written so you can explain it in an interview.</p>
+
+<details><summary><span class="m">D1</span>What deployment is, environments and the standard flow</summary><div class="body">
+<p>Deployment means packaging code, running it on production infrastructure, exposing it safely to users, then monitoring it and rolling back if it breaks. (Laptop par chalne wale code ko internet par stable chalana.)</p>
+<p><span class="k">Environments:</span> Dev (build and test), Staging/UAT (production-like copy for final testing), Production (real users). Code moves dev → staging → production, and staging should mirror production.</p>
+<ol>
+<li><b>Source control:</b> code in Git (GitHub, GitLab, Bitbucket) with pull requests and review; deploy from <code>main</code> or a tag.</li>
+<li><b>Build:</b> install pinned dependencies and produce an artifact (Docker image, .jar, frontend build folder).</li>
+<li><b>Test:</b> unit and integration tests, linting, security scans (Trivy, Snyk, Bandit). Any failure stops the release.</li>
+<li><b>Package and store:</b> push the image to a registry (Docker Hub, ECR, GCR, GHCR, ACR) with a version tag or git SHA, never just <code>latest</code>.</li>
+<li><b>Provision infrastructure:</b> servers, network, database, load balancer, ideally as code with Terraform or CloudFormation, configured with Ansible.</li>
+<li><b>Configure:</b> environment variables and secrets from a secrets manager, never from Git.</li>
+<li><b>Deploy:</b> release using rolling, blue-green or canary strategy.</li>
+<li><b>Verify:</b> health check, smoke test, watch error rate and latency.</li>
+<li><b>Monitor and alert:</b> metrics, logs, traces; alerts to Slack or PagerDuty.</li>
+<li><b>Roll back if needed:</b> redeploy the previous tag; database migrations must be backward-compatible.</li>
+</ol>
+</div></details>
+
+<details><summary><span class="m">D2</span>Static website (React, Vue, Angular, plain HTML)</summary><div class="body">
+<p>No server logic, so it is cheap, fast and highly scalable.</p>
+<ol>
+<li>Build: <code>npm run build</code> creates static files.</li>
+<li>Upload to AWS S3, Netlify, Vercel, GitHub Pages, or serve with Nginx.</li>
+<li>Put a CDN in front (CloudFront, Cloudflare) for speed and caching.</li>
+<li>Point a domain with DNS (Route 53, Cloudflare) and enable HTTPS.</li>
+<li>Invalidate the CDN cache on every release.</li>
+</ol>
+</div></details>
+
+<details><summary><span class="m">D3</span>Backend API on a Linux server (EC2, DigitalOcean, on-prem)</summary><div class="body">
+<p>Used for Django, Flask, FastAPI, Node.js or Spring Boot on a plain VM.</p>
+<ol>
+<li><b>Provision</b> an Ubuntu VM; log in with SSH keys and disable password login.</li>
+<li><b>Secure it:</b> firewall (UFW or security groups) open only on 22, 80, 443; non-root user; Fail2ban.</li>
+<li><b>Install runtime</b> (Python, Node or Java), pull the code, create a virtualenv, install requirements.</li>
+<li><b>Run with a production app server:</b> Gunicorn or Uvicorn for Python, PM2 for Node. Never use the dev server.</li>
+<li><b>Keep it alive with systemd</b> so it restarts after a crash or reboot.</li>
+<li><b>Nginx as reverse proxy:</b> receives traffic on 80/443, handles SSL, compression and static files, forwards to the app server.</li>
+<li><b>HTTPS</b> with free Let's Encrypt certificates (Certbot, auto-renew).</li>
+<li><b>Logs:</b> to files or journald, rotated with logrotate.</li>
+</ol>
+<p class="hi">Flow: User → DNS → Nginx (SSL) → Gunicorn/Uvicorn → App → Database.</p>
+</div></details>
+
+<details><summary><span class="m">D4</span>Docker and Docker Compose</summary><div class="body">
+<p>Containers package the app with its environment, which removes "works on my machine".</p>
+<ol>
+<li>Write a Dockerfile: slim base image, multi-stage build, non-root user.</li>
+<li>Build and tag the image, scan it, push it to a registry.</li>
+<li>On the server, pull and run it, or use Docker Compose to run app, database, Redis and Nginx together.</li>
+<li>Use volumes for persistent data; inject config through environment variables or secrets.</li>
+<li>Add health checks and a restart policy (<code>restart: always</code>).</li>
+</ol>
+<p><b>Docker vs VM:</b> containers share the host kernel, so they are lighter and start faster; a VM runs a full OS each.</p>
+</div></details>
+
+<details><summary><span class="m">D5</span>Kubernetes (microservices and large scale)</summary><div class="body">
+<p>Use it for many services, autoscaling and self-healing. For one small app it is overkill.</p>
+<ol>
+<li>Push images to a registry.</li>
+<li>Write manifests or a Helm chart: <b>Deployment</b> (replicas), <b>Service</b> (stable internal address), <b>Ingress</b> (external routing and TLS), <b>ConfigMap/Secret</b>, <b>HPA</b> (autoscaling), <b>PersistentVolumeClaim</b> (storage).</li>
+<li>Add readiness probes (receive traffic or not) and liveness probes (restart if stuck).</li>
+<li>Run on EKS, AKS, GKE, or self-managed with kubeadm or k3s.</li>
+<li>Deploy with <code>kubectl apply</code>, Helm, or GitOps tools (ArgoCD, Flux) where Git is the source of truth.</li>
+<li>Rolling updates are automatic; <code>kubectl rollout undo</code> rolls back.</li>
+</ol>
+</div></details>
+
+<details><summary><span class="m">D6</span>Serverless, databases, batch jobs and mobile backends</summary><div class="body">
+<p><span class="k">Serverless:</span> AWS Lambda + API Gateway, Azure Functions, Cloud Functions, Cloud Run. Package the function, define a trigger (HTTP, queue, schedule), deploy with Serverless Framework, SAM or Terraform. Scales automatically and bills per execution; watch cold starts and time limits.</p>
+<p><span class="k">Database:</span></p>
+<ol>
+<li>Prefer managed services: RDS/Aurora, Cloud SQL, Azure SQL, MongoDB Atlas.</li>
+<li>Keep it in a private subnet; allow only the app through security groups.</li>
+<li>Apply schema changes through migrations (Alembic, Flyway, Liquibase) in the pipeline.</li>
+<li>Enable automated backups and point-in-time recovery; add read replicas for scale.</li>
+<li>Test restores regularly.</li>
+</ol>
+<p><span class="k">Batch jobs:</span> Airflow, Prefect, cron, Kubernetes CronJobs. Jobs must be idempotent, retry on failure and alert.</p>
+<p><span class="k">Mobile backends:</span> backend follows D3 to D5; the app ships via App Store and Google Play using Fastlane or Codemagic. Version APIs (<code>/v1/</code>) because old app versions stay in use.</p>
+</div></details>
+
+<details><summary><span class="m">D7</span>Deploying a RAG / LLM application</summary><div class="body">
+<ol>
+<li>Wrap the pipeline in FastAPI and containerize it.</li>
+<li>Run dependencies as separate services: Qdrant or pgvector, Redis, PostgreSQL.</li>
+<li>Load models once at startup, not per request; use GPU nodes and vLLM, Triton or TorchServe for heavy models.</li>
+<li>Run ingestion as a separate worker (Celery, RQ) or scheduled job, not inside the API.</li>
+<li>Deploy with Docker Compose (small) or Kubernetes (large); version models with MLflow or a model registry.</li>
+<li>Observe with Langfuse for LLM traces and Prometheus + Grafana for system metrics.</li>
+<li>Cache embeddings and answers in Redis; handle LLM rate limits with retries, backoff and fallback models.</li>
+<li>Enforce access control at retrieval time and keep API keys in a secrets manager.</li>
+</ol>
+</div></details>
+
+<details><summary><span class="m">D8</span>CI/CD tools</summary><div class="body">
+<p><b>CI</b> builds and tests every push. <b>CD</b> releases passing builds automatically (delivery may need manual approval; deployment is fully automatic).</p>
+<ul>
+<li><span class="k">GitHub Actions:</span> YAML pipelines inside the repo, easiest start.</li>
+<li><span class="k">GitLab CI:</span> built into GitLab, strong all-in-one.</li>
+<li><span class="k">Jenkins:</span> self-hosted and highly customizable, needs maintenance.</li>
+<li><span class="k">CircleCI, Azure DevOps, AWS CodePipeline:</span> managed alternatives.</li>
+<li><span class="k">ArgoCD / Flux:</span> GitOps delivery to Kubernetes.</li>
+</ul>
+<p>Typical flow: checkout → set up runtime → install → test → build image → push to registry → deploy via SSH, kubectl or Helm → smoke test.</p>
+</div></details>
+
+<details><summary><span class="m">D9</span>Release strategies and zero downtime</summary><div class="body">
+<ul>
+<li><span class="k">Recreate:</span> stop old, start new. Simple but causes downtime.</li>
+<li><span class="k">Rolling:</span> replace instances gradually; Kubernetes default.</li>
+<li><span class="k">Blue-green:</span> run old and new side by side, switch traffic at once; instant rollback but double cost.</li>
+<li><span class="k">Canary:</span> send 5% of traffic to the new version, watch metrics, then increase; safest for risky changes.</li>
+<li><span class="k">Feature flags:</span> ship code turned off, enable gradually (LaunchDarkly, Unleash).</li>
+</ul>
+<p>Zero downtime needs: rolling or blue-green, readiness probes, backward-compatible DB migrations and graceful shutdown.</p>
+</div></details>
+
+<details><summary><span class="m">D10</span>Cloud platforms, configuration, secrets and security</summary><div class="body">
+<p><span class="k">AWS:</span> EC2, ECS/Fargate, EKS, Lambda, RDS, S3, CloudFront, Route 53, ALB, IAM, CloudWatch. <span class="k">Azure:</span> VMs, App Service, AKS, Functions, Azure SQL. <span class="k">GCP:</span> Compute Engine, Cloud Run, GKE, Cloud SQL. <span class="k">Simpler:</span> DigitalOcean, Render, Railway, Fly.io, Heroku.</p>
+<ol>
+<li>Config lives in the environment, not in code (twelve-factor); use <code>.env</code> only locally.</li>
+<li>Production secrets come from AWS Secrets Manager, SSM, Vault or Kubernetes Secrets; rotate them and use least-privilege IAM roles.</li>
+<li>HTTPS everywhere (Let's Encrypt, ACM).</li>
+<li>Load balancer (Nginx, HAProxy, ALB) spreads traffic; databases stay in private subnets.</li>
+<li>WAF and rate limiting (Cloudflare, AWS WAF); API authentication with JWT, OAuth2 or API keys.</li>
+<li>Patch regularly and scan images and dependencies.</li>
+<li>Plan disaster recovery: RPO is how much data you can lose, RTO is how long you can be down.</li>
+</ol>
+</div></details>
+
+<details><summary><span class="m">D11</span>Monitoring, scaling and troubleshooting</summary><div class="body">
+<ul>
+<li><span class="k">Metrics:</span> Prometheus + Grafana, CloudWatch, Datadog, New Relic (CPU, memory, request rate, errors, p95/p99 latency).</li>
+<li><span class="k">Logs:</span> ELK/EFK or Loki, structured JSON.</li>
+<li><span class="k">Tracing:</span> OpenTelemetry with Jaeger or Tempo.</li>
+<li><span class="k">Errors:</span> Sentry. <span class="k">Alerts:</span> Alertmanager, PagerDuty, Slack. <span class="k">Uptime:</span> UptimeRobot, Pingdom.</li>
+</ul>
+<p><b>Scaling:</b> vertical means a bigger machine; horizontal means more instances behind a load balancer and needs a stateless app (sessions in Redis, files in S3). Add autoscaling (ASG, HPA), caching, queues (RabbitMQ, Kafka, SQS), read replicas and connection pooling (PgBouncer). For reliability use health checks, retries with backoff, timeouts, circuit breakers and multi-AZ.</p>
+<p><b>When a deployment fails:</b></p>
+<ol>
+<li>Check pipeline logs: build, test or deploy stage?</li>
+<li>Check app logs (<code>journalctl</code>, <code>docker logs</code>, <code>kubectl logs</code>).</li>
+<li>Check health endpoints, ports and the Nginx error log.</li>
+<li>Check config and secrets; a wrong env var is the most common cause.</li>
+<li>Check dependencies: DB connectivity, security groups, DNS.</li>
+<li>Check resources: CPU, memory (OOM kills), disk.</li>
+<li>If not fixed quickly, roll back first and investigate after.</li>
+</ol>
+</div></details>
+
+<details><summary><span class="m">D12</span>Interview-ready answer and common questions</summary><div class="body">
+<div class="say"><b>30-second answer:</b> I containerize the app with Docker and push the image to a registry through a GitHub Actions pipeline that runs tests and security scans. Infrastructure is created with Terraform. In production the app runs behind a load balancer and Nginx with HTTPS, on Kubernetes or ECS, with secrets from a secrets manager. I use rolling or canary releases with health checks for zero downtime, monitor with Prometheus, Grafana and centralized logs, and keep versioned images so I can roll back quickly.</div>
+<ul>
+<li><b>Why Nginx in front of Gunicorn?</b> SSL termination, static files, buffering slow clients, load balancing, security.</li>
+<li><b>Blue-green vs canary?</b> Blue-green switches all traffic instantly; canary shifts it gradually based on metrics.</li>
+<li><b>Compose vs Kubernetes?</b> Compose for one host and small apps; Kubernetes for multi-node, autoscaling and self-healing.</li>
+<li><b>How do you handle secrets?</b> Secrets manager or Vault, injected at runtime, never in Git or images.</li>
+<li><b>New release breaks production?</b> Roll back to the previous image tag, then investigate with logs and traces.</li>
+<li><b>CI vs CD?</b> CI builds and tests every change; CD releases it automatically.</li>
+</ul>
+</div></details>
+
+<h2 class="sec" id="tools">Tools, Purpose and Cross-Questions</h2>
+<p class="lead">Which tool is used for which job, why it was chosen, what to say if it is not available, and how to answer follow-up questions.</p>
+
+<details><summary><span class="m">D13</span>Which tool for which purpose (with why and alternative)</summary><div class="body">
+<p>Interviewers rarely ask "what is Docker". They ask "why Docker, and what if you could not use it". Learn each row as: purpose, tool, reason, fallback.</p>
+<div class="tw"><table>
+<thead><tr><th>Purpose</th><th>Tool</th><th>Why use it</th><th>If not available</th></tr></thead>
+<tbody>
+<tr><td>Source control</td><td>Git + GitHub / GitLab</td><td>History, review, branching, triggers pipelines</td><td>Bitbucket; any Git host</td></tr>
+<tr><td>CI/CD pipeline</td><td>GitHub Actions</td><td>Lives in repo, no server to run, huge marketplace</td><td>GitLab CI if on GitLab; Jenkins if self-hosted or heavy customization needed</td></tr>
+<tr><td>Packaging</td><td>Docker</td><td>Same environment everywhere, fast start, easy rollback by tag</td><td>Podman (daemonless), or VM images and plain virtualenv + systemd</td></tr>
+<tr><td>Image storage</td><td>ECR / GHCR / Docker Hub</td><td>Versioned images, access control, scanning</td><td>Self-hosted Harbor</td></tr>
+<tr><td>Multi-container on one host</td><td>Docker Compose</td><td>One file starts app, DB, cache; simple</td><td>Systemd units, or move to ECS/Kubernetes</td></tr>
+<tr><td>Orchestration at scale</td><td>Kubernetes (EKS/AKS/GKE)</td><td>Self-healing, autoscaling, rolling updates, many services</td><td>AWS ECS/Fargate (simpler), Docker Swarm, Nomad, Cloud Run</td></tr>
+<tr><td>Package k8s apps</td><td>Helm</td><td>Templated, versioned releases per environment</td><td>Kustomize or plain manifests</td></tr>
+<tr><td>GitOps delivery</td><td>ArgoCD / Flux</td><td>Git is source of truth, drift detection, easy rollback</td><td>Pipeline runs <code>helm upgrade</code> directly</td></tr>
+<tr><td>Create infrastructure</td><td>Terraform</td><td>Declarative, cloud-agnostic, reviewable plans, state tracking</td><td>CloudFormation (AWS only), Pulumi, console clicks only for learning</td></tr>
+<tr><td>Configure servers</td><td>Ansible</td><td>Agentless over SSH, simple YAML, idempotent</td><td>Shell scripts, Chef, Puppet, cloud-init</td></tr>
+<tr><td>Reverse proxy / SSL</td><td>Nginx</td><td>Fast, handles SSL, static files, buffering, load balancing</td><td>Caddy (auto HTTPS), HAProxy, Traefik, cloud ALB</td></tr>
+<tr><td>Python app server</td><td>Gunicorn / Uvicorn</td><td>Multiple workers, production-grade, handles crashes</td><td>uWSGI, Hypercorn; PM2 for Node</td></tr>
+<tr><td>Keep process alive</td><td>systemd</td><td>Auto-restart, starts on boot, built into Linux</td><td>Supervisor, PM2, or container restart policy</td></tr>
+<tr><td>Free HTTPS certs</td><td>Let's Encrypt / Certbot</td><td>Free, auto-renewing</td><td>AWS ACM (free on AWS), paid CA, Cloudflare</td></tr>
+<tr><td>Secrets</td><td>Secrets Manager / Vault</td><td>Encrypted, audited, rotation, never in Git</td><td>Kubernetes Secrets (with encryption), SSM Parameter Store, SOPS</td></tr>
+<tr><td>Database</td><td>RDS / Cloud SQL</td><td>Managed backups, patching, failover</td><td>Self-managed Postgres with pgBackRest backups</td></tr>
+<tr><td>Schema changes</td><td>Alembic / Flyway</td><td>Versioned, repeatable migrations in the pipeline</td><td>Django migrations, Liquibase</td></tr>
+<tr><td>Cache</td><td>Redis</td><td>Very fast, TTL, shared across instances</td><td>Memcached, in-process cache (not shared)</td></tr>
+<tr><td>Async work / queues</td><td>Celery + Redis, SQS, RabbitMQ, Kafka</td><td>Move slow work out of request path, retries</td><td>Cron jobs, DB-backed job table</td></tr>
+<tr><td>Metrics</td><td>Prometheus + Grafana</td><td>Pull-based, powerful queries, open source, great k8s fit</td><td>CloudWatch, Datadog, New Relic (paid, easier)</td></tr>
+<tr><td>Logs</td><td>Loki / ELK</td><td>Central search across all instances</td><td>CloudWatch Logs, Datadog</td></tr>
+<tr><td>Tracing</td><td>OpenTelemetry + Jaeger/Tempo</td><td>Follow one request across services, vendor-neutral</td><td>X-Ray, Datadog APM, correlation IDs in logs</td></tr>
+<tr><td>Errors</td><td>Sentry</td><td>Grouped exceptions with stack traces</td><td>Log alerts in ELK/CloudWatch</td></tr>
+<tr><td>Alerting</td><td>Alertmanager / PagerDuty</td><td>Routes alerts to on-call, deduplicates</td><td>Slack webhook, email</td></tr>
+<tr><td>Security scanning</td><td>Trivy, Snyk, Bandit</td><td>Catches vulnerable images and code before release</td><td>Dependabot, pip-audit, npm audit</td></tr>
+<tr><td>LLM tracing</td><td>Langfuse / LangSmith</td><td>Prompts, tokens, cost and latency per call</td><td>Custom logging to DB, OpenTelemetry spans</td></tr>
+<tr><td>Model serving</td><td>vLLM / Triton / TorchServe</td><td>Batching and GPU efficiency</td><td>FastAPI wrapper, hosted APIs</td></tr>
+<tr><td>CDN / WAF</td><td>Cloudflare / CloudFront</td><td>Caching, DDoS and bot protection</td><td>Nginx cache, AWS WAF</td></tr>
+</tbody></table></div>
+</div></details>
+
+<details><summary><span class="m">D14</span>How to explain any tool in an interview</summary><div class="body">
+<p>Use this five-part pattern for every tool so your answer sounds structured:</p>
+<ol>
+<li><b>Problem:</b> what pain existed without it.</li>
+<li><b>Tool:</b> what you used and what it does in one line.</li>
+<li><b>Why this one:</b> the deciding factor (cost, team skill, ecosystem, scale, existing stack).</li>
+<li><b>Trade-off:</b> an honest weakness.</li>
+<li><b>Example or result:</b> something real from your project.</li>
+</ol>
+<div class="say"><b>Example (Nginx):</b> "Gunicorn can run the app but is not built to face the internet. So I put Nginx in front for SSL termination, static files, buffering slow clients and load balancing. I chose Nginx because it is lightweight, battle tested and our team already knew it. The trade-off is manual config; Caddy gives automatic HTTPS if we wanted simpler. In our project it reduced app server load because static and slow connections never reached Gunicorn."</div>
+<p><b>Tips:</b> never say "because everyone uses it"; tie the choice to a requirement. Mention one alternative and when you would pick it. Say only what you have actually used, and label the rest as "I understand the concept".</p>
+</div></details>
+
+<details><summary><span class="m">D15</span>Cross-question bank: "why this tool only?"</summary><div class="body">
+<div class="q"><p><b>Why Docker?</b> Identical environment from laptop to production, fast startup, versioned images enable instant rollback, and dependencies stop clashing.</p>
+<p><b>Cross-question: "Containers are not needed for a simple app, right?"</b> Agree partly: for one small app a VM with systemd works. Docker still pays off once you have more than one environment or developer, because it removes setup drift.</p></div>
+
+<div class="q"><p><b>Why Kubernetes and not just Docker Compose or ECS?</b> We needed autoscaling, self-healing and rolling updates across several services and nodes.</p>
+<p><b>Cross-question: "Is Kubernetes overkill?"</b> Yes for a single service. Say: "For a small team I would start with ECS Fargate or Cloud Run and move to Kubernetes when service count and scaling needs justified the operational cost."</p></div>
+
+<div class="q"><p><b>Why Terraform, not Ansible?</b> They solve different jobs. Terraform creates infrastructure (VPC, VM, DB) declaratively with a plan and state; Ansible configures software inside servers.</p>
+<p><b>Cross-question: "Why not click in the console?"</b> Not repeatable, not reviewable, impossible to recreate in disaster recovery. IaC gives version history and consistent environments.</p></div>
+
+<div class="q"><p><b>Why GitHub Actions, not Jenkins?</b> No server to maintain, pipeline lives with the code, native GitHub integration.</p>
+<p><b>Cross-question: "When would you pick Jenkins?"</b> Air-gapped or on-prem environments, very custom pipelines, or an existing Jenkins investment. Trade-off: you patch and scale it yourself.</p></div>
+
+<div class="q"><p><b>Why Nginx when the app has its own server?</b> App servers are not hardened for public traffic. Nginx handles SSL, slow clients, static files, compression and load balancing.</p>
+<p><b>Cross-question: "Does Kubernetes make Nginx unnecessary?"</b> Not exactly: an Ingress controller (often Nginx or Traefik) plays the same role.</p></div>
+
+<div class="q"><p><b>Why Redis?</b> In-memory speed for caching, sessions, rate limiting and queues, shared across all instances.</p>
+<p><b>Cross-question: "What if Redis goes down?"</b> The app should fall back to the database or recompute, with a timeout and circuit breaker; use replicas or a managed Redis with failover. Redis is a cache, so losing it must degrade performance, not correctness.</p></div>
+
+<div class="q"><p><b>Why Prometheus and Grafana?</b> Open source, pull-based metrics, strong query language (PromQL), native Kubernetes support, flexible dashboards.</p>
+<p><b>Cross-question: "Why not Datadog?"</b> Datadog is easier and richer but costs more at scale. Choose it if the team lacks time to run monitoring; choose Prometheus for cost control and open standards.</p></div>
+
+<div class="q"><p><b>Why a managed database (RDS)?</b> Backups, patching, failover and monitoring are handled for us.</p>
+<p><b>Cross-question: "Why not self-host?"</b> Self-hosting is cheaper and more controllable but needs DBA effort. Choose it for special extensions, cost at very large scale or compliance.</p></div>
+
+<div class="q"><p><b>Why Qdrant over pgvector (RAG)?</b> Qdrant is purpose-built: fast filtered search, HNSW tuning, quantization and scaling for large vector counts. pgvector is attractive when data is moderate and you want one database with SQL joins.</p>
+<p><b>Cross-question: "How did you decide?"</b> Number of vectors, filter complexity, latency target and operational overhead. Under a few million vectors pgvector is often enough.</p></div>
+
+<div class="q"><p><b>Why not serverless for everything?</b> Cold starts, time limits, and cost at steady high traffic. It suits spiky or event-driven work; long-running or GPU workloads fit containers better.</p></div>
+
+<div class="q"><p><b>Why Let's Encrypt or ACM?</b> Free, automated, renewing certificates mean no expired-certificate outages.</p></div>
+</div></details>
+
+<details><summary><span class="m">D16</span>If the interviewer asks about a tool you have not used</summary><div class="body">
+<p>Honesty plus reasoning scores higher than bluffing.</p>
+<ol>
+<li><b>Be honest:</b> "I have not used X in production."</li>
+<li><b>Map it to what you know:</b> "I have used Y for the same purpose, and X is similar because..."</li>
+<li><b>Show the concept:</b> explain the problem it solves and how it would fit the flow.</li>
+<li><b>Show learning ability:</b> "I would read the docs and run it in staging first."</li>
+</ol>
+<div class="say"><b>Example:</b> "I have not used ArgoCD in production; we deployed with a GitHub Actions pipeline running Helm. I understand ArgoCD as GitOps: it watches Git and syncs the cluster to match, so Git is the source of truth and rollback is a revert. I would adopt it to get drift detection."</div>
+<p><b>If the question is "what if you cannot use tool X?"</b> (no Kubernetes, no cloud, no CI server):</p>
+<ul>
+<li><b>No Kubernetes:</b> Docker Compose on a VM, ECS, or Nomad, with systemd restart and Nginx load balancing.</li>
+<li><b>No cloud:</b> on-prem VMs with Ansible, Nginx, self-hosted Postgres and Harbor, backups to NAS.</li>
+<li><b>No CI/CD:</b> a deployment script (build, test, push, SSH, restart) triggered by a Git hook, then automate it later.</li>
+<li><b>No monitoring stack:</b> health endpoint, structured logs, cron-based checks, then add Prometheus.</li>
+</ul>
+<p><b>Handling cross-questions you cannot answer:</b> pause, restate the question, state the assumption, give the principle ("I would measure first"), and name what you would check. Avoid guessing numbers; say how you would find them.</p>
+<p><b>Common traps:</b> claiming Kubernetes for every case, saying one tool is "best" without context, forgetting rollback, and ignoring cost and team skill.</p>
+</div></details>
+
+<details><summary><span class="m">D17</span>Tool cards: interview line, advantages, disadvantages, better alternatives</summary><div class="body">
+<p>For each tool: say the interview line first, then add one advantage, one disadvantage and when you would choose something else. "Better" always depends on scale, budget and team skill.</p>
+<div class="tw"><table style="min-width:900px">
+<thead><tr><th>Tool</th><th>Interview line (why use it)</th><th>Advantages</th><th>Disadvantages</th><th>Use instead / better when</th></tr></thead>
+<tbody>
+<tr><td>Git + GitHub</td><td>"Every change is versioned, reviewed and triggers the pipeline."</td><td>History, rollback, pull requests, huge ecosystem</td><td>Large binaries are awkward; vendor lock-in for features</td><td>GitLab for built-in CI and self-hosting; Bitbucket with Jira</td></tr>
+<tr><td>GitHub Actions</td><td>"Pipeline lives in the repo, so no CI server to maintain."</td><td>Easy start, marketplace actions, native GitHub integration</td><td>Minutes billed on private repos; complex pipelines get messy</td><td>Jenkins for on-prem or heavy customization; GitLab CI if on GitLab</td></tr>
+<tr><td>Jenkins</td><td>"Fully customizable self-hosted automation."</td><td>Thousands of plugins, total control, works air-gapped</td><td>You patch, scale and secure it; plugin conflicts</td><td>GitHub Actions or GitLab CI for lower maintenance</td></tr>
+<tr><td>Docker</td><td>"Package app and dependencies so it runs identically everywhere."</td><td>Consistent, fast start, easy rollback by image tag</td><td>Weaker isolation than VMs; image bloat and security upkeep</td><td>Podman for daemonless/rootless; VMs for strong isolation</td></tr>
+<tr><td>Docker Compose</td><td>"One file starts the whole stack on one host."</td><td>Very simple, great for dev and small production</td><td>Single host, no autoscaling or self-healing across nodes</td><td>ECS or Kubernetes when you need multi-node and scaling</td></tr>
+<tr><td>Kubernetes</td><td>"Self-healing, autoscaling, rolling updates for many services."</td><td>Scales, portable across clouds, huge ecosystem</td><td>Steep learning curve, operational and cost overhead</td><td>ECS Fargate, Cloud Run, Nomad for smaller teams</td></tr>
+<tr><td>Helm</td><td>"Templated, versioned Kubernetes releases per environment."</td><td>Reuse, values per environment, easy rollback</td><td>Template complexity, hard to debug</td><td>Kustomize for simple overlays</td></tr>
+<tr><td>ArgoCD</td><td>"Git is the source of truth; cluster syncs to it."</td><td>Drift detection, auditable, simple rollback via revert</td><td>Extra component to run; learning curve</td><td>Flux (lighter), or pipeline-driven <code>helm upgrade</code></td></tr>
+<tr><td>Terraform</td><td>"Infrastructure as reviewable, repeatable code."</td><td>Multi-cloud, plan before apply, state tracking</td><td>State file management; licensing change (see OpenTofu)</td><td>CloudFormation for AWS-only; Pulumi for real programming languages; OpenTofu as open fork</td></tr>
+<tr><td>Ansible</td><td>"Configure servers over SSH with simple YAML."</td><td>Agentless, idempotent, easy to read</td><td>Slower at large scale; not ideal for creating infrastructure</td><td>Packer/immutable images, cloud-init, or containers instead</td></tr>
+<tr><td>Nginx</td><td>"Handles SSL, static files, buffering and load balancing in front of the app."</td><td>Fast, light, proven, flexible</td><td>Config is manual and easy to get wrong</td><td>Caddy for automatic HTTPS; Traefik for dynamic container routing; ALB on cloud</td></tr>
+<tr><td>Gunicorn / Uvicorn</td><td>"Production-grade app server with multiple workers."</td><td>Concurrency, worker restarts, standard for Python</td><td>Needs a proxy in front; tuning workers takes care</td><td>Hypercorn, uWSGI; Node uses PM2</td></tr>
+<tr><td>systemd</td><td>"Restarts the app on crash or reboot."</td><td>Built in to Linux, reliable, logs via journald</td><td>Single host only</td><td>Container restart policy or Kubernetes</td></tr>
+<tr><td>Let's Encrypt</td><td>"Free, auto-renewing HTTPS so certificates never expire."</td><td>Free, automated</td><td>90-day certs need working renewal; rate limits</td><td>AWS ACM on AWS; paid CA for extended validation</td></tr>
+<tr><td>Secrets Manager / Vault</td><td>"Secrets are encrypted, audited and rotated, never in Git."</td><td>Rotation, access control, audit trail</td><td>Cost (cloud) or operations burden (Vault)</td><td>SSM Parameter Store (cheaper); SOPS for encrypted files in Git</td></tr>
+<tr><td>RDS / managed DB</td><td>"Backups, patching and failover are handled for us."</td><td>Less ops work, point-in-time recovery, replicas</td><td>Costlier; limited OS and extension control</td><td>Self-hosted Postgres for custom extensions or large-scale cost control</td></tr>
+<tr><td>Redis</td><td>"In-memory cache shared across all instances."</td><td>Very fast, TTL, rate limiting, queues</td><td>Memory cost; data loss risk if used as primary store</td><td>Memcached for plain caching; DB for durability</td></tr>
+<tr><td>Celery / SQS / Kafka</td><td>"Move slow work off the request path with retries."</td><td>Faster APIs, retries, decoupling</td><td>Extra infra; duplicate and ordering issues</td><td>SQS for managed simplicity; Kafka for high-volume streams; cron for simple jobs</td></tr>
+<tr><td>Prometheus + Grafana</td><td>"Open source metrics and dashboards, great for Kubernetes."</td><td>Powerful queries, no license cost, flexible</td><td>You operate storage and scaling; not for long retention alone</td><td>Datadog or New Relic for ease; Grafana Cloud or Thanos for scale</td></tr>
+<tr><td>ELK / Loki</td><td>"Central searchable logs across all instances."</td><td>One place to debug; Loki is cheap and light</td><td>ELK is heavy and costly; Loki has weaker full-text search</td><td>CloudWatch Logs, Datadog Logs</td></tr>
+<tr><td>OpenTelemetry</td><td>"Vendor-neutral tracing of a request across services."</td><td>No lock-in, one standard for traces, metrics, logs</td><td>Instrumentation effort; sampling decisions</td><td>X-Ray or Datadog APM if single vendor</td></tr>
+<tr><td>Sentry</td><td>"Groups exceptions with stack traces and release info."</td><td>Fast bug discovery, easy setup</td><td>Not full observability; cost at volume</td><td>Log-based alerts in ELK/CloudWatch</td></tr>
+<tr><td>Trivy / Snyk</td><td>"Scan images and dependencies before release."</td><td>Catches known CVEs early in CI</td><td>False positives; only known issues</td><td>Dependabot, pip-audit, npm audit</td></tr>
+<tr><td>Qdrant</td><td>"Purpose-built vector search with fast filtering."</td><td>HNSW tuning, filters, quantization, scale</td><td>Another service to run</td><td>pgvector for moderate data and SQL joins; Milvus for very large scale</td></tr>
+<tr><td>Langfuse</td><td>"Traces prompts, tokens, cost and latency per LLM call."</td><td>Open source, self-hostable, evaluation hooks</td><td>Extra infra if self-hosted</td><td>LangSmith (LangChain-native), Phoenix</td></tr>
+<tr><td>vLLM / Triton</td><td>"High-throughput GPU model serving with batching."</td><td>Better GPU use, lower latency at load</td><td>GPU cost and tuning complexity</td><td>Hosted APIs (OpenAI, Bedrock) when volume is low</td></tr>
+<tr><td>S3 + CloudFront / Cloudflare</td><td>"Cheap static hosting plus global caching and DDoS protection."</td><td>Scalable, low cost, fast</td><td>Cache invalidation; not for dynamic logic</td><td>Netlify or Vercel for simplest developer flow</td></tr>
+</tbody></table></div>
+<div class="say"><b>Answer pattern:</b> "I used X because [requirement]. The advantage was [benefit]. The downside is [weakness], which I handle by [mitigation]. If [condition] changed, I would switch to Y."</div>
+</div></details>
+
+<details><summary><span class="m">D18</span>How to use each tool, when to use, when not to use</summary><div class="body">
+<p>Practical cheat sheet. In an interview, say the how in two or three steps, then the when and when-not to show judgment.</p>
+<div class="tw"><table style="min-width:900px">
+<thead><tr><th>Tool</th><th>How to use (key steps)</th><th>When to use</th><th>When not to use</th></tr></thead>
+<tbody>
+<tr><td>Git + GitHub</td><td>Create branch, commit, push, open pull request, get review, merge to <code>main</code>; tag releases (<code>git tag v1.2.0</code>).</td><td>Always, for every project and team size.</td><td>Not for storing secrets or large binaries (use Git LFS or object storage).</td></tr>
+<tr><td>GitHub Actions</td><td>Add <code>.github/workflows/ci.yml</code>; trigger on push; steps: checkout, set up runtime, install, test, build image, push, deploy.</td><td>Code is on GitHub and you want low-maintenance CI/CD.</td><td>Air-gapped networks, or very heavy build minutes where self-hosted runners or Jenkins are cheaper.</td></tr>
+<tr><td>Jenkins</td><td>Install server, add agents, write a <code>Jenkinsfile</code> with stages (build, test, deploy), connect to the repo with a webhook.</td><td>On-prem, strict network rules, or highly custom pipelines.</td><td>Small teams who cannot spend time maintaining a CI server.</td></tr>
+<tr><td>Docker</td><td>Write <code>Dockerfile</code>; <code>docker build -t app:1.0 .</code>; <code>docker run -p 8000:8000 app:1.0</code>; push to registry.</td><td>Consistent environments, microservices, CI/CD, Kubernetes.</td><td>Tiny scripts, or when strong kernel-level isolation is required (use VMs).</td></tr>
+<tr><td>Docker Compose</td><td>Define services in <code>docker-compose.yml</code>; <code>docker compose up -d</code>; check with <code>docker compose logs</code>.</td><td>Local development and small single-host production.</td><td>Multi-node, autoscaling or high availability needs.</td></tr>
+<tr><td>Kubernetes</td><td>Write Deployment, Service, Ingress; <code>kubectl apply -f</code>; add probes and HPA; roll back with <code>kubectl rollout undo</code>.</td><td>Many services, autoscaling, self-healing, multi-team platforms.</td><td>One or two small services, or a team with no Kubernetes skills.</td></tr>
+<tr><td>Helm</td><td>Create chart with templates and <code>values.yaml</code>; <code>helm install</code> or <code>helm upgrade --install</code> with env-specific values.</td><td>Same app deployed to several environments.</td><td>Very simple manifests where Kustomize or plain YAML is enough.</td></tr>
+<tr><td>ArgoCD</td><td>Install in cluster, point an Application at a Git repo path, enable auto-sync; change deployments by committing to Git.</td><td>You want Git-driven deployment, audit and drift detection.</td><td>Non-Kubernetes targets, or tiny setups where a pipeline step is enough.</td></tr>
+<tr><td>Terraform</td><td>Write <code>.tf</code> files; <code>terraform init</code>, <code>plan</code>, <code>apply</code>; keep state in a remote backend (S3 with locking).</td><td>Creating and changing cloud infrastructure repeatably.</td><td>Configuring software inside servers (use Ansible), or one-off experiments.</td></tr>
+<tr><td>Ansible</td><td>List hosts in inventory; write a playbook of tasks; <code>ansible-playbook -i hosts site.yml</code>.</td><td>Configuring, patching and deploying to existing VMs.</td><td>Fully containerized setups, or when images are built immutably.</td></tr>
+<tr><td>Nginx</td><td>Edit server block: <code>listen 443 ssl</code>, <code>proxy_pass http://127.0.0.1:8000</code>; test with <code>nginx -t</code>; reload.</td><td>Reverse proxy, SSL, static files, load balancing on VMs.</td><td>Behind a cloud load balancer or Kubernetes Ingress that already does this.</td></tr>
+<tr><td>Gunicorn / Uvicorn</td><td><code>gunicorn -k uvicorn.workers.UvicornWorker -w 4 app:app</code>; set workers by CPU cores and timeouts.</td><td>Running Python web apps in production.</td><td>Local development (use reload mode) or non-Python apps.</td></tr>
+<tr><td>systemd</td><td>Create <code>/etc/systemd/system/app.service</code> with ExecStart and <code>Restart=always</code>; <code>systemctl enable --now app</code>.</td><td>Keeping a process alive on a plain Linux server.</td><td>When running in containers or Kubernetes, which restart for you.</td></tr>
+<tr><td>Let's Encrypt</td><td>Run <code>certbot --nginx -d example.com</code>; confirm auto-renew with <code>certbot renew --dry-run</code>.</td><td>Public sites on your own servers needing free HTTPS.</td><td>On AWS behind ALB or CloudFront (use ACM), or internal-only services.</td></tr>
+<tr><td>Secrets Manager / Vault</td><td>Store secret, grant least-privilege role, app reads at startup or via injected env var, enable rotation.</td><td>Any production credentials: DB, API keys, tokens.</td><td>Non-sensitive config (use plain env vars or ConfigMaps).</td></tr>
+<tr><td>RDS / managed DB</td><td>Create instance in private subnet, set security group, enable backups and Multi-AZ, connect with credentials from secrets manager.</td><td>Most production apps that need a relational database.</td><td>Need for special extensions or OS access, or tiny cost-sensitive hobby apps.</td></tr>
+<tr><td>Alembic / Flyway</td><td>Generate migration (<code>alembic revision --autogenerate</code>); run <code>alembic upgrade head</code> in the pipeline before the new version starts.</td><td>Every schema change.</td><td>Never edit production schemas by hand.</td></tr>
+<tr><td>Redis</td><td>Run instance; <code>SET key value EX 300</code>; cache by query key; add timeouts and fallback to the DB.</td><td>Caching, sessions, rate limits, short-lived queues.</td><td>As the only copy of important data, or for large cold datasets.</td></tr>
+<tr><td>Celery / SQS / Kafka</td><td>Define task, publish to queue, run workers, configure retries and dead-letter queue.</td><td>Slow or retryable work: emails, ingestion, embeddings, reports.</td><td>Fast operations that must return immediately in the request.</td></tr>
+<tr><td>Prometheus + Grafana</td><td>Expose <code>/metrics</code> in the app; add scrape target; build Grafana dashboards; set Alertmanager rules.</td><td>Metrics for Kubernetes and services with cost control.</td><td>Teams without time to operate it (consider managed Datadog or Grafana Cloud).</td></tr>
+<tr><td>ELK / Loki</td><td>Log JSON to stdout; ship with Fluent Bit or Promtail; search in Kibana or Grafana.</td><td>Multiple instances, need central debugging and audit.</td><td>One small server where <code>journalctl</code> is enough.</td></tr>
+<tr><td>OpenTelemetry</td><td>Add SDK and auto-instrumentation; export to a collector; view traces in Jaeger or Tempo; propagate trace IDs.</td><td>Many services or pipeline stages (retrieval, rerank, LLM).</td><td>Single simple service where logs with request IDs suffice.</td></tr>
+<tr><td>Sentry</td><td>Install SDK, set DSN from env, tag release and environment, route alerts to Slack.</td><td>Catching and grouping production exceptions.</td><td>As a replacement for metrics or tracing.</td></tr>
+<tr><td>Trivy / Snyk</td><td>Add CI step <code>trivy image app:1.0</code>; fail the build on high severity findings.</td><td>Every build before pushing images.</td><td>Do not rely on it alone; it finds known issues only.</td></tr>
+<tr><td>Qdrant</td><td>Run container, create collection with vector size and distance, upsert points with payload, search with filters; create payload indexes.</td><td>RAG with large vector counts and heavy filtering.</td><td>Small data where pgvector in existing Postgres is simpler.</td></tr>
+<tr><td>Langfuse</td><td>Add SDK or callback handler to the LangChain app; tag traces with user and session; review cost and latency.</td><td>LLM apps needing prompt, token and cost tracing.</td><td>Non-LLM services (use OpenTelemetry and Prometheus).</td></tr>
+<tr><td>vLLM / Triton</td><td>Run server on a GPU node, load the model once, expose an API, tune batch size and memory use.</td><td>Self-hosted models with real traffic.</td><td>Low volume, where a hosted LLM API is cheaper and simpler.</td></tr>
+<tr><td>S3 + CloudFront / Cloudflare</td><td>Upload build to bucket, enable static hosting, attach CDN and domain, invalidate cache on release.</td><td>Static sites and large file delivery.</td><td>Apps needing server-side logic per request.</td></tr>
+</tbody></table></div>
+</div></details>
+
+<h2 class="sec" id="topic-cards">Topic Cards for Every RAG Module</h2>
+<p class="lead">Same format for each module: interview line, advantages, disadvantages, how to use, when and when not, and better alternatives.</p>
+
+<details><summary><span class="m">D19</span>RAG module cards (M1 to M16)</summary><div class="body">
+<div class="tw"><table style="min-width:980px">
+<thead><tr><th>Topic</th><th>Interview line and why</th><th>Advantages / Disadvantages</th><th>How to use</th><th>When / When not</th><th>Alternatives</th></tr></thead>
+<tbody>
+<tr><td>M1 Architecture</td><td>"Split the system into an offline indexing path and an online answering path so each scales and fails independently."</td><td>+ Clear ownership, scalable. − More moving parts to operate.</td><td>Draw both paths; make ingestion async (queue) and querying low-latency; keep the query service stateless.</td><td>Use for any production RAG. Skip the full design for a quick prototype.</td><td>Long-context prompting (no retrieval) for small, static corpora; fine-tuning for style, not facts.</td></tr>
+<tr><td>M2 Ingestion</td><td>"Reliable, repeatable intake with dedup and incremental updates, so the index never drifts from the source."</td><td>+ Fresh, clean data. − Many formats and failure cases.</td><td>Connectors per source, hash each file, queue jobs, retry, quarantine corrupted files, store status per document.</td><td>Use whenever data changes. Skip incremental logic for one-time static loads.</td><td>Unstructured, Docling, Tika, LlamaIndex loaders, managed ETL (Airbyte).</td></tr>
+<tr><td>M3 Parsing and cleaning</td><td>"Retrieval quality is capped by parsing quality: bad reading order or broken tables poison every later step."</td><td>+ Higher retrieval accuracy. − Layout parsing and OCR are slow and costly.</td><td>Layout-aware parser for PDFs, OCR only for scanned pages, strip headers and footers, keep tables as Markdown with captions.</td><td>Use for PDFs, scans, tables. Skip OCR for born-digital text.</td><td>Docling, Unstructured, PyMuPDF (fast), PaddleOCR or Tesseract, cloud OCR (Textract, Document AI).</td></tr>
+<tr><td>M4 Chunking</td><td>"Chunks must be small enough to match precisely and large enough to keep meaning."</td><td>+ Direct control of precision. − Wrong size hurts recall or context.</td><td>Start recursive 300 to 500 tokens with 10 to 15% overlap, add headings as metadata, evaluate, then try parent-child.</td><td>Always. Use semantic or agentic chunking only if evaluation shows gains; they cost more.</td><td>Structure-based splitting, parent-child retrieval, contextual chunking (LLM-added context).</td></tr>
+<tr><td>M5 Metadata and versioning</td><td>"Metadata gives filtering, access control and safe updates; hashes tell me what changed."</td><td>+ Targeted reindex, no stale vectors, permissions. − Must stay in sync with the index.</td><td>Store doc ID, chunk ID, version, hash, ACL; compare hashes to classify new, unchanged, modified, deleted; delete old chunk IDs on update.</td><td>Always in enterprise. Minimal metadata is fine for a demo.</td><td>Document store plus vector DB payload, or a Postgres metadata table as source of truth.</td></tr>
+<tr><td>M6 Embeddings</td><td>"Embeddings turn text into vectors so meaning can be searched; model choice sets retrieval ceiling."</td><td>+ Semantic matching. − Cost, re-embedding on model change, weak on exact IDs.</td><td>Batch requests, cache by content hash, retry with backoff, store model name and version, normalize for cosine.</td><td>Always for semantic search. Prefer keyword search when queries are exact codes.</td><td>BGE, E5, Nomic (open source), OpenAI or Cohere (hosted), domain-tuned models.</td></tr>
+<tr><td>M7 Vector DB</td><td>"Fast nearest neighbor search with metadata filtering at scale."</td><td>+ Low-latency ANN, filters. − Memory use, index tuning, extra service.</td><td>Create collection (size, distance), HNSW params, payload indexes; upsert in batches; use aliases for zero-downtime reindex.</td><td>Use Qdrant or Milvus at large scale; pgvector for moderate data. Skip a dedicated DB for a few thousand vectors.</td><td>pgvector, Weaviate, Chroma (prototype), FAISS (library), OpenSearch.</td></tr>
+<tr><td>M8 Retrieval</td><td>"Hybrid search combines meaning (dense) and exact terms (BM25), merged with RRF."</td><td>+ Better recall on mixed queries. − More latency, tuning.</td><td>Run dense and BM25 in parallel, fuse with RRF, apply metadata filters, fetch 20 to 50 candidates; add query rewriting if queries are vague.</td><td>Hybrid for enterprise data with IDs and jargon. Dense only is fine for simple prose corpora.</td><td>Multi-query, HyDE, self-query, parent-document retrieval, graph retrieval.</td></tr>
+<tr><td>M9 Reranking</td><td>"A cross-encoder rescoring the top candidates fixes ranking mistakes from fast retrieval."</td><td>+ Big precision gain. − Adds latency and cost.</td><td>Retrieve 30 to 50, rerank, keep top 3 to 8; batch and cache scores; run on GPU if needed.</td><td>Use when the right chunk is found but ranked low. Skip for tiny corpora or strict latency budgets.</td><td>BGE reranker, Cohere Rerank, FlashRank (light), ColBERT, LLM-as-reranker.</td></tr>
+<tr><td>M10 Context management</td><td>"Give the LLM the best evidence within a token budget, not everything retrieved."</td><td>+ Lower cost, better answers. − Compression may drop details.</td><td>Deduplicate, filter by score, expand to parent chunks, order best first and last, enforce a token budget.</td><td>Use when top-K is large or windows are limited. Skip heavy compression for short contexts.</td><td>ContextualCompressionRetriever, LLM extraction, long-context models.</td></tr>
+<tr><td>M11 Prompting and generation</td><td>"Constrain the LLM to retrieved context, require citations, and allow 'I don't know'."</td><td>+ Fewer hallucinations, verifiable. − Strict prompts can over-refuse.</td><td>System prompt with rules, inject chunks with IDs, return Pydantic JSON with citations, validate output, version prompts.</td><td>Always. Treat retrieved text as untrusted data to resist injection.</td><td>Guardrails AI, NeMo Guardrails, structured output APIs, fine-tuned models.</td></tr>
+<tr><td>M12 Evaluation</td><td>"Measure retrieval and generation separately so I know what to fix and can catch regressions."</td><td>+ Objective decisions. − Needs a good golden dataset; LLM judges are noisy.</td><td>Build 100+ real questions with expected sources; track Recall@K, MRR, faithfulness; run in CI with thresholds.</td><td>Before and after every change. Do not trust 20 hand-picked questions.</td><td>Ragas, DeepEval, TruLens, Phoenix, LangSmith, human review.</td></tr>
+<tr><td>M13 Advanced architectures</td><td>"Add routing, grading or multi-step reasoning only when simple RAG fails on those query types."</td><td>+ Handles complex questions. − Higher latency, cost, complexity.</td><td>Start with advanced RAG; add CRAG grading, agentic tool use, or Graph RAG for relationship queries; measure each addition.</td><td>Use for multi-hop or ambiguous queries. Skip for plain FAQ lookups.</td><td>Naive or advanced RAG, workflow engines (LangGraph), plain SQL for structured questions.</td></tr>
+<tr><td>M14 Caching and performance</td><td>"Reuse work: cache embeddings, retrievals and answers, and invalidate on document change."</td><td>+ Lower latency and cost. − Stale answers if invalidation is wrong.</td><td>Key = normalized query + filters + permissions + index version; TTL; invalidate by document ID; semantic cache with high threshold.</td><td>Use for repeated questions. Avoid semantic cache where answers differ by user or permissions.</td><td>Redis, in-memory LRU, CDN for static answers, provider prompt caching.</td></tr>
+<tr><td>M15 Security</td><td>"Enforce access control at retrieval time and treat documents as untrusted input."</td><td>+ Prevents leaks and injection. − Filters add overhead and complexity.</td><td>Store ACLs in metadata, filter in the vector query, redact PII (Presidio), validate outputs, log access for audit.</td><td>Always in enterprise or multi-tenant. Never filter after generation.</td><td>LLM Guard, Guardrails AI, NeMo Guardrails, separate collections per tenant.</td></tr>
+<tr><td>M16 Deployment and observability</td><td>"Package, deploy with health checks and rollbacks, and trace every query across stages."</td><td>+ Reliable, debuggable. − Operational overhead.</td><td>FastAPI in Docker, CI pipeline with eval gate, Kubernetes or ECS, Langfuse and OpenTelemetry traces, Prometheus alerts.</td><td>Use for production. Compose on one VM is enough for small internal tools.</td><td>See D17 and D18 for tool-by-tool choices.</td></tr>
+</tbody></table></div>
+<p class="hi">Modules M17 (capstone) and M18 (scenarios) apply these cards together. The deployment topics D1 to D12 are covered tool by tool in D17 and D18.</p>
+</div></details>
+
+<details><summary><span class="m">D20</span>Which method to use in specific tools (Docling, LangChain, Qdrant and more)</summary><div class="body">
+<p>For each topic, the exact class, function or setting to reach for first. APIs change between versions, so confirm names in the current docs before coding.</p>
+<div class="tw"><table style="min-width:900px">
+<thead><tr><th>Topic</th><th>Tool</th><th>Method / setting to use</th><th>Why this one</th></tr></thead>
+<tbody>
+<tr><td rowspan="5">M2 to M3 Ingestion and parsing</td><td>Docling</td><td><code>DocumentConverter().convert(path)</code>, then <code>result.document.export_to_markdown()</code>. Set <code>PdfPipelineOptions(do_ocr=True, do_table_structure=True)</code> for scans and tables.</td><td>Layout-aware, keeps reading order, tables and headings; the structured document feeds Docling's chunker.</td></tr>
+<tr><td>Unstructured</td><td><code>partition_pdf(filename=..., strategy="hi_res", infer_table_structure=True)</code>; for mixed formats use <code>partition(filename=...)</code>.</td><td>One API for many formats; <code>hi_res</code> for scanned or complex PDFs, <code>fast</code> for clean text PDFs.</td></tr>
+<tr><td>PyMuPDF</td><td><code>pymupdf.open(path)</code>, <code>page.get_text("blocks")</code>, <code>page.find_tables()</code>; <code>pymupdf4llm.to_markdown(path)</code> for quick Markdown.</td><td>Fastest for born-digital PDFs; no OCR for scans.</td></tr>
+<tr><td>Tesseract / PaddleOCR</td><td><code>pytesseract.image_to_string(img, lang="eng+hin")</code>; <code>PaddleOCR(lang="en")</code> then <code>.ocr(img)</code> (check version for the call).</td><td>OCR only for image pages; PaddleOCR is usually stronger on layouts and multilingual text.</td></tr>
+<tr><td>LangChain loaders / Tika</td><td><code>PyPDFLoader</code>, <code>CSVLoader</code>, <code>WebBaseLoader</code>, <code>DirectoryLoader</code>; use <code>.lazy_load()</code> for big sets. Tika: <code>parser.from_file(path)</code>.</td><td>Lazy loading keeps memory flat; Tika is the fallback for odd formats.</td></tr>
+<tr><td rowspan="4">M4 Chunking</td><td>Docling</td><td><code>HybridChunker</code>: <code>chunker.chunk(dl_doc=doc)</code>, then <code>chunker.contextualize(chunk)</code> for text to embed.</td><td>Respects document structure and token limits of the embedding model.</td></tr>
+<tr><td>LangChain</td><td><code>RecursiveCharacterTextSplitter.from_tiktoken_encoder(chunk_size=400, chunk_overlap=60)</code>; <code>MarkdownHeaderTextSplitter</code> for docs with headings; <code>RecursiveCharacterTextSplitter.from_language(Language.PYTHON)</code> for code.</td><td>Recursive is the best default; header splitter keeps section context as metadata.</td></tr>
+<tr><td>LangChain semantic</td><td><code>SemanticChunker(embeddings)</code> from <code>langchain_experimental</code>.</td><td>Only if evaluation shows it beats recursive; costs embedding calls.</td></tr>
+<tr><td>LlamaIndex</td><td><code>SentenceSplitter</code>; <code>HierarchicalNodeParser</code> with <code>AutoMergingRetriever</code> for parent-child.</td><td>Built-in hierarchy and merging of child nodes into parents.</td></tr>
+<tr><td>M5 Metadata and versioning</td><td>hashlib + Postgres + Qdrant</td><td><code>hashlib.sha256(text.encode()).hexdigest()</code> per document and chunk; table of doc_id, version, hash; on change call Qdrant <code>client.delete(collection, points_selector=FilterSelector(...doc_id...))</code> then upsert.</td><td>Hash comparison classifies new, unchanged, modified, deleted without re-embedding everything.</td></tr>
+<tr><td rowspan="3">M6 Embeddings</td><td>Sentence Transformers (BGE / E5)</td><td><code>SentenceTransformer("BAAI/bge-m3")</code>; <code>model.encode(texts, batch_size=64, normalize_embeddings=True)</code>. E5 needs the <code>"query: "</code> and <code>"passage: "</code> prefixes.</td><td>Batching and normalization give speed and correct cosine scores; wrong prefixes silently hurt quality.</td></tr>
+<tr><td>OpenAI</td><td><code>client.embeddings.create(model="text-embedding-3-small", input=batch)</code> with retry and backoff (tenacity).</td><td>Cheap hosted option; batch inputs to cut requests and handle rate limits.</td></tr>
+<tr><td>LangChain</td><td><code>CacheBackedEmbeddings.from_bytes_store(embeddings, store, namespace=model_name)</code>.</td><td>Avoids re-embedding unchanged text; namespace by model version.</td></tr>
+<tr><td rowspan="3">M7 Vector DB</td><td>Qdrant</td><td><code>create_collection(vectors_config=VectorParams(size=1024, distance=Distance.COSINE))</code>; <code>upsert(points=[PointStruct(...)])</code> in batches; <code>create_payload_index</code> on filter fields; <code>query_points</code>; <code>update_collection_aliases</code> for zero-downtime reindex.</td><td>Payload indexes make filtered search fast; aliases let you swap collections safely.</td></tr>
+<tr><td>pgvector</td><td><code>CREATE EXTENSION vector;</code> column <code>vector(1024)</code>; <code>CREATE INDEX ... USING hnsw (embedding vector_cosine_ops);</code> query with <code>ORDER BY embedding &lt;=&gt; :q LIMIT 10</code>; tune <code>SET hnsw.ef_search</code>.</td><td>One database for vectors and SQL joins when data is moderate.</td></tr>
+<tr><td>FAISS / Milvus</td><td>FAISS: <code>IndexHNSWFlat</code> or <code>IndexIVFFlat</code>. Milvus: HNSW or IVF index on the collection.</td><td>FAISS for local experiments; Milvus for very large distributed sets.</td></tr>
+<tr><td rowspan="3">M8 Retrieval</td><td>LangChain</td><td><code>as_retriever(search_type="mmr", search_kwargs={"k": 5, "fetch_k": 30})</code>; <code>BM25Retriever.from_documents</code> + <code>EnsembleRetriever(retrievers=[bm25, dense], weights=[0.5, 0.5])</code>; <code>MultiQueryRetriever.from_llm</code>; <code>SelfQueryRetriever</code>; <code>ParentDocumentRetriever</code>.</td><td>Ensemble merges lists with reciprocal rank fusion; MMR reduces duplicates; self-query turns questions into metadata filters.</td></tr>
+<tr><td>Qdrant native hybrid</td><td><code>query_points(prefetch=[dense_prefetch, sparse_prefetch], query=FusionQuery(fusion=Fusion.RRF))</code>.</td><td>Fusion runs inside the database, so fewer round trips.</td></tr>
+<tr><td>rank_bm25</td><td><code>BM25Okapi(tokenized_corpus).get_scores(query_tokens)</code>.</td><td>Simple keyword scoring for exact IDs and codes.</td></tr>
+<tr><td rowspan="3">M9 Reranking</td><td>Sentence Transformers</td><td><code>CrossEncoder("BAAI/bge-reranker-v2-m3").predict(pairs)</code> with pairs of (query, chunk); sort by score.</td><td>Self-hosted cross-encoder, strong accuracy.</td></tr>
+<tr><td>FlashRank / Cohere</td><td>FlashRank: <code>Ranker().rerank(RerankRequest(query=..., passages=...))</code>. Cohere: <code>co.rerank(model=..., query=..., documents=..., top_n=5)</code>.</td><td>FlashRank is light and CPU friendly; Cohere is managed with no hosting.</td></tr>
+<tr><td>LangChain</td><td><code>ContextualCompressionRetriever(base_compressor=CrossEncoderReranker(model=HuggingFaceCrossEncoder(...), top_n=5), base_retriever=retriever)</code>.</td><td>Plugs reranking into any retriever chain.</td></tr>
+<tr><td>M10 Context management</td><td>LangChain</td><td><code>EmbeddingsFilter(similarity_threshold=...)</code>, <code>LLMChainExtractor</code>, <code>DocumentCompressorPipeline</code>, <code>LongContextReorder</code> to place best chunks at the edges.</td><td>Filter first (cheap), extract with an LLM only when needed, reorder against lost-in-the-middle.</td></tr>
+<tr><td>M11 Prompting and generation</td><td>LangChain + Pydantic + Langfuse</td><td><code>ChatPromptTemplate</code>; <code>llm.with_structured_output(AnswerModel)</code> with fields answer, citations, confidence; Langfuse <code>get_prompt(name)</code> for versioned prompts.</td><td>Structured output makes citations validatable; prompt versions can be rolled back.</td></tr>
+<tr><td rowspan="2">M12 Evaluation</td><td>Ragas</td><td><code>evaluate(dataset, metrics=[faithfulness, answer_relevancy, context_precision, context_recall])</code>; <code>TestsetGenerator</code> for synthetic questions.</td><td>Separates retrieval metrics from generation metrics.</td></tr>
+<tr><td>DeepEval / Phoenix</td><td>DeepEval: <code>assert_test(test_case, [FaithfulnessMetric()])</code> in pytest. Phoenix: trace and inspect failing queries.</td><td>Fits CI gates; Phoenix helps debug.</td></tr>
+<tr><td>M14 Caching</td><td>Redis / LangChain</td><td><code>SET key value EX 300</code> with <code>redis.asyncio</code>; <code>set_llm_cache(RedisCache(...))</code> or <code>RedisSemanticCache</code> with a high threshold.</td><td>TTL bounds staleness; semantic cache saves LLM cost on paraphrases.</td></tr>
+<tr><td rowspan="2">M15 Security</td><td>Presidio</td><td><code>AnalyzerEngine().analyze(text, language="en")</code> then <code>AnonymizerEngine().anonymize(...)</code>.</td><td>Detect and mask PII before text reaches an external LLM.</td></tr>
+<tr><td>LLM Guard / Guardrails AI / NeMo</td><td>LLM Guard: <code>scan_prompt</code> with the <code>PromptInjection</code> scanner. Guardrails AI: <code>Guard().use(...)</code> validators. NeMo: <code>LLMRails</code> with Colang rules.</td><td>Input and output checks; access control still goes in the vector filter.</td></tr>
+<tr><td>M16 Deployment and observability</td><td>FastAPI, Prometheus, Langfuse, OpenTelemetry</td><td>FastAPI <code>lifespan</code> to load models once and <code>/health</code> endpoint; <code>prometheus-fastapi-instrumentator</code>; Langfuse <code>@observe()</code> or <code>CallbackHandler</code>; <code>FastAPIInstrumentor.instrument_app(app)</code>.</td><td>Models load once, metrics and traces are added with little code.</td></tr>
+</tbody></table></div>
+<div class="say"><b>Interview tip:</b> name the method, then the reason: "I used Docling's <code>DocumentConverter</code> with table structure on, because tables carry key facts, then <code>HybridChunker</code> so chunks respect structure and token limits."</div>
+</div></details>
+
+<details><summary><span class="m">D21</span>Code example: Docling to chunks to embeddings to Qdrant</summary><div class="body">
+<p>One pipeline stage chain using the methods from D20. Check names against your installed versions.</p>
+<pre><code>import hashlib, uuid
+from docling.document_converter import DocumentConverter, PdfFormatOption
+from docling.datamodel.base_models import InputFormat
+from docling.datamodel.pipeline_options import PdfPipelineOptions
+from docling.chunking import HybridChunker
+from sentence_transformers import SentenceTransformer
+from qdrant_client import QdrantClient
+from qdrant_client.models import VectorParams, Distance, PointStruct, PayloadSchemaType
+
+PATH = "policy.pdf"
+
+# 1. Parse: OCR for scans, table structure on
+opts = PdfPipelineOptions(do_ocr=True, do_table_structure=True)
+converter = DocumentConverter(
+    format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=opts)}
+)
+doc = converter.convert(PATH).document
+
+# 2. Chunk: structure-aware, respects token limits
+chunker = HybridChunker()
+chunks = list(chunker.chunk(dl_doc=doc))
+texts = [chunker.contextualize(chunk=c) for c in chunks]
+
+# 3. Embed: batched and normalized for cosine similarity
+model = SentenceTransformer("BAAI/bge-m3")
+vectors = model.encode(texts, batch_size=32, normalize_embeddings=True)
+
+# 4. Index: collection, payload index, deterministic IDs
+client = QdrantClient(url="http://localhost:6333")
+NAME = "docs_v1"
+if not client.collection_exists(NAME):
+    client.create_collection(
+        NAME, vectors_config=VectorParams(size=1024, distance=Distance.COSINE)
+    )
+    client.create_payload_index(NAME, "doc_id", PayloadSchemaType.KEYWORD)
+
+doc_id = hashlib.sha256(open(PATH, "rb").read()).hexdigest()
+points = [
+    PointStruct(
+        id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"{doc_id}:{i}")),
+        vector=v.tolist(),
+        payload={"doc_id": doc_id, "chunk_index": i, "text": t, "source": PATH},
+    )
+    for i, (t, v) in enumerate(zip(texts, vectors))
+]
+client.upsert(NAME, points=points)</code></pre>
+<ol>
+<li><b>Parse:</b> table structure on so tables survive as structured content.</li>
+<li><b>Chunk:</b> <code>contextualize</code> adds headings to each chunk's text before embedding.</li>
+<li><b>Embed:</b> keep the chunker's tokenizer consistent with the embedding model to avoid over-long chunks.</li>
+<li><b>Index:</b> deterministic IDs from document hash plus chunk index make re-runs idempotent (upsert replaces, never duplicates).</li>
+<li><b>Update flow:</b> if the document hash changes, delete old points with a <code>doc_id</code> filter, then upsert the new ones.</li>
+</ol>
+<div class="say"><b>Interview line:</b> "I derive chunk IDs from the document hash and chunk index, so reprocessing is idempotent, and I store doc_id in an indexed payload field so I can delete or filter all chunks of a document quickly."</div>
+</div></details>
+
+<h2 class="sec" id="senior">Senior (10-Year) Interview Readiness</h2>
+<p class="lead">Honest check: this guide gives breadth and vocabulary, which is not enough alone for a 10-year-level interview. This section lists what was missing and adds it.</p>
+
+<details open><summary><span class="m">S1</span>Honest verdict and gap analysis</summary><div class="body">
+<div class="say"><b>Verdict:</b> Reading this guide will let you explain the pipeline, name tools and answer common questions. It will not by itself make you pass a 10-year interview, because senior rounds test depth from real experience: numbers, failures, trade-offs, ownership and leadership. Do not claim experience you do not have; interviewers probe with follow-ups and it shows quickly. Present your real experience accurately and prepare it well.</div>
+<div class="tw"><table style="min-width:720px">
+<thead><tr><th>Gap</th><th>What a senior interviewer expects</th><th>How to close it</th></tr></thead>
+<tbody>
+<tr><td>Hands-on depth</td><td>You have built, broken and fixed it, and can say what you measured.</td><td>Build the capstone yourself; record your own latency, recall and cost numbers.</td></tr>
+<tr><td>Capacity and numbers</td><td>Estimate storage, memory, QPS, cost before choosing tools.</td><td>Use S3 below; practice estimates aloud.</td></tr>
+<tr><td>System design flow</td><td>Clarify requirements, then design, then trade-offs, then failure modes.</td><td>Use the framework in S2 on 5 different prompts.</td></tr>
+<tr><td>Real scenarios</td><td>Root cause thinking with evidence, not tool lists.</td><td>Practice S4 scenarios; add your own incidents.</td></tr>
+<tr><td>Reliability and operations</td><td>SLOs, error budgets, incident response, postmortems, on-call.</td><td>Define SLIs for your RAG API (latency p95, error rate, faithfulness) and write one postmortem.</td></tr>
+<tr><td>Cost and build vs buy</td><td>Cost per query, token spend, managed vs self-hosted decisions.</td><td>Compute cost per 1,000 queries for your design.</td></tr>
+<tr><td>Security and compliance</td><td>GDPR, data residency, retention, audit, SOC 2 awareness, PII handling.</td><td>Document data flow and where PII is masked or deleted.</td></tr>
+<tr><td>Leadership and communication</td><td>Mentoring, design reviews, stakeholder trade-offs, driving decisions.</td><td>Prepare 5 STAR stories (S5).</td></tr>
+<tr><td>Migration and change management</td><td>Zero-downtime moves, backward compatibility, rollbacks.</td><td>Rehearse the embedding migration (S4).</td></tr>
+<tr><td>Coding and fundamentals</td><td>Python, SQL, async, basic data structures may still be tested.</td><td>Practice writing a retry decorator, RRF function, Recall@K, dedupe by hash.</td></tr>
+<tr><td>LLM-specific judgment</td><td>RAG vs fine-tuning vs long context, model selection, eval of LLM judges.</td><td>Know when each wins (S6).</td></tr>
+<tr><td>Interview Pack content</td><td>The earlier "Interview Pack" item only described the plan; real questions are now in S6.</td><td>Ask for module-wise question sets and practice them aloud.</td></tr>
+</tbody></table></div>
+</div></details>
+
+<details><summary><span class="m">S2</span>System design answer framework</summary><div class="body">
+<ol>
+<li><b>Clarify:</b> users, document count and types, update frequency, latency target, accuracy needs, permissions, compliance, budget.</li>
+<li><b>Estimate:</b> storage, memory, QPS, embedding and LLM cost.</li>
+<li><b>High-level design:</b> offline and online paths, main components.</li>
+<li><b>Deep dive:</b> the riskiest parts (chunking, retrieval quality, access control, freshness).</li>
+<li><b>Trade-offs:</b> name at least one alternative per major choice.</li>
+<li><b>Failure modes:</b> what breaks, how you detect it, how you recover.</li>
+<li><b>Evaluation and rollout:</b> metrics, canary, rollback.</li>
+</ol>
+<p><b>Clarifying questions to ask:</b> How fresh must answers be? Are there per-user permissions? What is the p95 latency target? What happens on a wrong answer? Which languages and formats?</p>
+</div></details>
+
+<details><summary><span class="m">S3</span>Worked capacity estimate: 10 million documents</summary><div class="body">
+<p>State assumptions out loud, then calculate.</p>
+<ol>
+<li><b>Chunks:</b> 10M documents x 20 chunks each = 200M chunks.</li>
+<li><b>Raw vectors:</b> 200M x 1,024 dims x 4 bytes = about 819 GB (float32).</li>
+<li><b>Compression:</b> int8 scalar quantization is about 4x smaller (about 205 GB); binary quantization about 32x (about 26 GB) but lower accuracy, so rerank with full vectors.</li>
+<li><b>Index overhead:</b> HNSW graph adds memory on top, so plan extra headroom; shard across several nodes and keep originals on disk.</li>
+<li><b>Embedding cost and time:</b> 200M chunks at 400 tokens is about 80B tokens; with a self-hosted model on GPUs, batch and parallelize over days, not hours; hosted APIs would be a large bill, so compare.</li>
+<li><b>Query path:</b> target e.g. 300 ms retrieval; dense and BM25 in parallel, rerank 30 candidates, then LLM.</li>
+<li><b>Ingestion:</b> queue-based workers with hash-based incremental updates; backfill once, then process only changes.</li>
+</ol>
+<p class="hi">The numbers are illustrative assumptions. In the interview, the habit of estimating and justifying matters more than exact values.</p>
+</div></details>
+
+<details><summary><span class="m">S4</span>Senior scenarios with structured answers</summary><div class="body">
+<p>Pattern: symptom, evidence to check, root causes, fix, trade-off.</p>
+
+<div class="q"><p><b>1. Embedding model must change with no downtime.</b></p>
+<p><b>Plan:</b> create a new collection with a new model name, backfill in batches with rate limits, dual-write new changes to both, evaluate new index on the golden set, shift traffic by alias or percentage, keep the old index for rollback, then delete. <b>Trade-off:</b> double storage and compute during migration. <b>Pitfall:</b> mixing vectors from two models in one index.</p></div>
+
+<div class="q"><p><b>2. The right document exists but is not retrieved.</b></p>
+<p><b>Check in order:</b> was it ingested and parsed correctly, was it chunked badly, is the metadata filter excluding it, is the query poorly phrased, is it in top-100 but ranked low. <b>Fix by cause:</b> reparse, change chunking, fix filters, add query rewriting, add hybrid search or reranking.</p></div>
+
+<div class="q"><p><b>3. Recall is high but faithfulness is low.</b></p>
+<p>Retrieval is not the problem. Inspect the prompt, context order and size, conflicting chunks, and model behavior. <b>Fix:</b> stricter grounding prompt, fewer and better chunks, citation validation, abstention, a better model, or an answer verification step.</p></div>
+
+<div class="q"><p><b>4. Reranker added 2 seconds.</b></p>
+<p>Reduce candidates from 100 to 30, use a smaller reranker (FlashRank), batch and run on GPU, cache scores, rerank only when top scores are close, or apply it to hard queries only. Check quality loss with the eval set before shipping.</p></div>
+
+<div class="q"><p><b>5. System returns outdated answers.</b></p>
+<p>Check ingestion lag, failed update jobs, stale vectors not deleted, and caches serving old answers. <b>Fix:</b> change detection by hash, delete by doc_id on update, include index version in cache keys, alert on ingestion lag.</p></div>
+
+<div class="q"><p><b>6. Hybrid retrieval is worse than dense alone.</b></p>
+<p>Likely poor BM25 tokenization, bad fusion weights, noisy sparse results, or an unsuitable eval set. Evaluate each retriever alone, tune weights or RRF constant, fix tokenization, and compare per query type.</p></div>
+
+<div class="q"><p><b>7. A user sees another department's document.</b></p>
+<p>Treat as a security incident: contain, find where authorization is missing (filter must be in the retrieval query, not after), audit logs to find exposure, fix, add automated permission tests, report per policy. Cache keys must include permissions.</p></div>
+
+<div class="q"><p><b>8. Need to cut token cost by 50%.</b></p>
+<p>Measure where tokens go first. Then: fewer chunks via reranking, compress context, trim prompts, cache repeated answers, route easy queries to a cheaper model, and set output limits. Verify faithfulness on the eval set after each change.</p></div>
+</div></details>
+
+<details><summary><span class="m">S5</span>Behavioral and leadership preparation</summary><div class="body">
+<p>For 10 years, expect questions about ownership and influence, not only technology.</p>
+<p><b>STAR story:</b> Situation, Task, Action, Result with numbers (latency from 4 s to 1.5 s, cost down 40 percent, recall from 70 to 88 percent).</p>
+<ol>
+<li>A production incident you led, root cause and prevention.</li>
+<li>A technical decision where you chose between tools and why.</li>
+<li>A disagreement with a teammate or stakeholder and the outcome.</li>
+<li>Mentoring someone or raising team standards.</li>
+<li>A project that failed or was cut, and what you learned.</li>
+<li>Delivering under an unclear requirement or tight deadline.</li>
+<li>Reducing cost or improving reliability with measurable impact.</li>
+</ol>
+<p><b>Say "I" for your actions and "we" for team results.</b> Admit mistakes and state what changed afterward. Have two or three questions ready for the interviewer about team, scale, evaluation practice and on-call.</p>
+</div></details>
+
+<details><summary><span class="m">S6</span>Core questions with answers you can speak</summary><div class="body">
+<div class="q"><p><b>RAG or fine-tuning?</b> RAG for fresh, private, citeable knowledge; fine-tuning for style, format or behavior. They combine well. Fine-tuning does not reliably add new facts and cannot enforce per-user permissions.</p></div>
+<div class="q"><p><b>RAG or long context?</b> Long context is simple for small corpora but costs more per query, hurts latency and loses accuracy in the middle. RAG scales to large, changing data with access control.</p></div>
+<div class="q"><p><b>Why can bigger chunks hurt retrieval?</b> Multiple topics blur the embedding, so matches become vague and irrelevant text fills the prompt.</p></div>
+<div class="q"><p><b>Why can increasing top-K reduce quality?</b> More noise and conflicting chunks, higher cost, and the model may miss the right one in the middle.</p></div>
+<div class="q"><p><b>How do you evaluate without checking every answer?</b> A golden set with expected sources, retrieval metrics, LLM judge metrics calibrated against human samples, production feedback and monitoring for drift.</p></div>
+<div class="q"><p><b>How do you reduce hallucination?</b> Better retrieval, grounded prompts, citations checked against retrieved ids, abstention, answer verification, and low temperature.</p></div>
+<div class="q"><p><b>Pre-filter or post-filter in vector search?</b> Filter inside the search (pre-filter with payload indexes) so top-K is taken from allowed data; post-filtering can return too few results or leak data.</p></div>
+<div class="q"><p><b>How do you handle conflicting documents?</b> Use version and date metadata, prefer authoritative sources, show both with citations when unresolved, and tell the user about the conflict.</p></div>
+<div class="q"><p><b>HNSW vs IVF?</b> HNSW: higher recall and speed, more memory. IVF: lower memory, needs training and tuning, often with quantization at very large scale.</p></div>
+<div class="q"><p><b>How do you protect against prompt injection?</b> Treat retrieved text as data, delimit it, scan inputs and outputs, limit tool permissions, validate structured output and never let documents trigger privileged actions.</p></div>
+<div class="q"><p><b>What would you monitor in production?</b> Latency by stage, error rate, empty retrievals, cache hit rate, token cost, faithfulness samples, ingestion lag, user feedback.</p></div>
+<div class="q"><p><b>What is your approach when a stakeholder says "the bot is wrong"?</b> Reproduce with the trace, classify as parsing, retrieval, ranking or generation failure, fix, add the case to the regression set.</p></div>
+</div></details>
+
+<details><summary><span class="m">S7</span>Practice plan and final checklist</summary><div class="body">
+<ol>
+<li><b>Weeks 1 to 2:</b> build ingestion, chunking and indexing; record numbers.</li>
+<li><b>Weeks 3 to 4:</b> add hybrid retrieval, reranking and generation with citations.</li>
+<li><b>Weeks 5 to 6:</b> build the evaluation set and compare chunking, embeddings and retrievers with data.</li>
+<li><b>Weeks 7 to 8:</b> add caching, security and observability.</li>
+<li><b>Weeks 9 to 10:</b> deploy with Docker and CI, run a load test, write a postmortem of one failure you caused on purpose.</li>
+<li><b>Weeks 11 to 12:</b> mock interviews, system design drills, STAR stories.</li>
+</ol>
+<p><b>Ready when you can:</b> draw the architecture from memory, estimate capacity, justify each tool choice with an alternative, walk through five failure scenarios, quote your own measurements, and tell three leadership stories.</p>
+</div></details>
+
+<h2 class="sec" id="qbank">Interview Question Bank by Module</h2>
+<p class="lead">Five questions per module with speakable answers. B is beginner, I is intermediate, A is advanced.</p>
+
+<details><summary><span class="m">Q1</span>M1 Architecture questions</summary><div class="body"><ul>
+<li><span class="k">B</span><b>What are the two paths in RAG?</b> Offline indexing (ingest, chunk, embed, store) and online answering (retrieve, rerank, generate).</li>
+<li><span class="k">B</span><b>Why RAG instead of only an LLM?</b> Fresh and private data, citations, fewer hallucinations, no retraining.</li>
+<li><span class="k">I</span><b>Sync vs async?</b> Query path is synchronous for low latency; ingestion is asynchronous through queues so spikes do not hurt users.</li>
+<li><span class="k">I</span><b>Stateless vs stateful?</b> Stateless services scale horizontally; keep chat history and cache in Redis or a database.</li>
+<li><span class="k">A</span><b>How do you design for failure?</b> Timeouts, retries, circuit breakers, fallbacks such as keyword search or cached answers when the vector DB is down, and separate scaling of ingestion and query.</li>
+</ul></div></details>
+
+<details><summary><span class="m">Q2</span>M2 Ingestion questions</summary><div class="body"><ul>
+<li><span class="k">B</span><b>How do you avoid duplicate ingestion?</b> Hash content, skip identical hashes, and use deterministic chunk IDs.</li>
+<li><span class="k">B</span><b>Why different loaders per format?</b> Formats differ in structure; one generic parser loses tables and layout.</li>
+<li><span class="k">I</span><b>How do you handle scanned PDFs?</b> Detect pages without a text layer and OCR only those (Docling, Tesseract, PaddleOCR), storing confidence.</li>
+<li><span class="k">I</span><b>How do you handle corrupted PDFs?</b> try/except, retry, fallback parser (PyMuPDF then Tika), quarantine with the error, alert, and never fail the whole batch.</li>
+<li><span class="k">A</span><b>Design ingestion for 10M documents.</b> Object storage plus queue, idempotent workers, hash registry, dead-letter queue, backpressure, metrics, and a change feed for incremental updates.</li>
+</ul></div></details>
+
+<details><summary><span class="m">Q3</span>M3 Parsing and cleaning questions</summary><div class="body"><ul>
+<li><span class="k">B</span><b>Why does parsing quality matter?</b> Bad text produces bad chunks and embeddings, and later steps cannot fix it.</li>
+<li><span class="k">B</span><b>How do you remove headers and footers?</b> Use parser labels, or find lines repeated across pages and strip them.</li>
+<li><span class="k">I</span><b>Wrong reading order?</b> Compare extracted blocks with the page image, switch to a layout-aware parser, and handle multi-column ordering.</li>
+<li><span class="k">I</span><b>Tables and paragraphs together?</b> Extract the table as Markdown or HTML with its caption and section heading as metadata, keep it as one chunk.</li>
+<li><span class="k">A</span><b>500-page document efficiently?</b> Parallel page batches, OCR only needed pages, per-page hash caching, and reprocess only changed pages.</li>
+</ul></div></details>
+
+<details><summary><span class="m">Q4</span>M4 Chunking questions</summary><div class="body"><ul>
+<li><span class="k">B</span><b>What is chunk overlap?</b> Shared text between neighbors so boundaries do not cut context; usually 10 to 15 percent.</li>
+<li><span class="k">B</span><b>Why not index whole documents?</b> The embedding blurs many topics and the prompt fills with irrelevant text.</li>
+<li><span class="k">I</span><b>How do you choose chunk size?</b> Start at 300 to 500 tokens, test sizes on the golden set using Recall@K and answer quality, and respect the embedding model limit.</li>
+<li><span class="k">I</span><b>What is parent-child retrieval?</b> Search small child chunks, return the larger parent for context.</li>
+<li><span class="k">A</span><b>Documents that change often?</b> Hash per page or chunk, re-chunk only modified sections, deterministic IDs, delete removed chunks, prefer structure-based chunking so edits do not shift every chunk.</li>
+</ul></div></details>
+
+<details><summary><span class="m">Q5</span>M5 Metadata and versioning questions</summary><div class="body"><ul>
+<li><span class="k">B</span><b>Which metadata per chunk?</b> doc_id, chunk_id, page, source, version, timestamp, hash, permissions.</li>
+<li><span class="k">B</span><b>Why a content hash?</b> Cheap change and duplicate detection.</li>
+<li><span class="k">I</span><b>Detect new, unchanged, modified, deleted?</b> Compare current hashes with the registry; ids missing from the source are deleted.</li>
+<li><span class="k">I</span><b>Prevent stale embeddings?</b> On update delete by doc_id and upsert new chunks, monitor ingestion lag, and invalidate caches.</li>
+<li><span class="k">A</span><b>Document-level permissions?</b> Store ACL groups in payload, filter inside the search, sync from the identity provider, and test with automated permission tests.</li>
+</ul></div></details>
+
+<details><summary><span class="m">Q6</span>M6 Embeddings questions</summary><div class="body"><ul>
+<li><span class="k">B</span><b>What is an embedding?</b> A vector that captures meaning, so similar text is close together.</li>
+<li><span class="k">B</span><b>Cosine vs dot product?</b> Cosine ignores magnitude; on normalized vectors they give the same ranking.</li>
+<li><span class="k">I</span><b>Changing the embedding model?</b> Everything must be re-embedded; use a new collection, backfill, and switch by alias.</li>
+<li><span class="k">I</span><b>API rate limits?</b> Batching, exponential backoff, concurrency limits, queues and caching by content hash.</li>
+<li><span class="k">A</span><b>Why do similar sentences score low?</b> Domain or language mismatch, missing model prefixes (E5), negation, unnormalized vectors, or a weak model; verify on an eval set.</li>
+</ul></div></details>
+
+<details><summary><span class="m">Q7</span>M7 Vector database questions</summary><div class="body"><ul>
+<li><span class="k">B</span><b>What is ANN and why use it?</b> Approximate search trades a little recall for much more speed than exact search.</li>
+<li><span class="k">B</span><b>HNSW vs Flat?</b> Flat is exact but slow; HNSW is fast with high recall but uses more memory.</li>
+<li><span class="k">I</span><b>Isolate customer data?</b> Collection per tenant for strict isolation, or one collection with an indexed tenant_id filter for scale.</li>
+<li><span class="k">I</span><b>Reindex without downtime?</b> Build a new collection, backfill, validate, switch the alias, keep the old one for rollback.</li>
+<li><span class="k">A</span><b>100M vectors and slow search?</b> Check ef settings, payload indexes, quantization, sharding and replicas, memory vs disk, filter selectivity, and trace the latency.</li>
+</ul></div></details>
+
+<details><summary><span class="m">Q8</span>M8 Retrieval questions</summary><div class="body"><ul>
+<li><span class="k">B</span><b>Dense vs BM25?</b> Dense matches meaning; BM25 matches exact words.</li>
+<li><span class="k">B</span><b>What is top-K?</b> The number of results returned from retrieval.</li>
+<li><span class="k">I</span><b>Combine BM25 and dense?</b> Run both and merge with RRF or weighted scores, tuned on the eval set.</li>
+<li><span class="k">I</span><b>Exact product IDs fail in semantic search?</b> Add BM25 or exact-match filters and use hybrid retrieval.</li>
+<li><span class="k">A</span><b>Correct document exists but is not returned?</b> Check ingestion and chunking, filters, query phrasing, top-K, embeddings, then add hybrid and reranking; look at the document's rank in top 100.</li>
+</ul></div></details>
+
+<details><summary><span class="m">Q9</span>M9 Reranking questions</summary><div class="body"><ul>
+<li><span class="k">B</span><b>Bi-encoder vs cross-encoder?</b> Bi-encoder embeds separately (fast); cross-encoder reads query and chunk together (accurate, slower).</li>
+<li><span class="k">B</span><b>Why rerank?</b> To fix ordering of the top candidates before generation.</li>
+<li><span class="k">I</span><b>How many candidates?</b> Usually 30 to 100; test candidate recall against latency.</li>
+<li><span class="k">I</span><b>When avoid reranking?</b> Tiny corpus, strict latency limits, or already high precision.</li>
+<li><span class="k">A</span><b>Reduce reranker latency?</b> Fewer candidates, smaller model, batching on GPU, score caching, and reranking only ambiguous queries.</li>
+</ul></div></details>
+
+<details><summary><span class="m">Q10</span>M10 Context management questions</summary><div class="body"><ul>
+<li><span class="k">B</span><b>What is context compression?</b> Reducing retrieved text to the relevant parts before the LLM.</li>
+<li><span class="k">B</span><b>Lost in the middle?</b> Models use the start and end of the context better, so put the best chunks there.</li>
+<li><span class="k">I</span><b>50 chunks, small window?</b> Rerank, threshold, dedupe, apply a token budget, and expand parents only for the top few.</li>
+<li><span class="k">I</span><b>Remove redundancy?</b> Hash or similarity dedupe, and MMR.</li>
+<li><span class="k">A</span><b>Compress without losing details?</b> Prefer extractive over abstractive, keep numbers and entities, test on the eval set, and fall back to full chunks for critical queries.</li>
+</ul></div></details>
+
+<details><summary><span class="m">Q11</span>M11 Prompting and generation questions</summary><div class="body"><ul>
+<li><span class="k">B</span><b>What is in a RAG prompt?</b> Instructions, retrieved context, the question, and rules for citations and abstention.</li>
+<li><span class="k">B</span><b>Why abstention?</b> It prevents invented answers when evidence is missing.</li>
+<li><span class="k">I</span><b>Make the LLM answer only from documents?</b> Strict system prompt, low temperature, structured output with citations, and refusal when no context passes the threshold.</li>
+<li><span class="k">I</span><b>Verifiable citations?</b> Label chunks with ids, require the model to return them, and validate against what was retrieved.</li>
+<li><span class="k">A</span><b>Context is right but answer is wrong?</b> Inspect prompt, chunk order, conflicting chunks, model choice, parsing and temperature; measure faithfulness and add a verification step.</li>
+</ul></div></details>
+
+<details><summary><span class="m">Q12</span>M12 Evaluation questions</summary><div class="body"><ul>
+<li><span class="k">B</span><b>What is Recall@K?</b> The share of relevant documents found in the top K.</li>
+<li><span class="k">B</span><b>What is faithfulness?</b> Whether the answer is supported by the retrieved context.</li>
+<li><span class="k">I</span><b>Build a golden dataset?</b> Real questions with expected sources and answers, reviewed by experts, including hard cases; extend with synthetic questions.</li>
+<li><span class="k">I</span><b>Compare two pipelines?</b> Same dataset and metrics, paired comparison, plus latency and cost.</li>
+<li><span class="k">A</span><b>Good on 20 questions, bad in production?</b> The set is small and unrepresentative; sample real traffic, include permissions and scale, and feed failures back into the set.</li>
+</ul></div></details>
+
+<details><summary><span class="m">Q13</span>M13 Advanced architecture questions</summary><div class="body"><ul>
+<li><span class="k">B</span><b>What is CRAG?</b> Retrieval is graded and corrected (query rewrite or web search) when quality is low.</li>
+<li><span class="k">B</span><b>Naive vs advanced RAG?</b> Naive is embed, retrieve, generate; advanced adds rewriting, hybrid search, reranking and compression.</li>
+<li><span class="k">I</span><b>When use Graph RAG?</b> Relationship and multi-hop questions where entities connect across documents.</li>
+<li><span class="k">I</span><b>Downside of agentic RAG?</b> Higher latency, cost and unpredictability; needs step limits and guardrails.</li>
+<li><span class="k">A</span><b>How choose an architecture?</b> Start simple, classify failure types with evaluation, and add the component that fixes that failure.</li>
+</ul></div></details>
+
+<details><summary><span class="m">Q14</span>M14 Caching and performance questions</summary><div class="body"><ul>
+<li><span class="k">B</span><b>Exact vs semantic cache?</b> Exact needs the same string; semantic matches similar meaning.</li>
+<li><span class="k">B</span><b>What is TTL?</b> How long a cache entry stays valid.</li>
+<li><span class="k">I</span><b>Invalidate after a document update?</b> Include the index version in the key or delete keys by doc_id, and use short TTLs.</li>
+<li><span class="k">I</span><b>Cache key design?</b> Normalized query, filters, user permissions, and index, prompt and model versions.</li>
+<li><span class="k">A</span><b>Scale to 10,000 concurrent users?</b> Async stateless replicas, autoscaling, connection pooling, caching, rate limiting, load tests, and watch LLM provider limits as the usual bottleneck.</li>
+</ul></div></details>
+
+<details><summary><span class="m">Q15</span>M15 Security questions</summary><div class="body"><ul>
+<li><span class="k">B</span><b>Direct vs indirect prompt injection?</b> Direct comes from the user; indirect is hidden in retrieved documents.</li>
+<li><span class="k">B</span><b>Why detect PII?</b> To avoid sending sensitive data to external LLMs and to meet compliance.</li>
+<li><span class="k">I</span><b>Prevent cross-department retrieval?</b> Apply the ACL filter inside the vector query, not after.</li>
+<li><span class="k">I</span><b>Multi-tenant isolation?</b> Collection per tenant or tenant filter, row-level security, separate credentials, and automated tests.</li>
+<li><span class="k">A</span><b>A document contains malicious instructions?</b> Scan at ingestion, quarantine, treat context as data, limit tool permissions, validate outputs and keep audit logs.</li>
+</ul></div></details>
+
+<details><summary><span class="m">Q16</span>M16 Deployment and observability questions</summary><div class="body"><ul>
+<li><span class="k">B</span><b>Why Docker?</b> Same environment from laptop to production.</li>
+<li><span class="k">B</span><b>Liveness vs readiness?</b> Liveness restarts a stuck container; readiness decides whether it receives traffic.</li>
+<li><span class="k">I</span><b>Trace a query across stages?</b> Propagate a trace ID and create spans for retrieve, rerank and generate with Langfuse or OpenTelemetry.</li>
+<li><span class="k">I</span><b>LLM provider rate-limits you?</b> Backoff retries, queue, fallback model, caching, circuit breaker and quota management.</li>
+<li><span class="k">A</span><b>API is down, how do you troubleshoot?</b> Check health and recent deploys, logs, resources (OOM), dependencies (DB, vector DB); roll back first, investigate after.</li>
+</ul></div></details>
+
+<details><summary><span class="m">QA</span>Interview Pack per module</summary><div class="body">
+<p>After each module you practice with 5 beginner, 5 intermediate and 5 advanced questions, 3 senior architecture questions and 3 production troubleshooting scenarios. Each includes a short answer, explanation, example, follow-ups and common mistakes.</p>
+</div></details>
+
+</div>
+<footer>Study guide for the Enterprise RAG learning path.</footer>
+</div>
+<script>
+(function(){
+var items=[].slice.call(document.querySelectorAll("#list details"));
+var q=document.getElementById("q");
+q.addEventListener("input",function(){
+var t=q.value.trim().toLowerCase();
+items.forEach(function(d){
+var hit=!t||d.textContent.toLowerCase().indexOf(t)>-1;
+d.style.display=hit?"":"none";
+if(t&&hit)d.open=true;
+});
+});
+document.getElementById("expand").onclick=function(){items.forEach(function(d){d.open=true})};
+document.getElementById("collapse").onclick=function(){items.forEach(function(d){d.open=false})};
+})();
+</script>
+</body>
+</html>
