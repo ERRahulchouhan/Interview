@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RAG Stage 1 and Interview Answers</title>
+<style>
+:root{--bg:#e9efe4;--card:#f1f5ec;--ink:#2e3a33;--mute:#5d6d62;--acc:#2f6f73;--line:#c9d5c4;--hl:#dce7d6}
+:root[data-theme=dark]{--bg:#1d2421;--card:#232c28;--ink:#cdd8d0;--mute:#93a39a;--acc:#7fc2bd;--line:#35423c;--hl:#2b3732}
+:root[data-theme=sepia]{--bg:#efe6d2;--card:#f6eedb;--ink:#3f3629;--mute:#7a6d58;--acc:#7a5a2a;--line:#d8cbb0;--hl:#e8dcc0}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+main a{color:var(--acc);text-underline-offset:3px}
+main a:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 Charter,Georgia,serif}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;padding:10px 16px}
+header strong{font:600 15px system-ui,sans-serif;margin-right:auto}
+select{font:14px system-ui,sans-serif;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+.wrap{display:flex;gap:28px;max-width:1100px;margin:0 auto;padding:20px 16px 80px}
+nav{flex:0 0 230px;position:sticky;top:64px;align-self:flex-start;max-height:calc(100vh - 84px);overflow:auto;font:13.5px/1.9 system-ui,sans-serif;border-right:1px solid var(--line);padding-right:12px}
+nav a{display:block;color:var(--mute);text-decoration:none}nav a:hover{color:var(--acc)}
+main{flex:1;min-width:0;max-width:80ch}
+h1{font:700 26px/1.3 system-ui,sans-serif;margin:0 0 .6em;padding-bottom:.3em;border-bottom:2px solid var(--acc)}
+h3{font:650 17px/1.4 system-ui,sans-serif;margin:1.6em 0 .4em;color:var(--acc)}
+h2{font:650 20px/1.35 system-ui,sans-serif;margin:2em 0 .5em;padding:.35em .7em;background:var(--hl);border-left:4px solid var(--acc);border-radius:0 6px 6px 0}
+p{margin:.7em 0}ul,ol{margin:.5em 0 1em;padding-left:1.4em}li::marker{color:var(--acc)}
+code{font:13.5px ui-monospace,Consolas,monospace;background:var(--hl);padding:1px 5px;border-radius:4px}
+pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font:13px/1.55 ui-monospace,Consolas,monospace}
+pre code{background:none;padding:0}
+pre.mermaid{font-family:system-ui,sans-serif;text-align:center}
+table{border-collapse:collapse;display:block;overflow-x:auto;margin:1em 0;font:14px/1.5 system-ui,sans-serif}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top;min-width:90px}td:last-child{min-width:340px;line-height:1.75}th{background:var(--hl)}
+@media(max-width:820px){nav{display:none}body{font-size:16px}}
+</style></head><body>
+<header><strong>RAG Stage 1 and Interview Answers</strong>
+<select id="th" aria-label="Theme"><option value="green">Soft green</option><option value="sepia">Sepia</option><option value="dark">Dark</option></select></header>
+<div class="wrap"><nav id="toc" aria-label="Contents"></nav><main id="out"></main></div>
+<script type="text/plain" id="src">
+# Stage 1: Data Sources and Data Ingestion
+
+Versions and licenses change often. Run `pip index versions <pkg>` and read each project's LICENSE before you commit to a tool.
+
+## Index: every question asked, and where the answer is
+
+Click a section link to jump to the answer.
+
+1. **Stage 1: Data sources and data ingestion.** [Sections 1 to 12](#sec-1).
+2. **Add the open-source library and method names.** [Section 3](#sec-3) and [Section 4](#sec-4) (library per source type and per ingestion mode).
+3. **Which method belongs to which library, shown parent to child.** The "Key methods / classes" columns in [section 3](#sec-3) and [section 4](#sec-4).
+4. **How do you build a RAG pipeline, why that method and why not the others?** [Section 13](#sec-13).
+5. **If accuracy decreases, what do you do to increase it?** [Section 14](#sec-14).
+6. **How did you implement observability, guardrails, LLM gateway, evaluation and the other parts, with which open-source tools and why not others?** [Section 15](#sec-15).
+7. **How do you design the system and handle a million users and large data processing in a RAG pipeline?** [Section 16](#sec-16).
+8. **What indexing did you use, how do you decide embedding dimension and sample size, how do you save to the vector DB and retrieve, what are all the RAG types, retrieval and evaluation methods, and how do you handle rate limits and fallbacks?** [Section 17](#sec-17).
+9. **Add the common and tricky questions an interviewer might ask, with how to explain each, for all topics.** [Section 18](#sec-18).
+
+## 1. Concept
+
+Ingestion is everything that happens before parsing: finding data, pulling it into your system reliably, tracking what changed, and handing clean raw bytes plus metadata to the parser. In an enterprise system most RAG failures start here: missing files, stale copies, duplicates, and lost permissions.
+
+- **Why we need it:** the LLM only knows what you retrieve, and you can only retrieve what you ingested correctly.
+- **Goal:** every source document lands exactly once per version, with a stable ID, a content hash, source URL, timestamps, and ACL metadata.
+- **Not in scope here:** layout parsing and OCR (Stage 2), cleaning (Stage 3).
+
+## 2. Internal working
+
+A production ingestion system has five parts:
+
+- **Connector:** knows how to list and fetch from one source (S3, SharePoint, Postgres, a website).
+- **Change detector:** decides what is new, changed or deleted, using timestamps, ETags, content hashes, or CDC logs.
+- **Queue:** decouples fetching from parsing, so a slow parser never blocks a connector.
+- **Raw store (landing zone):** immutable copy of original files, such as object storage, so you can re-parse without re-fetching.
+- **State store:** a table keyed by `(source, doc_id)` holding the last hash, version and status.
+
+```mermaid
+flowchart LR
+S[Sources: files, APIs, DBs, web, email, media] --> C[Connectors]
+C --> D{Change detector: hash / ETag / CDC}
+D -- unchanged --> X[Skip]
+D -- new or changed --> R[(Raw store: S3 / MinIO)]
+D -- deleted --> T[Tombstone event]
+R --> Q[[Queue: Kafka / Redis / SQS]]
+T --> Q
+Q --> P[Stage 2: Parsing]
+D <--> ST[(State store: Postgres)]
+```
+
+## 3. Data sources: what to watch for
+
+Read each cell top-down. The bold name is the library (parent). Each indented line is something you call on what the line above returns (child, then grandchild).
+
+| Source | Typical trouble | Libraries | Key methods / classes (parent to child) |
+|---|---|---|---|
+| Any mixed format | Many file types in one pipeline | Unstructured, Apache Tika | **Unstructured**¶`partition(filename=...)` from `unstructured.partition.auto` returns elements¶ `el.text`, `el.category`, `el.metadata`¶`chunk_by_title(elements)`¶**Tika** (`tika-python`, needs the Tika server)¶`parser.from_file(path)` returns a dict¶ `["content"]`, `["metadata"]` |
+| PDF (digital) | Multi-column layout, tables, headers and footers | Docling, PyMuPDF, pdfplumber, pypdf | **Docling**¶`DocumentConverter()`¶ `.convert(src)` returns result¶  `.document`¶   `.export_to_markdown()`, `.export_to_dict()`¶**PyMuPDF**¶`pymupdf.open(path)` returns Document¶ `doc[i]` returns Page¶  `.get_text("blocks")`, `.find_tables()`¶**pdfplumber**¶`pdfplumber.open(path)`¶ `.pages[i]`¶  `.extract_text()`, `.extract_tables()`¶**pypdf**¶`PdfReader(path)`¶ `.pages[i]`¶  `.extract_text()` |
+| PDF (scanned) and images | No text layer, needs OCR | Docling OCR, Tesseract, PaddleOCR, EasyOCR | **Docling OCR**¶`PdfPipelineOptions(do_ocr=True)`¶ `PdfFormatOption(pipeline_options=...)`¶  `DocumentConverter(format_options={InputFormat.PDF: ...})`¶   `.convert(src)`¶**Tesseract** (`pytesseract` + Pillow)¶`Image.open(path)`¶ `pytesseract.image_to_string(img)`¶ `pytesseract.image_to_data(img, output_type=Output.DICT)`¶**PaddleOCR**¶`PaddleOCR(...)`¶ `.ocr(img)` in 2.x, `.predict(img)` in 3.x (verify your version)¶**EasyOCR**¶`easyocr.Reader(["en"])`¶ `.readtext(path)` |
+| DOCX | Tables, tracked changes, embedded images | python-docx, Docling | **python-docx**¶`Document(path)`¶ `.paragraphs`¶  `p.text`, `p.style.name`¶ `.tables`¶  `t.rows`¶   `row.cells`¶    `cell.text`¶ `.inline_shapes`¶**Docling**¶`DocumentConverter().convert("file.docx")` |
+| TXT / MD | Wrong encoding | charset-normalizer, pathlib | **charset-normalizer**¶`from_path(path)`¶ `.best()`¶  `str(match)` gives decoded text¶**pathlib**¶`Path(p).read_text(encoding=...)` |
+| CSV / TSV | Huge files, bad delimiters | pandas, polars, csv | **pandas**¶`pd.read_csv(path, chunksize=n)` returns an iterator of DataFrames¶ `chunk.to_dict("records")`¶**polars**¶`pl.scan_csv(path)`¶ `.filter(...)`¶  `.collect()`¶**csv**¶`csv.Sniffer().sniff(sample)` |
+| Excel | Many sheets, merged cells, formulas | openpyxl, pandas | **openpyxl**¶`load_workbook(path, read_only=True, data_only=True)`¶ `wb.worksheets` or `wb[name]`¶  `ws.iter_rows(values_only=True)`¶**pandas**¶`pd.read_excel(path, sheet_name=None)` returns a dict of DataFrames |
+| HTML / websites | Boilerplate, JavaScript rendering | trafilatura, BeautifulSoup, Playwright, Scrapy | **trafilatura**¶`fetch_url(url)` returns html¶ `extract(html, include_tables=True)`¶**BeautifulSoup**¶`BeautifulSoup(html, "lxml")`¶ `.find_all("p")`¶  `.get_text()`¶**Playwright**¶`sync_playwright()`¶ `.chromium.launch()` returns browser¶  `.new_page()` returns page¶   `.goto(url)`, `.content()`¶**Scrapy**¶`scrapy.Spider`¶ `start_requests()`¶ `parse(response)`¶  `response.css(...)`, `yield item` |
+| REST / GraphQL APIs | Pagination, rate limits | httpx, tenacity, dlt | **httpx**¶`httpx.Client(timeout=...)`¶ `.get(url, params=...)` returns Response¶  `.raise_for_status()`, `.json()`¶**tenacity**¶`@retry(stop=..., wait=...)` wraps the fetch function¶**dlt**¶`@dlt.resource`¶`dlt.pipeline(pipeline_name, destination, dataset_name)`¶ `.run(resource)`¶`dlt.sources.incremental("updated_at")` |
+| Databases | Large tables, deletes, schema drift | SQLAlchemy, dlt, Debezium | **SQLAlchemy**¶`create_engine(url)`¶ `engine.connect()` returns conn¶  `conn.execute(text(sql), params)` returns result¶   `.mappings()`, `.fetchall()`¶**dlt**¶`sql_database(...)` from `dlt.sources.sql_database`¶ `pipeline.run(source)`¶**Debezium**¶connector JSON config (`connector.class`, `table.include.list`)¶ writes to a Kafka topic¶  your consumer reads it |
+| JSON / JSONL | Nested, huge files | json, ijson, pandas | **json**¶`json.load(f)`, `json.loads(line)` per JSONL line¶**ijson**¶`ijson.items(f, "item")` returns a generator¶**pandas**¶`pd.json_normalize(obj)` |
+| Email (EML, MSG, IMAP) | Threads, attachments, quoted replies | stdlib email, extract-msg, imap-tools | **email (stdlib)**¶`email.message_from_bytes(raw, policy=policy.default)` returns EmailMessage¶ `msg["subject"]`¶ `msg.get_body(preferencelist=("plain", "html"))`¶  `.get_content()`¶ `msg.iter_attachments()`¶  `.get_filename()`, `.get_content()`¶**imap-tools**¶`MailBox(host).login(user, pwd)`¶ `.fetch(criteria)` returns MailMessage¶  `.text`, `.attachments`¶**extract-msg**¶`extract_msg.Message(path)`¶ `.subject`, `.body`, `.attachments` |
+| Audio / video | Long files, speakers | faster-whisper, ffmpeg, yt-dlp | **faster-whisper**¶`WhisperModel(size, device=..., compute_type=...)`¶ `.transcribe(path)` returns (segments, info)¶  `seg.start`, `seg.end`, `seg.text`¶**ffmpeg-python**¶`ffmpeg.input(file)`¶ `.output(out, ac=1, ar=16000)`¶  `.run()`¶**yt-dlp**¶`YoutubeDL(opts)`¶ `.download([url])` |
+| Enterprise (SharePoint, Confluence, Drive, Notion) | OAuth, permissions, rate limits | PyAirbyte, Office365-REST-Python-Client, LlamaIndex readers | **PyAirbyte**¶`airbyte.get_source("source-name", config={...})`¶ `.check()`¶ `.select_all_streams()`¶ `.read()`¶**Office365-REST-Python-Client** (verify method names on your version)¶`ClientContext(site_url).with_credentials(creds)`¶ `.web.get_folder_by_server_relative_url(path)`¶  `.files.get().execute_query()`¶**LlamaIndex**¶`SimpleDirectoryReader(input_dir=...)`¶ `.load_data()` returns Documents |
+
+## 4. Ingestion modes
+
+| Mode | How it works | Use when | Avoid when | Libraries and methods (parent to child) |
+|---|---|---|---|---|
+| Batch | Full load on demand | First load, small corpus | Corpus is large and changes often | **pathlib**¶`Path(root).rglob("*")`¶ `.read_bytes()`¶**dlt**¶`pipeline.run(resource, write_disposition="replace")` |
+| Incremental | Only changed records, via cursor or hash | Default for most systems | Source has no reliable modified time | **dlt**¶`dlt.sources.incremental("updated_at")`¶ `.last_value`¶**hashlib**¶`sha256(data)`¶ `.hexdigest()` compared with the state table¶**HTTP**¶`ETag` / `If-None-Match` headers |
+| Scheduled | Cron-like trigger | Predictable sources, latency of hours is fine | Users need data within seconds | **Airflow**¶`DAG(schedule=...)`¶ `@task`¶**Prefect**¶`@flow`¶ `@task`¶ `flow.serve(cron=...)`¶**Dagster**¶`@asset`¶ `ScheduleDefinition`¶**APScheduler**¶`BackgroundScheduler()`¶ `.add_job(fn, "cron", hour=2)`¶  `.start()` |
+| Real-time / event-driven | Event triggers a job | Fresh data matters (tickets, chat) | Source cannot emit events | **watchdog**¶`Observer()`¶ `.schedule(handler, path)`¶  `.start()`¶ handler: `FileSystemEventHandler.on_created()`¶**boto3 (S3 event to SQS)**¶`sqs.receive_message()`¶ `sqs.delete_message()`¶**confluent-kafka**¶`Consumer(conf)`¶ `.subscribe([topic])`¶  `.poll(timeout)`¶   `.commit()`¶`Producer(conf)`¶ `.produce(topic, value)`¶  `.flush()` |
+| CDC | Reads the database write-ahead log | Sync DB tables including deletes | Tables are tiny or you lack DB admin rights | **Postgres**¶`wal_level=logical`¶ publication¶  replication slot¶**Debezium**¶Kafka Connect REST `POST /connectors`¶ topic per table¶  consumer applies insert, update, delete events |
+| Synchronization | Reconciles source and index | Catch drift and missed deletes | Never skip it, run it weekly | **Python sets**¶`set(source_ids) - set(indexed_ids)` gives deletes¶ `set(source_ids) - set(state_ids)` gives new documents¶**Vector DB client**¶delete-by-filter on `doc_id` |
+
+## 5. Tool comparison (mandatory format)
+
+| Tool | Purpose | Open Source? | Self-Hosted? | Production Suitability | Alternative | When to Use |
+|---|---|---|---|---|---|---|
+| Unstructured | Multi-format partitioning | Library: Apache-2.0. Hosted platform: commercial | Library yes | Good for mixed formats. Heavy dependencies, hi_res strategy is slow | Docling | Many file types in one pipeline |
+| Docling | PDF, DOCX, PPTX to structured Markdown or JSON, tables, OCR | Yes, MIT | Yes | Good and fast improving, newer project. Benchmark on your own documents | Unstructured, Marker | Layout-heavy PDFs, tables |
+| Apache Tika | Text and metadata from 1000+ formats | Yes, Apache-2.0 | Yes, Java server | Mature. Weak at layout and tables | Unstructured | Wide format coverage, simple text |
+| PyMuPDF | Fast PDF text and images | AGPL-3.0, or commercial from Artifex | Yes | Fast and reliable. AGPL may force you to open-source your service or buy a license | pypdf (BSD), pdfplumber (MIT) | Speed, if licensing is cleared with legal |
+| LlamaParse | Cloud document parsing | No, commercial API | No | Strong quality. Data leaves your network, per-page cost | Docling | Prototype fast, non-sensitive data |
+| Airbyte | 300+ source connectors and sync | Mostly open, mixed licenses, check each | Yes | Mature for DB and SaaS. Not built for RAG-specific parsing | dlt, Fivetran (paid) | SaaS and DB extraction without writing connectors |
+| dlt | Python-native extract and load with incremental state | Yes, Apache-2.0 | Yes (library) | Good for code-first teams. Not a long-running server | Airbyte | APIs and DBs in a Python codebase |
+| Apache Kafka | Durable event log and queue | Yes, Apache-2.0 | Yes | Very mature. Operationally heavy, overkill for small volume | Redis Streams, RabbitMQ, SQS | CDC, high throughput, replay needs |
+| Apache NiFi | Visual dataflow routing | Yes, Apache-2.0 | Yes | Mature for enterprise routing. JVM-heavy, UI-driven config is awkward in Git | Airflow plus Python | Teams that already run NiFi |
+
+**Which to choose:**
+
+- Start with **Docling** (or Unstructured for odd formats) for parsing, **dlt** for APIs and databases, and **Postgres** as the state store.
+- Pick **Airbyte** over dlt when you need many SaaS connectors and have a platform team to run it.
+- Pick **Kafka** only when you need CDC, replay, or sustained high volume. Otherwise Redis or SQS with Celery or Dramatiq is simpler.
+- Treat **PyMuPDF** as a licensing decision first and a technical one second.
+- Treat **LlamaParse** as a convenience tool unless your data policy allows third-party processing.
+
+## 6. Recommended production stack
+
+- Connectors: dlt or Airbyte, plus custom Python for internal systems.
+- Raw store: MinIO (self-hosted) or S3 / Azure Blob.
+- State and metadata: PostgreSQL.
+- Queue: Redis with Celery for small and medium scale, Kafka when you need CDC or replay.
+- Scheduler: Prefect or Airflow.
+- Parsing workers: Docling in separate containers, scaled by queue depth.
+
+## 7. Python implementation
+
+Core pieces: a Pydantic model, change detection by content hash, retries and a state store. This is a skeleton to adapt, not a full system.
+
+```python
+# ingest/models.py
+from datetime import datetime, timezone
+from pydantic import BaseModel, Field
+
+class RawDocument(BaseModel):
+    source: str                      # e.g. "sharepoint:finance"
+    doc_id: str                      # stable ID from the source
+    uri: str
+    content: bytes
+    content_sha256: str
+    mime_type: str
+    tenant_id: str
+    acl: list[str] = Field(default_factory=list)   # groups allowed to read
+    fetched_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+```
+
+```python
+# ingest/service.py
+import hashlib, logging, os
+from pathlib import Path
+from tenacity import retry, stop_after_attempt, wait_exponential
+from sqlalchemy import create_engine, text
+from .models import RawDocument
+
+log = logging.getLogger("ingest")
+engine = create_engine(os.environ["STATE_DB_URL"], pool_pre_ping=True)
+
+def sha256(b: bytes) -> str:
+    return hashlib.sha256(b).hexdigest()
+
+@retry(stop=stop_after_attempt(5), wait=wait_exponential(min=1, max=30), reraise=True)
+def read_file(path: Path) -> bytes:
+    return path.read_bytes()
+
+def decide(doc: RawDocument) -> str:
+    """Return 'new', 'changed' or 'unchanged' using the state table."""
+    with engine.begin() as c:
+        row = c.execute(
+            text("SELECT content_sha256 FROM doc_state WHERE source=:s AND doc_id=:d"),
+            {"s": doc.source, "d": doc.doc_id},
+        ).first()
+    if row is None:
+        return "new"
+    return "unchanged" if row[0] == doc.content_sha256 else "changed"
+
+def ingest_folder(root: Path, tenant_id: str, publish) -> None:
+    for p in root.rglob("*.pdf"):
+        try:
+            data = read_file(p)
+            doc = RawDocument(
+                source=f"fs:{root.name}", doc_id=str(p.relative_to(root)), uri=p.as_uri(),
+                content=data, content_sha256=sha256(data),
+                mime_type="application/pdf", tenant_id=tenant_id,
+            )
+            status = decide(doc)
+            if status == "unchanged":
+                continue
+            publish(doc, status)   # upload to raw store, enqueue parse job, then upsert state
+            log.info("ingested %s (%s)", doc.doc_id, status)
+        except Exception:
+            log.exception("failed to ingest %s", p)   # send to a dead-letter queue in production
+```
+
+Parsing handoff with Docling (Stage 2 goes deeper):
+
+```python
+from docling.document_converter import DocumentConverter
+result = DocumentConverter().convert("report.pdf")
+markdown = result.document.export_to_markdown()
+```
+
+Deletions: after each run, list the IDs in the source, subtract them from the IDs in `doc_state`, and publish a `deleted` event for the remainder. The index must then remove all chunks for that document.
+
+Near-duplicate detection, using `datasketch`:
+
+```python
+from datasketch import MinHash, MinHashLSH
+lsh = MinHashLSH(threshold=0.9, num_perm=128)
+m = MinHash(num_perm=128)
+for token in text.split():
+    m.update(token.encode())
+if lsh.query(m):          # a near-duplicate already exists
+    pass
+lsh.insert(doc_id, m)
+```
+
+## 8. Common challenges and solutions
+
+| Challenge | Root cause | Fix |
+|---|---|---|
+| Duplicate documents | Same file in many folders, or re-uploads | Content hash for exact duplicates, MinHash for near-duplicates |
+| Stale index | Missed updates or deletes | Reconciliation job, tombstone events, TTL checks |
+| Lost permissions | ACLs not copied at ingest | Store ACL metadata per chunk, re-sync permissions on a schedule |
+| API rate limits | Too many parallel fetches | Token bucket, `tenacity` backoff, honor `Retry-After` |
+| Poison files | Corrupt or password-protected | Dead-letter queue, per-file timeout, size limits |
+| Memory blowups | Large Excel or CSV files | Stream with `chunksize`, `read_only=True`, `ijson` |
+| Wrong encoding | Legacy text files | `charset-normalizer` before decoding |
+| Parser vs connector mismatch | Slow parse blocks fetch | Queue between them, separate worker pools |
+| Malicious files | Untrusted uploads | Virus scan (ClamAV), sandboxed parser, file type allow-list |
+
+## 9. Troubleshooting
+
+- **A document is missing from search:** check `doc_state` for its row, then the queue for failed jobs, then the parser logs. Most gaps are failed parse jobs that nobody saw.
+- **Old answers keep appearing:** compare the source's last-modified time with the stored hash. Look for a connector that ignores updates or an index that kept old chunks.
+- **Ingestion is slow:** measure fetch time, parse time and write time separately. Parsing is usually the bottleneck, so scale parser workers rather than connectors.
+- **Duplicate answers:** query the state table for repeated `content_sha256` values across different `doc_id` values.
+
+## 10. Best practices
+
+- Keep an immutable raw copy so you can re-parse after a parser upgrade.
+- Make every step idempotent: processing the same message twice must give the same result.
+- Use a stable `doc_id` from the source, never a random one per run.
+- Capture ACLs and tenant ID at ingest time, not later.
+- Add a dead-letter queue, metrics on queue depth and failure rate, and a weekly reconciliation job.
+- Never log document contents.
+
+## 11. Interview questions
+
+1. **How do you detect changed documents when the source has no modified timestamp?** Hash the content (or ETag and size), compare with the stored hash, and reprocess only on a difference.
+2. **How do you handle deleted documents?** Reconciliation diff or CDC delete events, then remove all chunks by `doc_id` and write a tombstone in the state table.
+3. **Batch or streaming for 5 million documents with daily changes?** Batch backfill once, then incremental scheduled runs. Add streaming only if freshness requirements demand it.
+4. **How do you preserve access control?** Copy ACLs as metadata at ingest, filter on them at query time, and re-sync permissions regularly.
+5. **Why put a queue between ingestion and parsing?** Backpressure, retries, independent scaling and replay.
+6. **How do you make ingestion idempotent?** Deterministic IDs and hashes plus upsert semantics, with a unique constraint on `(source, doc_id, version)`.
+7. **Docling, Unstructured or Tika?** Docling for layout and tables, Unstructured for broad format coverage, Tika for plain text from rare formats. Decide with a benchmark on your own documents.
+8. **What are the licensing risks?** PyMuPDF is AGPL, some Airbyte components use source-available licenses, and models used for OCR or parsing have their own terms. Review before shipping.
+9. **How would you ingest a database table with deletes?** Debezium CDC into Kafka, or a periodic ID reconciliation if CDC is not possible.
+
+## 12. Practical assignment
+
+- Build the folder ingester above with a Postgres `doc_state` table (`source, doc_id, content_sha256, version, status, updated_at`).
+- Add MinIO as the raw store and a Redis queue.
+- Run it twice on 50 PDFs, change 3 files and delete 2, and confirm only the 3 changed files are reprocessed and the 2 deletions are emitted.
+- Add MinHash near-duplicate detection and a unit test for each of `new`, `changed`, `unchanged` and `deleted`.
+- Write down the ingestion latency per document and the failure rate.
+
+## 13. Interview: how to explain a RAG pipeline in 2-3 minutes
+
+**Question asked:** How do you build a RAG pipeline, and why did you choose that specific method and not the others?
+
+Say it as a story: requirements first, then the pipeline in order. For each step give the choice, the reason, and the alternative you did not pick. Speak this in about 2.5 minutes.
+
+**Opening.** I start with the requirements: data types, volume, how fresh the data must be, access control, latency and cost targets, and the accuracy bar. Then I pick the simplest design that meets them and prove each component with evaluation.
+
+**1. Ingestion.** I use incremental ingestion with content hashes. I keep the raw files in object storage and the state in Postgres, and I capture permissions at ingest time. That lets me re-parse without re-fetching, avoid duplicates, and keep access control. I don't do full reloads, because they are expensive and miss deletions. I add Kafka only if I need CDC or replay.
+
+**2. Parsing.** I use a layout-aware parser like Docling, with OCR for scans. Plain text extraction breaks tables and multi-column pages. I avoid a paid cloud parser when the data cannot leave our network.
+
+**3. Chunking.** I chunk by document structure (headings, sections), around 300 to 500 tokens as a starting point, and I use parent-child chunks. I search small chunks for precision, then give the LLM the larger parent for context. Fixed-size chunking alone cuts through tables and sentences. I don't start with semantic or agentic chunking, because they cost more, and I would adopt them only if my eval set shows a gain.
+
+**4. Embeddings and vector store.** I use a strong open model such as BGE-M3, and Qdrant or pgvector. Open models give me control over cost and data residency. pgvector is enough if we already run Postgres and have a moderate corpus. Qdrant is better for large scale and heavy filtering. I would not use FAISS alone, because it has no persistence, metadata filtering or multi-tenancy.
+
+**5. Retrieval.** I use hybrid search, BM25 plus dense vectors, with metadata and permission filters. Dense search misses exact IDs and acronyms. BM25 misses paraphrases. Dense-only search fails on enterprise data.
+
+**6. Reranking.** A cross-encoder reranks the top 50 down to the best 5 to 8. It usually improves precision a lot for a small latency cost. If the latency budget is very tight, I skip it or rerank fewer candidates.
+
+**7. Query handling.** I rewrite follow-up questions into standalone queries, and I decompose a question only when it is multi-hop.
+
+**8. Context and generation.** I deduplicate, order and budget the tokens, require citations, and instruct the model to say when it does not know. I don't stuff everything into the prompt. That costs more and hurts quality because of lost-in-the-middle.
+
+**9. Evaluation.** I build a golden set and measure Recall@K and MRR for retrieval, and faithfulness for generation, using tools like Ragas or DeepEval, and I run it in CI. Without it I cannot justify any of the choices above.
+
+**10. Production.** I add guardrails for prompt injection and PII, tracing with OpenTelemetry and Langfuse, caching, and tenant isolation.
+
+**Closing.** I would start with a simple advanced-RAG pipeline. I would add agentic or graph approaches only if evaluation shows multi-hop failures that simple retrieval cannot fix. Every component has to earn its place with a measured improvement.
+
+### Step by step: libraries, methods and why chosen
+
+Each Key methods cell reads parent to child. Method names are written from memory and some APIs change between versions (qdrant-client, Ragas, PaddleOCR), so check them against your installed version.
+
+| Step | Libraries chosen | Key methods / classes (parent to child) | Why chosen | Why not the others |
+|---|---|---|---|---|
+| 1. Ingestion | dlt, watchdog, hashlib, SQLAlchemy, MinIO or boto3 | **dlt**¶`dlt.pipeline(...)`¶ `.run(resource)`¶**hashlib**¶`sha256(data)`¶ `.hexdigest()`¶**SQLAlchemy**¶`create_engine(url)`¶ `conn.execute(text(sql))`¶**boto3**¶`s3.put_object(Bucket, Key, Body)` | Incremental state, idempotent, code-first, raw copy kept for re-parsing | Airbyte needs a platform team. NiFi is heavy. Full reloads miss deletes and cost more. Kafka only if CDC or replay is needed |
+| 2. Parsing | Docling, Unstructured, pdfplumber, Tesseract | **Docling**¶`DocumentConverter()`¶ `.convert(src)`¶  `.document.export_to_markdown()`¶**Unstructured**¶`partition(filename=...)`¶ elements with `.text`, `.category` | Keeps layout, tables and reading order | Plain `pypdf` text flattens tables. Paid parsers send data outside. PyMuPDF has an AGPL license risk |
+| 3. Cleaning | unicodedata, ftfy, langdetect or lingua, Presidio | **unicodedata**¶`normalize("NFKC", text)`¶**ftfy**¶`fix_text(text)`¶**Presidio**¶`AnalyzerEngine().analyze(text, language="en")`¶ `AnonymizerEngine().anonymize(text, results)` | Fixes broken characters, drops boilerplate, masks PII before it is indexed | Regex-only PII misses names and formats. Cleaning too hard removes useful signal, so measure retrieval before and after |
+| 4. Chunking | LangChain splitters, LlamaIndex node parsers, Docling HybridChunker | **LangChain**¶`MarkdownHeaderTextSplitter(headers_to_split_on=...)`¶ `.split_text(md)`¶`RecursiveCharacterTextSplitter(chunk_size, chunk_overlap)`¶ `.split_documents(docs)`¶**LlamaIndex**¶`HierarchicalNodeParser.from_defaults(chunk_sizes=[2048, 512, 128])`¶ `.get_nodes_from_documents(docs)`¶**Docling**¶`HybridChunker()`¶ `.chunk(dl_doc=doc)` | Structure-aware, parent-child chunks keep meaning and give the LLM context | Fixed-size cuts tables and sentences. Semantic and agentic chunking cost more with unproven gain. Use only the splitter, not the whole framework, to avoid lock-in |
+| 5. Metadata | Pydantic, Postgres | **Pydantic**¶`class ChunkMeta(BaseModel)`¶ `doc_id`, `chunk_id`, `tenant_id`, `acl`, `version`¶ `.model_dump()` | Typed, validated fields that drive filters, citations, permissions and deletes | Free-form dicts drift and break filters. Missing `doc_id` makes deletes and re-indexing impossible |
+| 6. Embeddings | sentence-transformers, FlagEmbedding (BGE-M3) | **sentence-transformers**¶`SentenceTransformer("BAAI/bge-m3")`¶ `.encode(texts, batch_size=32, normalize_embeddings=True)`¶**FlagEmbedding**¶`BGEM3FlagModel("BAAI/bge-m3", use_fp16=True)`¶ `.encode(texts, return_dense=True, return_sparse=True)` | Multilingual, strong, dense plus sparse from one model, self-hosted so data stays inside | Paid APIs add cost and data exposure. Small models lose accuracy on hard domains. Never mix two models in one index |
+| 7. Vector store | Qdrant (qdrant-client), pgvector | **qdrant-client**¶`QdrantClient(url=...)`¶ `.create_collection(name, vectors_config=VectorParams(size=1024, distance=Distance.COSINE))`¶ `.upsert(name, points=[PointStruct(id, vector, payload)])`¶ `.query_points(name, query=vec, query_filter=Filter(...), limit=50)`¶**pgvector**¶`register_vector(conn)`¶ SQL `ORDER BY embedding <=> %s LIMIT 50` | Fast filtered search, replication, sharding, snapshots. pgvector if the corpus is small and Postgres already exists | FAISS has no persistence, filters or multi-tenancy. Chroma suits prototypes. Milvus fits very large scale but is heavier to run |
+| 8. Retrieval | rank_bm25 or OpenSearch, Qdrant sparse, own RRF code | **rank_bm25**¶`BM25Okapi(tokenized_corpus)`¶ `.get_scores(query_tokens)`¶**OpenSearch** (`opensearch-py`)¶`OpenSearch(hosts=...)`¶ `.search(index, body)`¶**Fusion**¶`score += 1 / (k + rank)` per list, then sort | Hybrid search catches exact terms and meaning. Reciprocal rank fusion needs no score tuning | Dense-only misses IDs and acronyms. BM25-only misses paraphrases. In-memory rank_bm25 only suits small corpora |
+| 9. Reranking | sentence-transformers CrossEncoder, FlagEmbedding reranker | **sentence-transformers**¶`CrossEncoder("BAAI/bge-reranker-v2-m3")`¶ `.predict([(query, doc), ...])`¶**FlagEmbedding**¶`FlagReranker(model, use_fp16=True)`¶ `.compute_score(pairs)` | Biggest precision gain for a small latency cost. Rerank top 50 down to 5 to 8 | Skipping it lowers precision. Cohere Rerank is paid and external. ColBERT is powerful but needs more storage and operations |
+| 10. Query handling | LLM through the gateway | **openai client**¶`OpenAI(base_url=gateway_url)`¶ `.chat.completions.create(model, messages, temperature=0)` | Turns follow-ups into standalone queries, splits multi-hop questions | Always decomposing adds latency and cost. Only use it where the eval shows a gain |
+| 11. Context | tiktoken or the model tokenizer, LLMLingua (optional) | **tiktoken**¶`get_encoding("cl100k_base")`¶ `.encode(text)` for OpenAI-style counts¶**transformers**¶`AutoTokenizer.from_pretrained(model)`¶ `.encode(text)` for open models¶**LLMLingua**¶`PromptCompressor()`¶ `.compress_prompt(...)` | Token budget, dedup, best chunks first and last, citations with source IDs | Stuffing all chunks costs more and triggers lost-in-the-middle. Compression can drop facts, so test it |
+| 12. Generation | vLLM, LiteLLM, openai client, Pydantic | **vLLM**¶`vllm serve <model>` exposes an OpenAI-compatible API¶**LiteLLM**¶`Router(model_list=[...])`¶ `.completion(model, messages)`¶**openai client**¶`.chat.completions.create(..., stream=True)`¶**Pydantic**¶`Answer.model_validate_json(text)` | Continuous batching, streaming, fallbacks, structured and cited output | Ollama is for development. Direct provider SDKs lock you in and skip central budgets |
+| 13. Guardrails | Presidio, Pydantic, Llama Guard or NeMo Guardrails (when needed) | **Presidio**¶`AnalyzerEngine().analyze(...)`¶ `AnonymizerEngine().anonymize(...)`¶**Pydantic**¶schema validation of output¶**Qdrant filter**¶`Filter(must=[FieldCondition(key="acl", match=MatchAny(any=groups))])` | ACL filter inside retrieval is the real access control. Output checks catch bad format and ungrounded citations | A prompt-only defense fails against injection. NeMo and Llama Guard add latency and GPU cost, so add them when policy needs them |
+| 14. Evaluation | Ragas, DeepEval, own metric code | **Ragas**¶`evaluate(dataset, metrics=[faithfulness, answer_relevancy, context_precision, context_recall])`¶**DeepEval**¶`LLMTestCase(...)`¶ `assert_test(case, [FaithfulnessMetric(threshold=0.7)])`¶**Own code**¶Recall@K, MRR, NDCG | RAG-specific scores, runs in CI as a quality gate | LLM judges are biased, so calibrate them with human labels. TruLens and MLflow are fine alternatives but less RAG-focused |
+| 15. Observability | OpenTelemetry, prometheus_client, Langfuse | **OpenTelemetry**¶`FastAPIInstrumentor.instrument_app(app)`¶ `tracer.start_as_current_span("retrieve")`¶**prometheus_client**¶`Histogram(...)`¶ `.observe(seconds)`¶**Langfuse**¶trace and score LLM calls | One span per stage shows where latency and failures come from | Logs alone cannot show which stage is slow. LangSmith is proprietary SaaS |
+| 16. Serving and ops | FastAPI, Redis, Celery or Dramatiq, Docker, Kubernetes | **FastAPI**¶`@app.post("/ask")`¶ `StreamingResponse(...)`¶**Redis**¶`r.get(key)`, `r.set(key, value, ex=ttl)`¶**Celery**¶`@app.task(autoretry_for=(Exception,), max_retries=5)` | Async API, caching and limits, background ingestion with retries, autoscaling | A single process cannot scale or survive restarts. Kafka only when volume or replay demands it |
+
+### Handling every document type
+
+| Document type | Libraries | Key methods (parent to child) | Special handling and why |
+|---|---|---|---|
+| PDF (digital) | Docling, pdfplumber | **Docling**¶`DocumentConverter().convert(path)`¶ `.document.export_to_markdown()`¶**pdfplumber**¶`pdfplumber.open(path)`¶ `.pages[i].extract_tables()` | Keep headings and tables, remove headers and footers, keep page numbers for citations |
+| PDF (scanned) and images | Docling OCR, Tesseract, PaddleOCR | **Docling**¶`PdfPipelineOptions(do_ocr=True)`¶**Tesseract**¶`pytesseract.image_to_string(img)` | Detect that there is no text layer, then OCR. Store OCR confidence and review low-confidence pages |
+| Word (DOCX) | python-docx, Docling | **python-docx**¶`Document(path)`¶ `.paragraphs`, `.tables` | Keep heading styles for structure-aware chunking. Convert tables to Markdown |
+| PowerPoint (PPTX) | python-pptx, Docling | **python-pptx**¶`Presentation(path)`¶ `.slides`¶  `slide.shapes`¶   `shape.text_frame.text`¶  `slide.notes_slide.notes_text_frame.text` | One chunk per slide with slide number and title. Include speaker notes |
+| Excel (XLSX) | openpyxl, pandas | **openpyxl**¶`load_workbook(path, read_only=True, data_only=True)`¶ `ws.iter_rows(values_only=True)`¶**pandas**¶`read_excel(path, sheet_name=None)` | Treat each sheet separately. Repeat the header with each row group. Convert rows to text like "Region: EU, Q3 revenue: 4.2M" so meaning survives embedding |
+| CSV / TSV | pandas, polars | **pandas**¶`read_csv(path, chunksize=n)`¶ `chunk.to_dict("records")` | Stream large files. For analytics questions, query a SQL table instead of embedding every row |
+| HTML and websites | trafilatura, BeautifulSoup, Playwright | **trafilatura**¶`fetch_url(url)`¶ `extract(html, include_tables=True)`¶**Playwright**¶`sync_playwright()`¶ `page.goto(url)`, `page.content()` | Strip navigation and ads. Use a headless browser only for JavaScript pages. Respect robots.txt |
+| Markdown and TXT | pathlib, charset-normalizer, LangChain | **charset-normalizer**¶`from_path(path).best()`¶**LangChain**¶`MarkdownHeaderTextSplitter` | Detect encoding first. Split on headings |
+| JSON and JSONL | json, ijson, pandas | **ijson**¶`ijson.items(f, "item")`¶**pandas**¶`json_normalize(obj)` | Flatten nested fields into readable text. Stream big files |
+| Email (EML, MSG) | stdlib email, extract-msg | **email**¶`message_from_bytes(raw, policy=policy.default)`¶ `.get_body(preferencelist=("plain", "html"))`¶ `.iter_attachments()`¶**extract-msg**¶`Message(path)` | Strip quoted replies and signatures. Keep sender, date and thread ID. Parse attachments with the matching parser |
+| Audio and video | faster-whisper, ffmpeg-python, yt-dlp | **faster-whisper**¶`WhisperModel("small", compute_type="int8")`¶ `.transcribe(path)`¶  `segment.start`, `.end`, `.text`¶**ffmpeg-python**¶`ffmpeg.input(f).output(out, ac=1, ar=16000).run()` | Keep timestamps so answers can link to the exact moment. Optional speaker labels with WhisperX or pyannote |
+| Source code | tree-sitter, LangChain | **LangChain**¶`RecursiveCharacterTextSplitter.from_language(Language.PYTHON)`¶ `.split_text(code)` | Split on functions and classes. Store file path and language |
+| Databases and APIs | SQLAlchemy, dlt, httpx | **SQLAlchemy**¶`engine.connect()`¶ `conn.execute(text(sql))`¶**dlt**¶`dlt.pipeline(...).run(source)` | Turn rows into text with a template. For exact numbers, use text-to-SQL instead of vector search |
+| Charts and images inside documents | Docling picture handling, a vision-language model | Extract the image, then call a VLM to write a caption | Store the caption as a chunk linked to the page. Mark it as machine generated |
+| Corrupt, password-protected or huge files | Any | try / except, per-file timeout, size limit | Send to a dead-letter queue with the reason instead of blocking the batch |
+
+A single dispatcher routes each file type to the right parser. This is a skeleton to adapt, not a full system:
+
+```python
+import email
+from email import policy
+from pathlib import Path
+from typing import Callable
+
+import pandas as pd
+import trafilatura
+from docling.document_converter import DocumentConverter
+from faster_whisper import WhisperModel
+
+converter = DocumentConverter()
+whisper = WhisperModel("small", compute_type="int8")
+
+def parse_layout(p: Path) -> str:        # pdf, docx, pptx, images (OCR as configured)
+    return converter.convert(str(p)).document.export_to_markdown()
+
+def parse_text(p: Path) -> str:          # txt, md
+    return p.read_text(encoding="utf-8", errors="replace")
+
+def parse_html(p: Path) -> str:
+    return trafilatura.extract(p.read_text(errors="replace"), include_tables=True) or ""
+
+def parse_sheet(p: Path) -> str:         # csv, xlsx: one line of text per row
+    frames = {"data": pd.read_csv(p)} if p.suffix == ".csv" else pd.read_excel(p, sheet_name=None)
+    lines = []
+    for name, df in frames.items():
+        for row in df.to_dict("records"):
+            lines.append(f"[{name}] " + ", ".join(f"{k}: {v}" for k, v in row.items()))
+    return "\n".join(lines)
+
+def parse_email(p: Path) -> str:
+    msg = email.message_from_bytes(p.read_bytes(), policy=policy.default)
+    body = msg.get_body(preferencelist=("plain", "html"))
+    return f"Subject: {msg['subject']}\nFrom: {msg['from']}\n\n" + (body.get_content() if body else "")
+
+def parse_audio(p: Path) -> str:
+    segments, _ = whisper.transcribe(str(p))
+    return " ".join(seg.text.strip() for seg in segments)
+
+PARSERS: dict[str, Callable[[Path], str]] = {
+    ".pdf": parse_layout, ".docx": parse_layout, ".pptx": parse_layout,
+    ".png": parse_layout, ".jpg": parse_layout,
+    ".txt": parse_text, ".md": parse_text, ".html": parse_html,
+    ".csv": parse_sheet, ".xlsx": parse_sheet, ".eml": parse_email,
+    ".mp3": parse_audio, ".wav": parse_audio, ".mp4": parse_audio,
+}
+
+def parse(p: Path) -> str:
+    parser = PARSERS.get(p.suffix.lower())
+    if parser is None:
+        raise ValueError(f"unsupported file type: {p.suffix}")   # goes to the dead-letter queue
+    return parser(p)
+```
+
+Test it with one sample file per type, including a scanned PDF, a table-heavy PDF and an email with an attachment. Compare the extracted text against the original before you trust it.
+
+### Why not the alternative? Cheat sheet
+
+| Alternative | Why not by default | When I would choose it |
+|---|---|---|
+| Fixed-size chunks only | Cuts tables and meaning in half | Tiny, uniform text, quick prototype |
+| Semantic or agentic chunking | Extra cost, unproven gain | Eval shows structure-based chunks fail |
+| Dense-only retrieval | Misses exact terms and IDs | Purely conversational, paraphrase-heavy data |
+| No reranker | Lower precision | Strict latency budget, or small corpus |
+| FAISS | No persistence, filters or multi-tenancy | Local experiments, offline batch search |
+| Chroma | Better for prototyping than heavy production loads | Demos, notebooks |
+| Paid parser or API | Data leaves your network, per-page cost | Non-sensitive data, speed matters |
+| GraphRAG | Costly to build, hard to keep fresh | Relationship-heavy, multi-hop questions |
+| Agentic RAG | Higher latency, cost and unpredictability | Questions that need multiple tools or steps |
+| Fine-tuning instead of RAG | Knowledge goes stale, no citations or permissions | Style or format changes, not facts |
+| LangChain for everything | Heavy abstractions, lock-in | Fast prototyping. Custom Python for the core path |
+
+### Follow-up questions to expect
+
+- **How do you know it works?** Golden set, Recall@K, faithfulness, and online feedback.
+- **What would you change at 10x scale?** Shard or move to a dedicated vector DB, batch the embeddings, add caching and a queue, and scale the parser workers.
+- **How do you stop hallucinations?** Better retrieval first, then strict grounding prompts, citation checks, and a refuse-if-unsupported rule.
+- **How do you handle permissions?** Filter on ACL metadata at query time, not after generation.
+
+Tell the interviewer the choices depend on requirements. Saying "it depends, and here is how I would measure it" sounds stronger than naming one tool for everything.
+
+## 14. Interview: accuracy dropped, what do you do?
+
+**Question asked:** If accuracy decreases, what do you do to increase it?
+
+Do not start by changing things. Find where it broke, fix that layer, and prove the fix with numbers.
+
+**Spoken answer.** First I confirm the drop is real and find what changed. I compare today's results with my golden set and check recent changes: new documents, a re-index, an embedding or LLM upgrade, a prompt edit, a parser change. I slice results by tenant, document type and question type, because the drop is usually in one slice.
+
+Second, I find which stage failed. If the right chunk is not in the top K, it is a retrieval problem (low Recall@K and MRR). If the right chunk was retrieved but the answer is wrong, it is a generation problem (low faithfulness). Looking only at the final answer makes me fix the wrong thing.
+
+Third, I fix the cheapest layer first: data and parsing, then chunking, then retrieval (hybrid search, filters, query rewriting, higher candidate count), then reranking, then embeddings, then context building, then the generation prompt. Fourth, I change one thing at a time, re-run the same eval, and keep a change only if the metric improves and nothing regresses. Then I add the failing cases to the golden set, gate CI on it, and monitor production quality. I try fine-tuning, agentic retrieval or GraphRAG last.
+
+### Symptom to fix
+
+| What you see | Likely cause | Fix |
+|---|---|---|
+| Right chunk not in top K | Bad chunks, weak embeddings, strict filters, vague query | Better chunking, hybrid search, query rewrite, check filters, higher K |
+| Right chunk in top K but ranked low | No reranker or a weak one | Add or upgrade a cross-encoder, rerank top 50 to 5 |
+| Misses exact IDs, names, codes | Dense-only retrieval | Add BM25 and fuse results |
+| Answer wrong though context is right | Weak prompt, model ignores context, lost-in-the-middle | Grounding prompt, citations, reorder context, lower temperature, stronger model |
+| Answers invent facts | No refusal rule, thin context | Refuse-if-unsupported rule, faithfulness checks, retrieve more context |
+| Accuracy dropped after a change | Model upgrade, re-index, prompt edit, parser change | Roll back, diff the eval before and after, re-embed consistently |
+| Accuracy dropped slowly | Stale index, new document types, data drift | Reconciliation job, re-ingest, add new cases to the golden set |
+| Wrong answers for one tenant or document type | Parsing, ACL filter or data gap in that slice | Inspect that slice's chunks and filters |
+| Tables and numbers answered wrongly | Tables flattened by the parser | Layout-aware parser, table-aware chunks |
+
+### Order to try fixes (cheapest first)
+
+1. Fix data, parsing and metadata.
+2. Tune chunking using Recall@K.
+3. Add hybrid retrieval and filters.
+4. Add a reranker.
+5. Add query rewriting or decomposition.
+6. Improve context building and the prompt.
+7. Swap or fine-tune the embedding model.
+8. Only then consider agentic RAG, GraphRAG or LLM fine-tuning.
+
+### Follow-up questions
+
+- **How do you know whether it is retrieval or generation?** Check whether the gold chunk is in the retrieved set. If it is and the answer is wrong, it is generation. If not, it is retrieval.
+- **You have no golden set. What do you do?** Build one fast from real user questions and logs, label 50 to 100 with domain experts, and use an LLM judge only as a helper, since it has known biases.
+- **Accuracy dropped right after an embedding model upgrade. Why?** The index still holds vectors from the old model, so queries and documents no longer share an embedding space. Re-embed everything, or roll back.
+- **What if latency is already high?** Cache, rerank fewer candidates, use a smaller reranker, and run retrieval in parallel before adding anything heavier.
+
+## 15. Interview: observability, guardrails, LLM gateway, evaluation
+
+**Question asked:** How did you implement observability, guardrails, LLM gateways, evaluation and the other parts? Explain each step, which open-source tools you used, and why not the others.
+
+Only claim what you actually built. For the rest, say "this is how I would design it". Tool details and licenses are from memory, so verify versions, features and licenses before quoting them.
+
+**Spoken answer.** Around the core pipeline I built five supporting layers. All model calls go through one OpenAI-compatible gateway, LiteLLM, in front of self-hosted vLLM and any cloud model, giving per-team keys, budgets, limits, fallbacks and cost tracking. Guardrails are layered: Presidio masks PII on input, document permissions are enforced inside the vector query, and output is validated with Pydantic, checked for groundedness against cited chunks, and optionally passed through a safety classifier. FastAPI is instrumented with OpenTelemetry with a span per stage, traces go to Tempo, metrics to Prometheus, logs to Loki, viewed in Grafana, with Langfuse for prompts, token cost and feedback. Evaluation uses a golden set, with Ragas or DeepEval in CI as a quality gate, plus sampled live scoring. Operations use Redis for caching and limits, tenant filters, Docker and Kubernetes with KEDA, GitHub Actions with Argo CD, and a tested rebuild path from the raw store.
+
+### LLM gateway
+
+1. Run the gateway as a separate service (LiteLLM proxy). The application calls it through the OpenAI-compatible API.
+2. Register model backends: vLLM for self-hosted models, plus any cloud models.
+3. Issue virtual keys per team or tenant, with budgets and RPM and TPM limits.
+4. Configure routing and fallbacks (primary to secondary model), timeouts and retries.
+5. Turn on response caching and send logs and traces to Langfuse through callbacks.
+6. Attach guardrail hooks (PII masking, blocked topics) at the gateway so every caller is covered.
+
+| Tool | Choice | Why or why not |
+|---|---|---|
+| LiteLLM | Chosen | OpenAI-compatible API over many providers, keys, budgets, fallbacks. MIT core, some enterprise features paid |
+| Direct SDK calls | Not chosen | Provider lock-in, no central budgets, limits or logging |
+| Portkey, Kong AI Gateway, Envoy AI Gateway | Alternatives | Pick them if you already run Kong or Envoy and want policy at the network layer |
+| vLLM, TGI, Ollama | Not gateways | Inference servers behind the gateway. Ollama for development, vLLM for production |
+
+Risk to mention: a Python proxy adds latency at very high request rates, so load test it and scale it horizontally.
+
+### Guardrails
+
+1. **Input:** length limits, PII detection and masking (Presidio), injection screening, topic and scope rules.
+2. **Retrieval:** apply the user's ACL as a filter inside the vector query, so unauthorized chunks are never retrieved.
+3. **Context:** mark retrieved text as untrusted data in the prompt, and strip or flag instruction-like content.
+4. **Output:** validate JSON against a Pydantic schema, check every citation points to a retrieved chunk, run a groundedness check, redact PII, and run a safety classifier if policy requires.
+5. **Tools:** allow-list actions, run them with least privilege and in a sandbox, and require confirmation for risky ones.
+6. Log every guardrail trigger so you can measure false positives and misses.
+
+| Tool | Choice | Why or why not |
+|---|---|---|
+| Presidio | Chosen for PII | Mature, MIT, customizable recognizers. Needs tuning for local formats |
+| Pydantic or Guardrails AI | Chosen for output structure | Strict schemas and validators with little overhead |
+| NeMo Guardrails | Use when needed | Good for dialog flows and topic rails. Extra LLM calls add latency and complexity |
+| Llama Guard | Use when needed | Safety classification model. Needs a GPU and has its own model license |
+| Rebuff | Avoid for new projects | Maintenance status is doubtful. Verify before using |
+| Lakera | Commercial option | Strong injection detection, paid and external |
+| PyRIT | Testing | For red-teaming your system, not runtime protection |
+
+No tool fully stops prompt injection. The real defense is permission filters, least-privilege tools, and treating model output as untrusted.
+
+### Observability
+
+1. Add OpenTelemetry to FastAPI (`FastAPIInstrumentor`) and create manual spans around retrieval, reranking, context building and generation.
+2. Put attributes on spans: model, top K, token counts, cache hit, hashed tenant ID. Never put raw document text or PII in attributes.
+3. Export metrics to Prometheus: latency histograms per stage, token counters, error counters, cache hit rate, queue depth.
+4. Write structured JSON logs that include `trace_id`, and ship them to Loki.
+5. Send traces to Tempo, and build Grafana dashboards that link a metric spike to its trace and logs.
+6. Add Langfuse for LLM-specific views: prompt versions, cost per request, user feedback, evaluation scores.
+7. Add alert rules: p95 latency, error rate, token spend, retrieval-empty rate, and a drop in sampled quality score.
+
+| Signal | Store | Tool |
+|---|---|---|
+| Traces | Tempo | OpenTelemetry |
+| Metrics | Prometheus | Grafana to visualize |
+| Logs | Loki | Grafana to search |
+| Prompts, cost, feedback, eval scores | Langfuse | Its own UI |
+
+| Tool | Choice | Why or why not |
+|---|---|---|
+| OpenTelemetry | Chosen | Vendor-neutral standard, Apache-2.0 |
+| Langfuse | Chosen | Self-hostable LLM tracing and cost tracking. Check which features are in the open edition |
+| Arize Phoenix | Alternative | OpenTelemetry-native LLM tracing. Source-available license (Elastic License 2.0), so check with legal |
+| LangSmith | Not chosen | Proprietary SaaS. Best if you already use LangChain and accept hosted data |
+| Grafana, Loki, Tempo | Chosen | Standard stack. AGPL-3.0, which matters mostly if you modify and distribute them |
+
+### Evaluation
+
+1. Build a golden set from real user questions: 100 to 300 questions with expected source chunks and reference answers, labeled by domain experts.
+2. Compute retrieval metrics with your own code: Precision@K, Recall@K, MRR, NDCG.
+3. Score generation with Ragas or DeepEval: faithfulness, answer relevancy, context precision and recall.
+4. Run it in CI on every change to the prompt, chunking, model or index. Fail the build if a metric drops beyond a set threshold.
+5. In production, sample 1 to 5 percent of traffic for LLM-judge scoring, and collect thumbs up or down.
+6. Run A/B or shadow tests before switching a model or retriever.
+7. Add every production failure to the golden set so it never regresses.
+
+| Tool | Choice | Why or why not |
+|---|---|---|
+| Custom code | Chosen for retrieval metrics | Deterministic, cheap and transparent |
+| Ragas | Chosen | RAG-specific metrics, Apache-2.0 |
+| DeepEval | Chosen for CI | pytest-style tests, easy quality gates |
+| TruLens | Alternative | Works, smaller adoption |
+| MLflow | Supporting | Good at tracking experiment runs, not RAG-specific scoring |
+
+LLM judges are biased and inconsistent, so calibrate them against human labels and never trust one score alone.
+
+### Caching, security and delivery
+
+- **Caching:** exact cache in Redis keyed by a hash of tenant, normalized query and index version. Embedding cache for repeated queries. Semantic cache (Redis vector search or GPTCache) with a strict threshold, never shared across tenants or permission groups. The index version in the key invalidates old answers after a re-index.
+- **Security:** OIDC and JWT authentication (Keycloak or your enterprise provider), tenant and ACL filters inside the vector query, upload scanning with ClamAV, sandboxed parsers, secrets in Vault or Kubernetes secrets, per-user and per-tenant rate limits in Redis, and an audit log.
+- **Delivery:** Docker images per service (API, ingestion workers, parser, reranker, vLLM). Kubernetes with Helm, KEDA scaling workers on queue depth, GPU nodes for vLLM, embeddings and reranking. GitHub Actions runs lint, tests, Trivy scans and the evaluation gate. Argo CD deploys from Git and Terraform provisions infrastructure.
+- **Disaster recovery:** Qdrant snapshots, Postgres point-in-time recovery, versioned raw storage, and a tested path to rebuild the whole index from raw files.
+
+### Follow-up questions
+
+- **Why a gateway instead of calling the model directly?** Central control of keys, cost, limits, fallbacks and logging, and no lock-in.
+- **How do you prevent one tenant seeing another's data?** Filters inside the vector query, separate collections for strict isolation, tenant ID in cache keys, and tests that try cross-tenant retrieval.
+- **What about PII in logs?** Redact before logging, restrict access, sample, and set retention limits.
+- **Why OpenTelemetry plus Langfuse?** OpenTelemetry covers the whole system. Langfuse covers LLM-specific things like prompts, cost and evaluation scores.
+
+## 16. Interview: system design for a million users and large data
+
+**Question asked:** How do you design your project system, and how do you handle a million users and large data processing in the RAG pipeline?
+
+**Spoken answer.** I split the system into two paths because they scale differently: an offline ingestion path that is asynchronous, and an online query path that must answer in a couple of seconds. I start with numbers. Say 1M registered users, 10 percent active daily, 5 questions each: about 500K queries a day, roughly 6 per second on average and 30 to 60 at peak. Say 10M documents and 50M chunks: with 1024-dimension float32 vectors that is about 200 GB of raw vectors before index overhead. These are assumptions to replace with real figures.
+
+**Ingestion path.** Connectors write raw files to object storage and record state in Postgres. Events go on a queue (Kafka, or Redis or SQS at smaller scale). Stateless parser and embedding workers pull from the queue, scale with KEDA on queue depth, and write chunks and vectors in batches. Everything is idempotent, keyed by document ID and content hash. Failed files go to a dead-letter queue. I embed in large GPU batches, re-embed only changed documents, and keep the raw copy so I can rebuild the index after a model upgrade.
+
+**Query path.** An API gateway handles authentication and rate limiting. A stateless FastAPI service checks the cache, rewrites the query if needed, runs hybrid retrieval with the permission and tenant filter, reranks the top 50 to the best 5, builds the context, and streams the answer from the LLM through a gateway. The API tier scales horizontally. The vector database is sharded and replicated. The LLM tier runs on vLLM with continuous batching, or on a managed provider, behind a gateway with limits and fallbacks.
+
+**Where it breaks first.** The LLM is the bottleneck and main cost, then the reranker, then the vector database at high filter and recall settings. I reduce LLM work with caching, shorter contexts and smaller models for easy queries, and protect it with queues, timeouts, rate limits and fallbacks. I load test, find the real bottleneck, and fix that before adding anything else.
+
+### Diagram 1: full system architecture
+
+Two paths: the offline ingestion path (asynchronous) and the online query path (a few seconds). They share the stores but scale separately.
+
+```mermaid
+flowchart TB
+U["Users and apps"] --> GW["API gateway: auth, rate limit"]
+subgraph Online["Online query path"]
+GW --> API["FastAPI service, stateless"]
+API --> CACHE[("Redis cache")]
+API --> QP["Query rewrite"]
+QP --> HR["Hybrid retrieval with ACL filter"]
+HR --> VDB[("Vector DB: sharded and replicated")]
+HR --> KW[("BM25 or keyword index")]
+HR --> RR["Reranker"]
+RR --> CTX["Context builder"]
+CTX --> LGW["LLM gateway"]
+LGW --> LLM["vLLM GPU pool or cloud model"]
+LLM --> GR["Output guardrails"]
+GR --> API
+end
+subgraph Offline["Offline ingestion path"]
+SRC["Sources: files, DBs, APIs, web"] --> CONN["Connectors"]
+CONN --> RAW[("Raw store: S3 or MinIO")]
+CONN --> STATE[("Postgres: state, ACL, metadata")]
+CONN --> Q[["Queue: Kafka or Redis"]]
+Q --> PARSE["Parser workers"]
+PARSE --> CHUNK["Clean and chunk"]
+CHUNK --> EMB["Embedding workers, GPU batches"]
+EMB --> VDB
+CHUNK --> KW
+Q -. failed .-> DLQ[["Dead-letter queue"]]
+end
+API -. traces and metrics .-> OBS["OpenTelemetry, Prometheus, Loki, Tempo, Langfuse"]
+LGW -. cost and tokens .-> OBS
+EVAL["Evaluation: CI gate and sampled live scoring"] -. checks .-> API
+```
+
+### Diagram 2: what happens to one question
+
+```mermaid
+sequenceDiagram
+participant U as User
+participant G as API gateway
+participant A as RAG API
+participant C as Redis cache
+participant V as Vector DB
+participant K as Keyword index
+participant R as Reranker
+participant L as LLM gateway
+U->>G: question and token
+G->>G: authenticate and rate limit
+G->>A: forward request
+A->>C: look up cache
+alt cache hit
+C-->>A: cached answer
+else cache miss
+A->>A: rewrite query
+par dense search
+A->>V: vector search with ACL filter
+and keyword search
+A->>K: BM25 search with ACL filter
+end
+A->>A: fuse results with RRF
+A->>R: rerank top 50
+R-->>A: best 5 to 8 chunks
+A->>L: prompt with context
+L-->>A: streamed answer
+A->>A: output guardrails
+A->>C: store answer
+end
+A-->>U: streamed answer with citations
+```
+
+### Diagram 3: protection and fallback flow
+
+```mermaid
+flowchart LR
+Q1["Question"] --> RL{"Rate limit ok?"}
+RL -- no --> R429["429 with Retry-After"]
+RL -- yes --> CH{"Cache hit?"}
+CH -- yes --> ANS["Return cached answer"]
+CH -- no --> RET["Hybrid retrieval"]
+RET -- vector DB down --> KWO["Keyword-only search"]
+RET --> RK["Rerank"]
+KWO --> RK
+RK -- reranker down --> SK["Use fused order"]
+RK --> GEN["LLM generate"]
+SK --> GEN
+GEN -- 429 or timeout --> RT["Retry with backoff and jitter"]
+RT -- still failing --> BK["Backup smaller model"]
+BK -- still failing --> SO["Cached answer or sources only"]
+GEN --> OK["Validated answer with citations"]
+```
+
+### Diagram 4: deployment and scaling
+
+```mermaid
+flowchart LR
+LB["Load balancer and ingress"] --> AP["API pods, autoscale on request rate"]
+AP --> GWP["LLM gateway pods"]
+GWP --> GPU["vLLM GPU pool"]
+AP --> RRP["Reranker pods, GPU or CPU"]
+AP --> QD[("Qdrant cluster: shards and replicas")]
+AP --> PG[("Postgres primary and read replicas")]
+AP --> RD[("Redis")]
+KEDA["KEDA: scale on queue depth"] --> WK["Parser and embedding workers"]
+WK --> QD
+WK --> PG
+```
+
+### Each component: what it does and why we use it
+
+| Component | What it does | Why we use it | Tool and why not the alternative |
+|---|---|---|---|
+| API gateway | Authentication, rate limits, routing | One place to protect everything behind it, stops abuse and noisy tenants | Kong, NGINX, Traefik, or a cloud gateway. Putting limits only in app code is easy to bypass and duplicates logic |
+| Stateless API service | Runs the query steps | Any replica can serve any request, so you scale by adding pods and survive restarts | FastAPI with async I/O. Stateful servers cannot scale or fail over easily |
+| Redis cache | Stores repeated answers, embeddings, rate counters | Cuts LLM cost and latency for repeated questions, shared across replicas | Redis. In-process caches are not shared and are lost on restart |
+| Query rewrite | Turns follow-ups into standalone queries | Retrieval works on a single complete question | Small LLM call. Skip it for self-contained questions to save latency |
+| Hybrid retrieval | Dense plus keyword search with RRF | Catches both meaning and exact terms | Qdrant or pgvector plus BM25 or OpenSearch. Dense-only misses IDs and acronyms |
+| ACL and tenant filter | Restricts search to allowed documents | Real access control inside retrieval, so unauthorized text never reaches the LLM | Filter in the vector query. Filtering after generation leaks data |
+| Vector DB, sharded and replicated | Stores and searches vectors | Shards hold the data volume, replicas add read throughput and availability | Qdrant or Milvus at scale. A single pgvector node hits limits at hundreds of millions of vectors |
+| Keyword index | BM25 or sparse search | Exact matches that embeddings miss | OpenSearch or the vector DB's sparse support |
+| Reranker | Re-scores the top 50 and keeps the best 5 to 8 | Large precision gain for a modest latency cost | Cross-encoder such as BGE reranker. Skip it only for tight latency or small corpora |
+| Context builder | Deduplicates, orders, trims to a token budget, adds citations | Controls cost, avoids lost-in-the-middle, makes answers checkable | Custom code. Stuffing all chunks costs more and lowers quality |
+| LLM gateway | One OpenAI-compatible entry to all models | Keys, budgets, limits, retries, fallbacks and cost tracking in one place | LiteLLM. Direct SDK calls lock you in and scatter control |
+| vLLM GPU pool | Self-hosted model serving | Continuous batching and prefix caching give high throughput at lower cost per token | vLLM. Ollama is for development. A managed API is faster to start with |
+| Output guardrails | Validate structure, groundedness, PII | Catches bad or unsafe answers before the user sees them | Pydantic, Presidio, optional safety classifier |
+| Queue | Buffers work between connectors and workers | Backpressure, retries, independent scaling, replay | Kafka for CDC or replay at high volume. Redis or SQS with Celery for smaller scale |
+| Parser workers | Convert files to structured text | Heavy and slow, so isolated and scaled by queue depth | Docling or Unstructured in separate containers |
+| Embedding workers | Create vectors in batches | GPU batching gives far higher throughput than one-by-one calls | BGE-M3 with sentence-transformers or FlagEmbedding |
+| Raw store | Keeps original files | Lets you re-parse or re-embed without re-fetching, and rebuild after disaster | S3 or MinIO, versioned |
+| Postgres state store | Tracks document versions, hashes, ACLs, status | Incremental ingestion, idempotency and reconciliation | Postgres. A file or in-memory state is lost and cannot be queried |
+| Dead-letter queue | Holds files that keep failing | One bad file never blocks the batch, and failures can be inspected and replayed | Kafka or Redis DLQ pattern |
+| Observability | Traces, metrics, logs, LLM cost | Shows which stage is slow or failing, and what each query costs | OpenTelemetry, Prometheus, Loki, Tempo, Langfuse |
+| Evaluation | CI gate and sampled live scoring | Catches regressions before and after release | Ragas or DeepEval plus own retrieval metrics |
+| Autoscaling | Adds or removes pods | Handles peaks without paying for peak all day | Kubernetes HPA for the API, KEDA for queue-driven workers, GPU node pools |
+| Backups and DR | Snapshots, point-in-time recovery, rebuild path | Survive data loss and region failure | Qdrant snapshots, Postgres PITR, raw store as the source of truth |
+
+### Design steps
+
+1. **Clarify requirements:** users, queries per second, corpus size and growth, freshness, latency target (for example 3 s to first token), accuracy bar, tenancy and permission rules, budget, data residency.
+2. **Estimate capacity:** queries per second and peak, chunk count, vector storage (chunks x dimensions x bytes), tokens per query, GPU needs. Show the math.
+3. **Separate the two paths:** async ingestion with queues, sync query serving with a strict latency budget.
+4. **Keep services stateless:** any replica can handle any request.
+5. **Shard and replicate the stores:** replicas for read throughput and availability, shards for data size.
+6. **Add caching and protection:** caches, rate limits, timeouts, circuit breakers, and a queue in front of expensive steps.
+7. **Add observability and evaluation:** tracing per stage, quality sampling, regression gate in CI.
+8. **Plan failure and recovery:** what happens when the LLM, vector DB or a worker fails.
+
+### Scaling each layer
+
+| Layer | At scale | How to handle it |
+|---|---|---|
+| API | Many concurrent requests | Stateless pods, autoscale on CPU or request rate, load balancer, async I/O |
+| Auth and limits | Abuse, noisy tenants | Gateway rate limits per user and tenant, quotas |
+| Cache | Repeated questions | Exact cache plus a strict semantic cache in Redis. Keys include tenant and index version |
+| Vector DB | Hundreds of millions of vectors | Shard by size, replicate for reads, quantize vectors (int8 or binary), tune HNSW, payload indexes for filter fields, Qdrant or Milvus instead of a single pgvector node |
+| Keyword search | Hybrid retrieval load | OpenSearch or the vector DB's sparse support, sharded |
+| Reranker | CPU cost per request | Rerank fewer candidates, a smaller model, GPU with batching |
+| LLM | Tokens and cost | vLLM with continuous batching and prefix caching, smaller models for easy questions, trimmed context, streaming, gateway fallbacks and per-tenant budgets |
+| Ingestion | Millions of documents | Queue, parallel workers, GPU batching, incremental updates, backpressure, dead-letter queue |
+| Metadata DB | State and ACLs | Postgres with read replicas, indexes, connection pooling |
+| Raw storage | Large files | Object storage (S3, MinIO), versioned |
+
+### Million users and large data
+
+- **Concurrency:** most users are idle at any moment, so peak queries per second, not user count, drives the design.
+- **Tenant isolation:** metadata filters for most tenants, a separate collection or cluster for large or strict ones, and per-tenant quotas so one tenant cannot starve others.
+- **Hot spots and spikes:** cache popular queries, use replicas for hot shards, queue requests, shed load gracefully, and autoscale ahead of known peaks.
+- **Global users:** regional deployments close to the user, with data residency rules respected.
+- **Initial load:** a one-time backfill with many parallel workers and bulk-loading the vector index. Build the index after loading, or use the DB's bulk mode.
+- **Ongoing changes:** incremental ingestion with hashes and CDC, plus a weekly reconciliation job for missed deletes.
+- **Cost control:** quantization, smaller embedding dimension (Matryoshka), skipping duplicate content, tiering old data to cheaper storage.
+- **Model upgrades:** build a new index alongside the old one, compare with the golden set, then switch traffic. Never mix embeddings from two models in one index.
+
+### Trade-offs to state
+
+- **Freshness vs cost:** real-time ingestion costs more than hourly batches. Choose per source.
+- **Recall vs latency:** more candidates and higher HNSW search settings improve recall but slow retrieval.
+- **Reranking:** better precision, more latency.
+- **Self-hosted LLM vs API:** self-hosting gives control and a lower marginal cost at high volume, but you carry GPU operations. An API is faster to start with.
+- **Simplicity:** Postgres with pgvector is simpler and enough for a few million chunks. A dedicated vector DB pays off at tens or hundreds of millions.
+
+### Follow-up questions
+
+- **What is the bottleneck?** Usually the LLM, so batching, caching, smaller models and context trimming. Then the reranker and the vector DB.
+- **How do you keep latency low?** Streaming, a per-stage latency budget, parallel retrieval (dense and keyword at once), caches, and timeouts with fallbacks.
+- **What if the vector DB goes down?** Replicas and automatic failover, a degraded mode (keyword-only search or a cached answer), and alerts.
+- **How do you keep the index fresh?** Incremental ingestion, CDC for databases, reconciliation, and index-version tracking.
+- **How would you control cost?** Per-tenant budgets at the gateway, caching, routing to smaller models, quantized vectors, and cost per query on the dashboard.
+
+One-line principle: "I separate ingestion from serving, keep services stateless, shard and replicate the stores, protect the expensive LLM with caching and limits, and let measured bottlenecks decide what to scale."
+
+## 17. Interview: indexing, embedding dimension, sample size, vector DB, RAG types, evaluation, rate limits, fallbacks
+
+**Question asked:** What indexing did you use? How do you decide a good embedding dimension and sample size? What approach do you follow for saving to the vector DB and for retrieval? What are all the RAG types, retrieval methods and evaluation methods? How do you handle rate limits and fallbacks?
+
+All numbers below are starting points, not rules. The interview answer is always "I measured it on my own golden set".
+
+**Spoken answer.** For indexing I use HNSW for dense vectors, an inverted index for BM25 or sparse vectors, and payload indexes on the filter fields such as tenant, ACL and document ID. At large scale I add int8 quantization with rescoring. I tune HNSW by measuring recall against an exact flat search, targeting about 0.95 to 0.98 recall at the latency budget. I choose the embedding dimension empirically: pick the model on my golden set, then test truncated dimensions and keep the smallest one within 1 to 2 percent of the best Recall@10. I size the golden set with confidence intervals: 200 to 400 stratified questions to start. I save vectors with deterministic IDs, batched idempotent upserts, rich payloads, and one collection per embedding-model version behind an alias, so I can swap versions without downtime. Retrieval is hybrid, fused with reciprocal rank fusion, reranked, then expanded to parent chunks. I start with advanced RAG and move to heavier types only when the eval shows a failure the simple one cannot fix. For rate limits I limit at the gateway and API per tenant, back off with jitter on provider 429s, and use circuit breakers. Every layer has an explicit, logged fallback.
+
+### Indexing: what I used and how I decide
+
+| Index | What it is | Use when | Trade-off |
+|---|---|---|---|
+| Flat (exact) | Compares the query with every vector | Under about 100K vectors, or as the ground truth to measure the recall of other indexes | Perfect recall, slow at scale |
+| HNSW | Layered proximity graph | Default for dense vectors at most scales | Fast and high recall, uses a lot of RAM, slow to build |
+| IVF | Clusters vectors, searches only the nearest clusters | Large collections where memory matters | Needs training, recall depends on how many clusters are probed |
+| IVF-PQ or PQ | Adds compression of vectors into short codes | Very large collections on limited memory | Lower recall, so rescore with original vectors |
+| DiskANN style | Graph index served mostly from SSD | Billions of vectors, limited RAM | Higher latency, more tuning |
+| Scalar or binary quantization | Stores int8 or 1-bit vectors | Cut memory 4x to 32x | Small recall loss, fixed by rescoring the top candidates |
+| Inverted index (BM25, sparse) | Term to document lists | Exact terms, IDs, acronyms | Misses paraphrases |
+| Payload (metadata) index | Index on filter fields | Every filter field you use (tenant, ACL, doc ID, date) | Extra memory, but unindexed filters make search slow or inaccurate |
+
+How to tune HNSW: the main settings are `M` (connections per node, commonly 16 to 32), `ef_construction` (build quality, commonly 100 to 400) and `ef_search` (query effort, commonly 64 to 256). Build a flat index on a sample as ground truth, run your golden queries at several `ef_search` values, and plot recall against p95 latency. Pick the lowest setting that reaches your recall target. Re-check on the full-size index, because recall and latency change with collection size.
+
+### How to decide the embedding dimension
+
+1. **Pick the model first.** Quality comes from the model and its training, not from a bigger number. Compare 2 to 4 candidates on your own golden queries (Recall@10, MRR), not only public leaderboards.
+2. **Know the native dimensions.** Small models are often 384, base models 768, large models 1024 (BGE-M3 is 1024), and some API models go to 3072.
+3. **Test shorter dimensions if the model supports it.** Matryoshka-trained models keep most quality when truncated to 256, 512 or 768 and re-normalized. A model that was not trained for this loses much more.
+4. **Plot recall against cost.** For each dimension record Recall@10, memory, index size and p95 latency.
+5. **Choose the smallest dimension within about 1 to 2 percent of the best recall.**
+6. **Do the storage math:** vectors x dimensions x bytes per value. 50M x 1024 x 4 bytes is about 205 GB. At 512 dimensions it is about 102 GB. With int8 quantization it divides by 4 again. Add index overhead (HNSW adds roughly 20 to 50 percent, check your DB).
+7. **Fix it before the full load.** Changing dimension or model later means re-embedding everything.
+
+### How to decide the sample size
+
+The phrase can mean three things, so say which one you are answering.
+
+- **Golden evaluation set.** Start with 50 questions as a smoke test, then 200 to 400 for decisions. Rough precision for a pass rate p is 1.96 x sqrt(p(1-p)/n). At p = 0.8: n = 200 gives about plus or minus 5.5 points, n = 400 about plus or minus 3.9. Stratify by document type, question type (lookup, multi-hop, table, no-answer), tenant and difficulty so each important slice has enough questions. To detect a small improvement, run both versions on the same questions and compare per-question (paired comparison), which needs fewer questions than comparing two separate runs.
+- **Corpus sample for tuning chunk size or parsers.** Use a stratified 5 to 10 percent sample, at least a few hundred documents covering every document type. Confirm the winner on the full corpus.
+- **Live traffic sampling for quality monitoring.** Score 1 to 5 percent of traffic with an LLM judge, and oversample thumbs-down, low-retrieval-score and refused answers. Calibrate the judge against 50 to 100 human labels.
+
+### Approach for saving to the vector DB
+
+1. **Deterministic IDs.** Use a hash of `doc_id`, `chunk_index` and `version` (for example `uuid5`), so a retry overwrites instead of duplicating.
+2. **Rich payload.** Store `doc_id`, `chunk_id`, `parent_id`, `tenant_id`, `acl`, `version`, `source_uri`, `page`, `section`, timestamps, and the chunk text (or a pointer to it).
+3. **Batch idempotent upserts.** Batches of a few hundred to a few thousand points, with retries and a check that the batch was acknowledged.
+4. **Create payload indexes** on every filter field before loading.
+5. **Bulk load.** For the first big load, defer or relax index building, load in parallel, then build the index. Incremental loading into a fully tuned HNSW is slow.
+6. **Updates and deletes.** Write the new version, then delete old chunks by `doc_id` filter and older `version`. Never leave old and new chunks both searchable.
+7. **One collection per embedding model and version, behind an alias.** Build the new collection in parallel, evaluate it, then repoint the alias. Never mix models in one collection.
+8. **Verify and protect.** Reconcile point counts with the state table, snapshot on a schedule, and test restore. Keep raw files so the whole index can be rebuilt.
+
+### Retrieval approach (end to end)
+
+1. Check the cache (key includes tenant and index version).
+2. Rewrite the question into a standalone query if it is a follow-up.
+3. Embed the query. Run dense search and BM25 or sparse search in parallel, each with the tenant and ACL filter, top 50 to 100 each.
+4. Fuse with reciprocal rank fusion.
+5. Rerank the top 50 down to 5 to 8 with a cross-encoder.
+6. Expand to parent chunks or neighbors. Deduplicate. Apply MMR if results are repetitive.
+7. Build the context within the token budget, with source IDs for citations.
+
+### Retrieval methods
+
+| Method | Idea | Use when |
+|---|---|---|
+| Dense | Embedding similarity | Meaning-based questions |
+| Sparse or BM25 | Keyword match | IDs, names, codes, exact terms |
+| Hybrid with RRF | Dense plus sparse, rank fusion | Default for enterprise data |
+| Metadata filtering | Restrict by tenant, ACL, date, type | Always, for permissions and scope |
+| Self-query | LLM turns the question into query plus filters | Users ask "reports from 2024 about X" |
+| MMR | Trades relevance for diversity | Many near-duplicate chunks |
+| Multi-query and query expansion | Several rewrites, merge results | Vague or short questions |
+| HyDE | Embed a hypothetical answer | Query and documents use very different wording |
+| Parent-document | Search small, return larger parent | Precision plus context |
+| Multi-vector or ColBERT | Many vectors per document | Hard precision needs, with extra storage and operations |
+| Contextual retrieval | Add document context to each chunk before embedding | Chunks lose meaning alone |
+| Graph-based | Traverse entity relationships | Relationship-heavy, multi-hop questions |
+
+### All types of RAG
+
+| Type | Idea | Use when | Cost and latency | Avoid when |
+|---|---|---|---|---|
+| Naive | Embed, retrieve top K, generate | Prototype, clean small corpus | Lowest | Accuracy matters |
+| Advanced | Hybrid search, rerank, query rewrite, good chunking | Default for production | Low to medium | Almost never wrong to start here |
+| Modular | Swap and compose components per need | Many use cases on one platform | Medium | Single simple use case |
+| Corrective (CRAG) | Grade retrieved results, re-search or use web if poor | Retrieval quality varies | Extra LLM calls | Retrieval is already reliable |
+| Adaptive | Route by question: no retrieval, single-step, or multi-step | Mixed question difficulty | Saves cost on easy questions | Uniform questions |
+| Self-RAG | Model decides when to retrieve and critiques its own output | Research settings, high-stakes checking | High, needs special models | Typical enterprise systems |
+| Agentic | An agent plans and calls tools and searches repeatedly | Multi-step, multi-source tasks | High and less predictable | Simple lookups |
+| GraphRAG | Build an entity graph and summaries | Global or relationship questions | High build cost, hard to keep fresh | Mostly lookup questions |
+| Knowledge-graph RAG | Query a curated graph with retrieval | Structured domain with clear entities | Medium to high | No curated graph |
+| Multimodal | Retrieve images, tables, audio with text | Documents full of charts and figures | Higher storage and compute | Text-only data |
+| Hybrid | Combine dense, sparse (and graph) retrieval | Default retrieval layer | Low to medium | No reason to avoid |
+| Hierarchical | Search summaries first, then drill into sections | Very long documents and large corpora | Medium | Short documents |
+| Multi-hop | Chain retrieval steps, each uses the last result | Questions needing several documents | Medium to high | Single-document questions |
+
+Principle to state: do not recommend a complex type when advanced RAG is enough, and justify each step up with a measured failure.
+
+### Evaluation
+
+- **Retrieval:** Recall@K (relevant chunks found divided by all relevant), Precision@K, Hit Rate@K, MRR (position of the first relevant chunk), MAP, NDCG (ranking quality with graded relevance).
+- **Generation:** faithfulness (is every claim supported by the context), answer relevancy, context precision and recall, answer correctness, citation correctness, hallucination rate, and the correct refusal rate for unanswerable questions.
+- **Operational:** p50 and p95 latency per stage, time to first token, throughput, tokens and cost per query, error rate, cache hit rate.
+- **Process:** offline golden set in CI, regression tests, shadow or A/B tests before switching models, sampled online judging, user feedback, and periodic human review. Set thresholds from your baseline, for example "no metric drops more than 2 points".
+- **Choose K by data:** plot Recall@K for K = 5, 10, 20, 50 and choose where the gain flattens, balanced against latency and token cost.
+
+### Rate limiting
+
+1. **At the edge and gateway:** limits per user, per tenant and per API key, on both requests per minute and tokens per minute. Return `429` with a `Retry-After` header.
+2. **Algorithm:** token bucket or sliding window kept in Redis, so all API replicas share the same counters. Libraries: `slowapi`, `fastapi-limiter` (Redis), `limits`. The LiteLLM proxy also enforces RPM and TPM per key.
+3. **Concurrency limits:** a semaphore or queue in front of expensive steps (reranker, LLM), so overload becomes waiting or a clear "busy" response, not a crash.
+4. **Quotas and budgets:** daily token and cost budgets per tenant, enforced at the gateway.
+5. **Outbound limits to model providers:** respect provider `429` and `Retry-After`, add exponential backoff with jitter, and keep a client-side token bucket below the provider's limit.
+6. **Load shedding:** under extreme load, reject low-priority traffic first and keep the system alive.
+
+### Fallback methods
+
+| Failure | Fallback |
+|---|---|
+| Primary LLM times out or returns 429 or 5xx | Retry with backoff, then secondary model, then a smaller model, then cached answer, then "here are the relevant sources" without generation |
+| Provider keeps failing | Circuit breaker opens, traffic goes straight to the fallback until a health probe succeeds |
+| Reranker down or slow | Skip reranking and use the fused order |
+| Dense search down | BM25 or sparse only |
+| Vector DB primary down | Replica, then keyword search, then cached results |
+| Embedding service down | Cached query embedding, or keyword-only search |
+| Guardrail service down | Fail closed for sensitive tenants, fail open with logging only if policy allows |
+| No relevant context found | Say the answer is not in the documents, offer related sources |
+| Whole region down | Failover region, reading from replicated stores |
+
+Rules for fallbacks: every fallback is logged and counted as a metric, retries only for safe (idempotent) operations, each stage has its own timeout shorter than the overall budget, and quality of fallback answers is measured in the golden set so you know the cost of degrading.
+
+A skeleton of retry plus model fallback:
+
+```python
+import logging
+import httpx
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_random_exponential
+
+log = logging.getLogger("llm")
+
+class RateLimited(Exception):
+    pass
+
+@retry(
+    retry=retry_if_exception_type((RateLimited, httpx.TimeoutException)),
+    stop=stop_after_attempt(4),
+    wait=wait_random_exponential(min=1, max=20),   # exponential backoff with jitter
+    reraise=True,
+)
+def call_model(model: str, messages: list[dict]) -> str:
+    ...  # call the gateway, raise RateLimited on HTTP 429, honor Retry-After
+
+MODELS = ["primary-large", "backup-small"]
+
+def generate(messages: list[dict]) -> str:
+    for model in MODELS:
+        try:
+            return call_model(model, messages)
+        except Exception:
+            log.warning("model %s failed, trying next", model, exc_info=True)
+    return sources_only_answer(messages)   # last resort: cached answer or retrieved sources
+```
+
+With LiteLLM, the same idea is configured declaratively on the `Router` (retries, timeout, fallbacks, cooldowns). Check the parameter names in your installed version.
+
+### Follow-up questions
+
+- **Why HNSW and not IVF?** HNSW gives high recall at low latency without training and handles incremental inserts well. IVF-PQ is better when memory is the main constraint, with rescoring to recover recall.
+- **How do you know the index recall is good?** Compare against exact flat search on the same queries and report recall at the latency target.
+- **Higher dimension always better?** No. Past a point it only adds memory and latency. Test truncated sizes on your data.
+- **What if embeddings change?** Build a new collection, evaluate on the golden set, switch the alias, keep the old one for rollback.
+- **How big must the golden set be?** Big enough that the confidence interval is smaller than the improvement you want to detect, stratified so each slice has enough questions.
+- **What does graceful degradation mean here?** Each failing dependency has a defined cheaper fallback, users get a correct but simpler answer or a clear message, and the degradation is visible on dashboards.
+
+## 18. Interview question bank: common and tricky questions with answers
+
+**Question asked:** Add the common and tricky questions an interviewer might ask, with how to explain each, for all topics.
+
+### How to answer any question (use this pattern)
+
+1. **State the principle in one sentence.** Shows you understand the idea.
+2. **Give your choice and why.** Tie it to requirements (data, scale, latency, cost, security).
+3. **Name the trade-off and the alternative.** Shows judgment.
+4. **Say how you measured it.** Recall@K, faithfulness, latency, cost on a golden set.
+5. **Give a short real example, or say "this is how I would design it".** Never claim work you did not do.
+
+Example: "Why hybrid search? Dense search finds meaning but misses exact terms, BM25 does the opposite. I fuse both with reciprocal rank fusion. The trade-off is a second index to maintain. On our golden set it lifted Recall@10, so it earned its place."
+
+### A. Fundamentals
+
+1. **What is RAG, and why not just fine-tune?** RAG fetches relevant documents at query time and gives them to the LLM. Use it for knowledge that changes, needs citations, or has per-user permissions. Fine-tuning changes style or behavior, bakes in facts that go stale, and cannot enforce access control or cite sources.
+2. **Is RAG dead because of long context windows?** No. Long context costs more and is slower per query, quality can drop when the answer is buried in a huge prompt, you cannot enforce document-level permissions, and corpora are far larger than any window. Long context helps for small, single-document tasks, and RAG still decides what to put in it.
+3. **When should you not use RAG?** When the corpus is tiny (just put it in the prompt), when questions are analytical over structured data (use text-to-SQL), when the task is about style or format, or when latency and cost leave no room for retrieval.
+4. **RAG, fine-tuning or both?** Start with RAG for knowledge. Fine-tune for format, tone or a domain-specific embedding or reranker if evaluation shows a gap. Combining them is common: a fine-tuned embedding model or reranker plus a general LLM.
+5. **If you give the model the right context, why does it still hallucinate?** The model may ignore context, over-trust its own knowledge, mix chunks, or the context may be incomplete or contradictory. Fix with a grounding prompt, citations, ordered context, a refuse-if-unsupported rule, and groundedness checks.
+6. **What is the single biggest factor in RAG quality?** Retrieval quality, which starts with data quality: parsing, chunking and metadata. A strong LLM cannot fix missing or garbled context.
+7. **What does grounded generation mean?** Every claim in the answer is supported by the retrieved context and can be traced to a source chunk through a citation.
+8. **Walk me through your pipeline.** Use the 2-3 minute script in [section 13](#sec-13).
+
+### B. Parsing and chunking
+
+1. **How do you choose chunk size?** Not a fixed number. Start by document type (about 300 to 500 tokens for prose, structure-based for manuals and contracts), then test several sizes and overlaps and plot Recall@K and answer quality on the golden set. Pick where the gain flattens.
+2. **Why use overlap, and how much?** Overlap keeps a sentence or idea that falls on a boundary from being cut in half. About 10 to 15 percent is a common start. Too much overlap creates duplicates and wastes tokens, and structure-aware chunking needs less of it.
+3. **How do you handle tables in PDFs?** Use a layout-aware parser (Docling, pdfplumber), keep each table as one chunk in Markdown with its caption and header row, and optionally add an LLM-written summary for retrieval. For exact numeric questions, extract the table to a database and use text-to-SQL.
+4. **How do you handle scanned documents?** Detect missing text layers, run OCR (Docling OCR, Tesseract, PaddleOCR), store confidence scores, and review low-confidence pages. Bad OCR silently poisons retrieval.
+5. **What is parent-child chunking?** Search small child chunks for precision, then return the larger parent for context. It fixes the trade-off that small chunks match well but lack context, and large chunks have context but match poorly.
+6. **What is contextual retrieval or late chunking?** Contextual retrieval prepends a short document-level context to each chunk before embedding, so a chunk like "revenue grew 3 percent" knows which company and year. Late chunking embeds the whole document first, then pools per chunk. Both cost more, so adopt them only if evaluation shows chunks losing meaning.
+7. **How do you handle document updates, versions and deletions?** Stable document IDs, content hashes, a version field, upsert new chunks and delete old ones by `doc_id`, tombstone events for deletions, and a weekly reconciliation job.
+8. **How do you handle multiple languages?** A multilingual embedding model (BGE-M3), language detection at ingest, language metadata for filtering, and evaluation per language, since quality differs.
+9. **How do you remove duplicates?** Exact duplicates by content hash, near-duplicates by MinHash, and keep one canonical copy with all source locations in metadata.
+
+### C. Embeddings and vector databases
+
+1. **Cosine, dot product or L2?** With normalized vectors all three rank the same. Follow what the embedding model was trained for, normalize, and use cosine or dot product. Do not mix metrics between indexing and querying.
+2. **How do you choose an embedding model?** Shortlist by language, license, size and public benchmarks, then decide on your own golden queries for Recall@10 and MRR. Also check latency, memory and GPU needs. Leaderboards do not know your domain.
+3. **What happens when you change the embedding model?** Old and new vectors live in different spaces and cannot be compared. Build a new collection, re-embed from the raw store, evaluate, switch an alias, and keep the old one for rollback.
+4. **Why Qdrant, pgvector or FAISS?** pgvector when the corpus is modest and Postgres exists. Qdrant or Milvus for large scale, heavy filtering, replication and sharding. FAISS is a library without persistence, filters or multi-tenancy, so it suits experiments.
+5. **HNSW or IVF?** HNSW gives high recall at low latency, handles inserts well, and uses more RAM. IVF-PQ saves memory with some recall loss, usually fixed by rescoring. Measure recall against exact search to decide.
+6. **Does metadata filtering hurt vector search?** It can. Filtering after the approximate search can return fewer than K results. Use an engine with filter-aware search, create payload indexes on filter fields, and for very selective filters search the filtered subset exactly.
+7. **How do you do multi-tenancy?** Tenant ID in every chunk with a mandatory filter for most tenants, a separate collection or cluster for large or high-security tenants, and tests that try cross-tenant retrieval.
+8. **How do you back up and recover?** Scheduled snapshots, tested restores, and the raw store as the source of truth so the whole index can be rebuilt.
+9. **Does a bigger embedding dimension always help?** No. Quality mostly comes from the model. Test truncated dimensions and keep the smallest within about 1 to 2 percent of the best recall.
+
+### D. Retrieval and reranking
+
+1. **Why hybrid search?** Dense search captures meaning but misses exact IDs, names and acronyms. BM25 does the reverse. Fusing them is more robust on enterprise data.
+2. **What is reciprocal rank fusion?** Each result gets 1 divided by (k plus its rank) from each list, and the scores are summed. It combines rankings without having to tune or normalize incompatible scores.
+3. **How many chunks should you retrieve (K)?** Plot Recall@K for K of 5, 10, 20 and 50 and choose where the gain flattens. Retrieve 50 to 100 candidates, rerank, and send 5 to 8 to the LLM. More context adds noise, cost and lost-in-the-middle problems.
+4. **Why a reranker, and what does it cost?** A cross-encoder reads the query and each chunk together, so it is more accurate than comparing embeddings. It adds latency roughly proportional to the number of candidates, so rerank 30 to 50, use a smaller model or GPU, and measure the precision gain.
+5. **When does reranking not help or hurt?** When candidates are already good, when the reranker is out of domain, when chunks exceed its maximum input length, or when the latency budget is tight. Validate on your golden set.
+6. **What is MMR?** Maximal marginal relevance picks results that are relevant and different from those already chosen, which avoids five near-duplicate chunks.
+7. **How do you handle follow-up questions?** Rewrite them into standalone queries using the conversation history, then retrieve. Retrieving on "what about the second one?" fails.
+8. **How do you handle multi-hop questions?** Decompose into sub-questions, retrieve for each, combine, and generate. Use it only where simple retrieval fails in evaluation, since it adds latency and cost.
+9. **What about numeric or analytical questions over tables?** Vector search is poor at aggregation. Route those to text-to-SQL or a dataframe tool, with a query router deciding between the paths.
+10. **What are the risks of query rewriting?** The rewrite can drift from the user's intent or drop key terms. Keep the original query as one of the retrieval inputs, and evaluate with and without rewriting.
+
+### E. Generation and hallucination
+
+1. **How do you reduce hallucinations?** Improve retrieval first, then use a strict grounding prompt, require citations, lower temperature, put the best chunks at the start and end, refuse when context is insufficient, and verify that cited chunks support each claim.
+2. **How do you verify citations are correct?** Check that each cited ID was retrieved, and use an entailment or LLM check that the cited chunk supports the claim. Track citation correctness on the golden set.
+3. **What is the lost-in-the-middle problem?** Models use information at the start and end of a long context better than the middle. Fewer, better chunks, reranking, and ordering the best chunks first and last reduce it.
+4. **What temperature do you use?** Low, often 0 to 0.2, for factual answers. Higher values add variety, which RAG answers usually do not want.
+5. **How do you make the model say "I don't know"?** Instruct it explicitly, add unanswerable questions to the golden set, check a retrieval confidence threshold, and measure the correct-refusal rate.
+6. **How do you get structured output?** Request JSON, validate with Pydantic, retry once on failure, and use constrained decoding where the serving stack supports it.
+7. **How do you stream while still applying guardrails?** Stream the answer for latency, and run fast input checks and retrieval filters before generation. For strict policies, buffer sentences through the output check, or validate after and retract if needed.
+
+### F. Evaluation
+
+1. **How do you evaluate without a golden set?** Build one quickly from real logs and user questions, label 50 to 100 with domain experts, expand over time, and use an LLM judge only as a helper calibrated against human labels.
+2. **What are the limits of LLM-as-a-judge?** Position and verbosity bias, self-preference, inconsistency between runs, and blind spots on domain facts. Calibrate against human labels, use pairwise comparison, and track agreement.
+3. **Faithfulness versus correctness?** Faithfulness asks whether the answer is supported by the retrieved context. Correctness asks whether it matches the true answer. An answer can be faithful to wrong context or correct but unsupported.
+4. **Retrieval looks good but answers are bad. What now?** The gold chunk is retrieved, so the problem is generation: the prompt, context order and size, model ability, or conflicting chunks. Inspect failing traces.
+5. **How do you A/B test a change?** Run both versions on the same golden questions (paired comparison), then shadow or canary on live traffic and compare quality, latency, cost and feedback before a full switch.
+6. **Offline scores are high but users are unhappy. Why?** The golden set may not match real questions, may be too easy or too small, or the metric may not measure what users care about. Refresh it from production logs and add feedback-based metrics.
+7. **How do you detect quality drift?** Sample live traffic for judged scores, track retrieval-empty rate, refusal rate and feedback, and alert on drops. Re-run the golden set on a schedule.
+
+### G. Production, scale and cost
+
+1. **Latency is too high. What do you do?** Measure per stage with traces first. Then cache, run dense and keyword search in parallel, rerank fewer candidates, trim context, stream, use a smaller or faster model, and tune the index. Fix the slowest stage, not a guess.
+2. **How do you reduce cost?** Cache, route easy questions to smaller models, shorten context, quantize vectors, batch embeddings, skip duplicates, and set per-tenant budgets at the gateway.
+3. **What are the risks of semantic caching?** A near-match can return a wrong answer. Use a strict threshold, include tenant and index version in the key, set a TTL, never share across permission groups, and evaluate the cache hit quality.
+4. **How do you handle rate limits and provider outages?** Limits at the gateway and API, backoff with jitter on provider 429s, circuit breakers, and a defined fallback chain (backup model, cached answer, sources only). See [section 17](#sec-17).
+5. **What would you change at 10 times the scale?** Shard and replicate the vector DB, quantize vectors, move to a dedicated vector DB if on pgvector, scale parser and embedding workers on queue depth, add GPU capacity for the LLM and reranker, and cache more.
+6. **How do you roll out a model upgrade safely?** Build a parallel index or deployment, evaluate on the golden set, canary a small share of traffic, watch quality and cost, then switch, keeping rollback ready.
+7. **How do you keep the index fresh?** Incremental ingestion, CDC for databases, event-driven updates for important sources, and reconciliation to catch missed changes and deletions.
+8. **What do you monitor?** Per-stage latency, error and timeout rates, token use and cost per query, cache hit rate, queue depth, retrieval-empty rate, refusal rate, sampled quality scores and user feedback.
+
+### H. Security
+
+1. **What is indirect prompt injection?** Malicious instructions hidden inside retrieved documents. Treat retrieved text as untrusted data, give the model no powerful tools, validate outputs, scan inputs, and limit what any action can do.
+2. **How do you prevent tenant data leakage?** Mandatory tenant and ACL filters inside the vector query, tenant ID in cache keys, isolation for strict tenants, and automated tests that try to retrieve across tenants.
+3. **How do you keep permissions up to date?** Sync ACLs on a schedule and on change events, or check access against the source system at query time (late binding). Stale ACL copies are a common leak.
+4. **How do you handle PII?** Detect and mask at ingest (Presidio), redact in logs and outputs, restrict access to raw data, and set retention rules.
+5. **What about malicious uploaded files?** Scan with antivirus, run parsers in sandboxed containers with timeouts and size limits, and allow only approved file types.
+6. **Can any tool fully stop prompt injection?** No. Defense is layered: permission filters, least-privilege tools, output validation, monitoring, and red-team testing with tools like PyRIT.
+
+### I. Tricky and trap questions
+
+1. **Is a bigger top-K always better?** No. Beyond the point where recall flattens, extra chunks add noise, cost and lost-in-the-middle errors.
+2. **Is a bigger embedding model always better?** No. It costs more memory and latency, and a smaller model can win on your domain. Decide on your golden set.
+3. **Which vector database is best?** There is no single best. It depends on scale, filtering needs, operations capacity and existing stack. Compare on your workload for recall, latency, cost and operability.
+4. **LangChain or custom code?** Frameworks speed up prototypes, but their abstractions change quickly and can hide behavior. For the core production path I prefer thin custom code with a few focused libraries, and use framework components where they save time without lock-in.
+5. **Is semantic chunking the best?** Not by default. It costs more and often gives little over structure-aware chunking. Test it against your baseline.
+6. **Your evaluation score is 95 percent. Do you ship?** Not yet. Check the golden set size and confidence interval, whether it is too easy or leaked into tuning, whether it is stratified, whether the judge is calibrated, and look at the failing slices, since averages hide them.
+7. **Can you guarantee zero hallucinations?** No. You reduce and measure them with grounding, citations, refusals and verification, and add human review where mistakes are costly.
+8. **How do you handle conflicting or outdated documents?** Store version and effective dates, prefer the latest or most authoritative source, filter by date when appropriate, and show conflicts with sources and dates instead of choosing silently.
+9. **Why is recall high but the final answer still wrong?** The right chunk is retrieved but buried, ignored or contradicted. Check ordering, context size, prompt, conflicting chunks and the model. Retrieval metrics alone cannot show this.
+10. **A reranker made results worse. Why?** Domain mismatch, chunks longer than its input limit, bad candidate sets, or a poor score threshold. Evaluate and consider a domain fine-tuned reranker.
+11. **Why not put everything into one huge prompt?** Cost, latency, degraded accuracy, no permission control, no citations and size limits.
+12. **How do you know your fix worked?** Same golden set before and after, a metric moved beyond the noise, no regression in other slices, and a plan to watch it in production.
+
+### J. Experience and ownership
+
+1. **What was the hardest problem you solved?** Pick a real one: state the symptom, how you found the failing stage with traces and metrics, the fix, and the measured result.
+2. **What failed, and what did you learn?** Give an honest example, such as a parser flattening tables or stale permissions, then the change you made to prevent it, such as a regression test or reconciliation job.
+3. **What would you do differently?** Name a concrete lesson, for example build the golden set and tracing earlier, or start with simpler retrieval and measure before adding complexity.
+4. **How do you decide when a system is production ready?** Evaluation thresholds met on a representative golden set, load tested, security and access tests passed, observability and alerts live, fallbacks and backups tested, and a rollback plan.
+5. **How do you work with non-technical stakeholders?** Define success in business terms (answer accuracy on their real questions, time saved), involve domain experts in labeling the golden set, and report quality and cost on a regular dashboard.
+
+Tell the interviewer when you are unsure. "I have not used that in production, but this is how I would evaluate it" is a stronger answer than guessing.
+
+Do you want to continue to Stage 2 (Document Parsing and Extraction), or should I go deeper on anything in Stage 1 first, such as CDC with Debezium or a full Docker Compose setup for this ingester?
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.2/dist/mermaid.min.js"></script>
+<script>
+const raw=document.getElementById('src').textContent.trim();
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const inl=s=>esc(s).replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\[([^\]]+)\]\(#([\w-]+)\)/g,'<a href="#$2">$1</a>').replace(/¶( *)/g,(m,sp)=>'<br>'+'&nbsp;&nbsp;&nbsp;'.repeat(sp.length)).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+let h='',cur='',toc='',n=0,fence=null;
+const close=()=>{if(cur){h+='</'+cur+'>';cur=''}};
+const open=t=>{if(cur!==t){close();h+='<'+t+'>';cur=t}};
+raw.split('\n').forEach(l=>{
+  let m;
+  if(fence!==null){if(l.startsWith('```')){h+=fence.lang=='mermaid'?`<pre class="mermaid">${esc(fence.b.join('\n'))}</pre>`:`<pre><code>${esc(fence.b.join('\n'))}</code></pre>`;fence=null}else fence.b.push(l);return}
+  if(l.startsWith('```')){close();fence={lang:l.slice(3).trim(),b:[]};return}
+  if(!l.trim()){close();return}
+  if(m=l.match(/^(#{1,3}) (.+)/)){close();const t='h'+m[1].length,nm=m[2].match(/^(\d+)\./),id=nm?'sec-'+nm[1]:(/^Index/.test(m[2])?'index':'s'+n++);h+=`<${t} id="${id}">${inl(m[2])}</${t}>`;if(t=='h2')toc+=`<a href="#${id}">${inl(m[2])}</a>`;return}
+  if(l[0]=='|'){if(/^\|[-| ]+\|$/.test(l.trim()))return;const c=l.trim().replace(/^\||\|$/g,'').split('|').map(x=>x.trim());if(cur!=='table'){close();h+='<table>';cur='table';h+='<tr>'+c.map(x=>`<th>${inl(x)}</th>`).join('')+'</tr>'}else h+='<tr>'+c.map(x=>`<td>${inl(x)}</td>`).join('')+'</tr>';return}
+  if(m=l.match(/^- (.+)/)){open('ul');h+=`<li>${inl(m[1])}</li>`;return}
+  if(m=l.match(/^\d+\. (.+)/)){open('ol');h+=`<li>${inl(m[1])}</li>`;return}
+  close();h+=`<p>${inl(l)}</p>`;
+});
+close();
+document.getElementById('out').innerHTML=h;
+document.getElementById('toc').innerHTML=toc;
+const root=document.documentElement,sel=document.getElementById('th');
+function applyTheme(){sel.value=='green'?root.removeAttribute('data-theme'):root.setAttribute('data-theme',sel.value)}
+sel.onchange=applyTheme;
+try{if(window.mermaid){mermaid.initialize({startOnLoad:false,theme:'neutral'});mermaid.run({querySelector:'pre.mermaid'})}}catch(e){}
+</script></body></html>
