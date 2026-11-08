@@ -1,0 +1,556 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>MLOps Projects: FastAPI, MLflow, RAG on Kubernetes</title><style>
+:root{--bg:#fff;--fg:#1b1f24;--mut:#5b6572;--card:#f5f7fa;--bd:#dde2e8;--code:#0f172a;--codefg:#e2e8f0;--aws:#e67e00;--az:#0078d4;--gcp:#188038;--acc:#4f46e5}
+@media(prefers-color-scheme:dark){:root{--bg:#10141a;--fg:#e6e9ee;--mut:#9aa5b4;--card:#171d26;--bd:#2a3340;--code:#0a0e14;--aws:#ffa940;--az:#4aa8ff;--gcp:#4cc274;--acc:#818cf8}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:2.2rem 1rem 1rem;max-width:960px;margin:auto}
+h1{margin:0 0 .4rem;font-size:2rem}h2{margin-top:2.6rem;border-bottom:2px solid var(--bd);padding-bottom:.3rem}h3{margin:1.6rem 0 .4rem}
+.sub{color:var(--mut)}
+nav{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--bd);z-index:5;padding:.6rem 1rem}
+.bar{max-width:960px;margin:auto;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.bar button{border:1px solid var(--bd);background:var(--card);color:var(--fg);padding:.35rem .9rem;border-radius:999px;cursor:pointer;font-weight:600}
+.bar button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.toc{max-width:960px;margin:auto;padding:0 1rem;display:flex;flex-wrap:wrap;gap:.3rem .9rem;font-size:.9rem}
+.toc a{color:var(--acc);text-decoration:none}
+main{max-width:960px;margin:auto;padding:0 1rem 4rem}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:1rem 1.2rem;margin:1rem 0}
+.tag{display:inline-block;font-size:.75rem;font-weight:700;padding:.05rem .5rem;border-radius:4px;color:#fff}
+.t-aws{background:var(--aws)}.t-az{background:var(--az)}.t-gcp{background:var(--gcp)}
+.c{border-left:4px solid var(--bd);padding-left:1rem;margin:1rem 0}
+.c.aws{border-color:var(--aws)}.c.az{border-color:var(--az)}.c.gcp{border-color:var(--gcp)}
+pre{background:var(--code);color:var(--codefg);padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.85rem;line-height:1.5;position:relative}
+code{font-family:ui-monospace,Menlo,Consolas,monospace}
+p code,li code,td code{background:var(--card);border:1px solid var(--bd);padding:0 .3rem;border-radius:4px;font-size:.88em}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{border:1px solid var(--bd);padding:.45rem .6rem;text-align:left;vertical-align:top}th{background:var(--card)}
+.lvl{font-size:.75rem;background:var(--acc);color:#fff;padding:.1rem .5rem;border-radius:4px;margin-left:.4rem;vertical-align:middle}
+.cp{position:absolute;top:.4rem;right:.4rem;font-size:.7rem;background:#334155;color:#fff;border:0;border-radius:4px;padding:.15rem .5rem;cursor:pointer}
+.warn{border-left:4px solid #d97706}
+.hide{display:none!important}
+</style></head><body><header><h1>Two MLOps Projects on AWS, GCP and Azure</h1><p class="sub">Project 1: FastAPI + ML model + MLflow on Kubernetes. Project 2: FastAPI RAG + Redis + PostgreSQL/pgvector on Kubernetes. Each cloud: CLI and Terraform.</p></header>
+<nav><div class="bar"><b>Show:</b><button class="on" data-f="all">All</button><button data-f="aws">AWS</button><button data-f="az">Azure</button><button data-f="gcp">GCP</button></div></nav>
+<div class="toc" style="padding-top:.6rem"><a href="#a">0 Overview</a><a href="#b">1 Shared infrastructure</a><a href="#c">2 Project 1: ML + MLflow</a><a href="#d">3 Project 2: RAG + pgvector</a><a href="#e">4 Managed-service swap</a><a href="#f">5 Cleanup</a></div><main>
+<div class="card warn"><b>Read first:</b> untested starting points. Replace <code>&lt;placeholders&gt;</code>. Kubernetes versions, module versions and CLI flags change, so check current docs. Clusters, NAT gateways and load balancers cost money: delete everything when done (section 5). To keep this runnable, PostgreSQL and Redis run <b>inside the cluster</b> (learning setup); section 4 shows how to swap to managed services. Auth to the artifact bucket uses IAM-based pod identity on AWS and GCP; Azure uses a storage key in a Secret for brevity (use Workload Identity in production). The LLM is any OpenAI-compatible API you provide (Bedrock, Vertex and Azure OpenAI can be used through compatible gateways or by changing the client code).</div>
+<h2 id="a">0. Architecture and layout</h2>
+<pre><code>Project 1 (namespace ml)                       Project 2 (namespace rag)
+client -&gt; LoadBalancer -&gt; ml-api (FastAPI)       client -&gt; LoadBalancer -&gt; rag-api (FastAPI)
+                          | loads model                              |-&gt; Redis (answer cache)
+                          v                                          |-&gt; PostgreSQL + pgvector (embeddings)
+                       MLflow server -&gt; PostgreSQL (metadata)        `-&gt; LLM API (answer generation)
+                          `-&gt; bucket (S3 / GCS / Blob) for models
+train Job -&gt; logs run + registers model in MLflow
+
+mlops-projects/
+  ml-api/{app.py,train.py,requirements.txt,Dockerfile}   mlflow/Dockerfile
+  rag-api/{app.py,Dockerfile}
+  k8s/{postgres.yaml,mlflow.yaml,ml-api.yaml,rag.yaml}
+  infra/{aws,gcp,azure}/main.tf</code></pre><h2 id="b">1. Shared infrastructure (cluster, registry, artifact bucket)</h2><p>Create it once; both projects use the same cluster. Pick <b>CLI</b> or <b>Terraform</b>, not both.</p><div class="c aws"><span class="tag t-aws">AWS</span> <b>CLI (eksctl)</b><p><b>infra setup</b></p><pre><code>export AWS_REGION=us-east-1 ACCT=$(aws sts get-caller-identity --query Account --output text)
+eksctl create cluster --name mlops --region $AWS_REGION --nodes 2 --node-type t3.large --with-oidc
+eksctl create iamserviceaccount --cluster mlops --namespace kube-system --name ebs-csi-controller-sa --role-name EBSCSIRole --role-only \
+  --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy --approve
+eksctl create addon --cluster mlops --name aws-ebs-csi-driver --service-account-role-arn arn:aws:iam::$ACCT:role/EBSCSIRole --force
+for r in ml-api mlflow rag-api; do aws ecr create-repository --repository-name $r; done
+export BUCKET=mlops-artifacts-$ACCT; aws s3 mb s3://$BUCKET
+kubectl create namespace ml
+eksctl create iamserviceaccount --cluster mlops --namespace ml --name mlflow --approve \
+  --attach-policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess     # ⚠ too broad: replace with a policy limited to the bucket
+export REGISTRY=$ACCT.dkr.ecr.$AWS_REGION.amazonaws.com ARTIFACT_URI=s3://$BUCKET/
+aws ecr get-login-password | docker login --username AWS --password-stdin $REGISTRY</code></pre></div><div class="c gcp"><span class="tag t-gcp">GCP</span> <b>CLI</b><p><b>infra setup</b></p><pre><code>export PROJECT=&lt;project-id&gt; REGION=us-central1
+gcloud config set project $PROJECT
+gcloud services enable container.googleapis.com artifactregistry.googleapis.com
+gcloud container clusters create-auto mlops --region=$REGION
+gcloud container clusters get-credentials mlops --region=$REGION
+gcloud artifacts repositories create mlops --repository-format=docker --location=$REGION
+export BUCKET=$PROJECT-mlops-artifacts; gcloud storage buckets create gs://$BUCKET --location=$REGION --uniform-bucket-level-access
+kubectl create namespace ml; kubectl -n ml create serviceaccount mlflow
+export PNUM=$(gcloud projects describe $PROJECT --format=&#x27;value(projectNumber)&#x27;)
+gcloud storage buckets add-iam-policy-binding gs://$BUCKET --role=roles/storage.objectAdmin \
+  --member=&quot;principal://iam.googleapis.com/projects/$PNUM/locations/global/workloadIdentityPools/$PROJECT.svc.id.goog/subject/ns/ml/sa/mlflow&quot;
+export REGISTRY=$REGION-docker.pkg.dev/$PROJECT/mlops ARTIFACT_URI=gs://$BUCKET/
+gcloud auth configure-docker $REGION-docker.pkg.dev</code></pre></div><div class="c az"><span class="tag t-az">Azure</span> <b>CLI</b><p><b>infra setup</b></p><pre><code>export RG=mlops-rg ACR=&lt;uniqueacr&gt; SA=&lt;uniquestorage&gt;
+az group create -n $RG -l eastus
+az acr create -g $RG -n $ACR --sku Basic
+az aks create -g $RG -n mlops --node-count 2 --node-vm-size Standard_D4s_v5 --attach-acr $ACR --generate-ssh-keys
+az aks get-credentials -g $RG -n mlops
+az storage account create -g $RG -n $SA --sku Standard_LRS
+az storage container create --account-name $SA -n mlflow --auth-mode login
+kubectl create namespace ml; kubectl -n ml create serviceaccount mlflow
+KEY=$(az storage account keys list -g $RG -n $SA --query &#x27;[0].value&#x27; -o tsv)
+kubectl -n ml create secret generic cloud-creds --from-literal=AZURE_STORAGE_ACCESS_KEY=$KEY   # ⚠ learning only
+export REGISTRY=$ACR.azurecr.io ARTIFACT_URI=wasbs://mlflow@$SA.blob.core.windows.net/
+az acr login -n $ACR</code></pre></div><div class="c aws"><span class="tag t-aws">AWS</span> <b>Terraform</b><p><b>infra/aws/main.tf</b></p><pre><code>terraform {
+  required_providers { aws = { source = &quot;hashicorp/aws&quot;, version = &quot;~&gt; 5.0&quot; } }
+}
+provider &quot;aws&quot; { region = var.region }
+variable &quot;region&quot; { default = &quot;us-east-1&quot; }
+data &quot;aws_availability_zones&quot; &quot;az&quot; { state = &quot;available&quot; }
+data &quot;aws_caller_identity&quot; &quot;me&quot; {}
+
+module &quot;vpc&quot; {
+  source              = &quot;terraform-aws-modules/vpc/aws&quot;
+  version             = &quot;~&gt; 5.0&quot;
+  name                = &quot;mlops&quot;
+  cidr                = &quot;10.0.0.0/16&quot;
+  azs                 = slice(data.aws_availability_zones.az.names, 0, 2)
+  private_subnets     = [&quot;10.0.1.0/24&quot;, &quot;10.0.2.0/24&quot;]
+  public_subnets      = [&quot;10.0.101.0/24&quot;, &quot;10.0.102.0/24&quot;]
+  enable_nat_gateway  = true
+  single_nat_gateway  = true
+  public_subnet_tags  = { &quot;kubernetes.io/role/elb&quot; = 1 }
+  private_subnet_tags = { &quot;kubernetes.io/role/internal-elb&quot; = 1 }
+}
+module &quot;eks&quot; {
+  source                                   = &quot;terraform-aws-modules/eks/aws&quot;
+  version                                  = &quot;~&gt; 20.0&quot;
+  cluster_name                             = &quot;mlops&quot;
+  cluster_version                          = &quot;1.31&quot;   # use a currently supported version
+  vpc_id                                   = module.vpc.vpc_id
+  subnet_ids                               = module.vpc.private_subnets
+  cluster_endpoint_public_access           = true
+  enable_cluster_creator_admin_permissions = true
+  enable_irsa                              = true
+  cluster_addons                           = { aws-ebs-csi-driver = { most_recent = true } }
+  eks_managed_node_group_defaults = {
+    iam_role_additional_policies = { ebs = &quot;arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy&quot; }
+  }
+  eks_managed_node_groups = {
+    default = { instance_types = [&quot;t3.large&quot;], min_size = 2, max_size = 4, desired_size = 2 }
+  }
+}
+resource &quot;aws_ecr_repository&quot; &quot;r&quot; {
+  for_each     = toset([&quot;ml-api&quot;, &quot;mlflow&quot;, &quot;rag-api&quot;])
+  name         = each.key
+  force_delete = true
+}
+resource &quot;aws_s3_bucket&quot; &quot;artifacts&quot; {
+  bucket        = &quot;mlops-artifacts-${data.aws_caller_identity.me.account_id}&quot;
+  force_destroy = true
+}
+# MLflow pod access to the bucket (IRSA), limited to this bucket
+module &quot;mlflow_irsa&quot; {
+  source    = &quot;terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks&quot;
+  version   = &quot;~&gt; 5.0&quot;
+  role_name = &quot;mlflow-s3&quot;
+  oidc_providers = { main = { provider_arn = module.eks.oidc_provider_arn, namespace_service_accounts = [&quot;ml:mlflow&quot;] } }
+  role_policy_arns = { s3 = aws_iam_policy.s3.arn }
+}
+resource &quot;aws_iam_policy&quot; &quot;s3&quot; {
+  name = &quot;mlflow-bucket&quot;
+  policy = jsonencode({ Version = &quot;2012-10-17&quot;, Statement = [
+    { Effect = &quot;Allow&quot;, Action = [&quot;s3:*&quot;], Resource = [aws_s3_bucket.artifacts.arn, &quot;${aws_s3_bucket.artifacts.arn}/*&quot;] }] })
+}
+output &quot;registry&quot;     { value = &quot;${data.aws_caller_identity.me.account_id}.dkr.ecr.${var.region}.amazonaws.com&quot; }
+output &quot;artifact_uri&quot; { value = &quot;s3://${aws_s3_bucket.artifacts.bucket}/&quot; }
+output &quot;mlflow_role&quot;  { value = module.mlflow_irsa.iam_role_arn }</code></pre><p><b>then</b></p><pre><code>cd infra/aws &amp;&amp; terraform init &amp;&amp; terraform apply
+aws eks update-kubeconfig --name mlops --region us-east-1
+kubectl create namespace ml
+kubectl -n ml create serviceaccount mlflow
+kubectl -n ml annotate sa mlflow eks.amazonaws.com/role-arn=$(terraform output -raw mlflow_role)
+export REGISTRY=$(terraform output -raw registry) ARTIFACT_URI=$(terraform output -raw artifact_uri)
+aws ecr get-login-password | docker login --username AWS --password-stdin $REGISTRY</code></pre></div><div class="c gcp"><span class="tag t-gcp">GCP</span> <b>Terraform</b><p><b>infra/gcp/main.tf</b></p><pre><code>terraform {
+  required_providers { google = { source = &quot;hashicorp/google&quot;, version = &quot;~&gt; 6.0&quot; } }
+}
+variable &quot;project&quot; {}
+variable &quot;region&quot; { default = &quot;us-central1&quot; }
+provider &quot;google&quot; {
+  project = var.project
+  region  = var.region
+}
+resource &quot;google_project_service&quot; &quot;api&quot; {
+  for_each           = toset([&quot;container.googleapis.com&quot;, &quot;artifactregistry.googleapis.com&quot;])
+  service            = each.key
+  disable_on_destroy = false
+}
+resource &quot;google_container_cluster&quot; &quot;c&quot; {
+  name                = &quot;mlops&quot;
+  location            = var.region
+  enable_autopilot    = true
+  deletion_protection = false
+  depends_on          = [google_project_service.api]
+}
+resource &quot;google_artifact_registry_repository&quot; &quot;r&quot; {
+  location      = var.region
+  repository_id = &quot;mlops&quot;
+  format        = &quot;DOCKER&quot;
+  depends_on    = [google_project_service.api]
+}
+resource &quot;google_storage_bucket&quot; &quot;artifacts&quot; {
+  name                        = &quot;${var.project}-mlops-artifacts&quot;
+  location                    = var.region
+  uniform_bucket_level_access = true
+  force_destroy               = true
+}
+data &quot;google_project&quot; &quot;p&quot; {}
+# Direct Workload Identity access for KSA ml/mlflow (no keys)
+resource &quot;google_storage_bucket_iam_member&quot; &quot;mlflow&quot; {
+  bucket = google_storage_bucket.artifacts.name
+  role   = &quot;roles/storage.objectAdmin&quot;
+  member = &quot;principal://iam.googleapis.com/projects/${data.google_project.p.number}/locations/global/workloadIdentityPools/${var.project}.svc.id.goog/subject/ns/ml/sa/mlflow&quot;
+}
+output &quot;registry&quot;     { value = &quot;${var.region}-docker.pkg.dev/${var.project}/mlops&quot; }
+output &quot;artifact_uri&quot; { value = &quot;gs://${google_storage_bucket.artifacts.name}/&quot; }</code></pre><p><b>then</b></p><pre><code>cd infra/gcp &amp;&amp; terraform init &amp;&amp; terraform apply -var project=&lt;project-id&gt;
+gcloud container clusters get-credentials mlops --region us-central1
+kubectl create namespace ml &amp;&amp; kubectl -n ml create serviceaccount mlflow
+export REGISTRY=$(terraform output -raw registry) ARTIFACT_URI=$(terraform output -raw artifact_uri)
+gcloud auth configure-docker us-central1-docker.pkg.dev</code></pre></div><div class="c az"><span class="tag t-az">Azure</span> <b>Terraform</b><p><b>infra/azure/main.tf</b></p><pre><code>terraform {
+  required_providers { azurerm = { source = &quot;hashicorp/azurerm&quot;, version = &quot;~&gt; 4.0&quot; } }
+}
+variable &quot;subscription_id&quot; {}
+variable &quot;acr_name&quot; {}       # globally unique, letters/numbers only
+variable &quot;sa_name&quot; {}        # globally unique, 3-24 lowercase letters/numbers
+provider &quot;azurerm&quot; {
+  features {}
+  subscription_id = var.subscription_id
+}
+resource &quot;azurerm_resource_group&quot; &quot;rg&quot; {
+  name     = &quot;mlops-rg&quot;
+  location = &quot;eastus&quot;
+}
+resource &quot;azurerm_container_registry&quot; &quot;acr&quot; {
+  name                = var.acr_name
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  sku                 = &quot;Basic&quot;
+}
+resource &quot;azurerm_kubernetes_cluster&quot; &quot;aks&quot; {
+  name                = &quot;mlops&quot;
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  dns_prefix          = &quot;mlops&quot;
+  default_node_pool {
+    name       = &quot;default&quot;
+    node_count = 2
+    vm_size    = &quot;Standard_D4s_v5&quot;
+  }
+  identity { type = &quot;SystemAssigned&quot; }
+}
+resource &quot;azurerm_role_assignment&quot; &quot;pull&quot; {
+  scope                            = azurerm_container_registry.acr.id
+  role_definition_name             = &quot;AcrPull&quot;
+  principal_id                     = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
+  skip_service_principal_aad_check = true
+}
+resource &quot;azurerm_storage_account&quot; &quot;sa&quot; {
+  name                     = var.sa_name
+  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = azurerm_resource_group.rg.location
+  account_tier             = &quot;Standard&quot;
+  account_replication_type = &quot;LRS&quot;
+}
+resource &quot;azurerm_storage_container&quot; &quot;mlflow&quot; {
+  name               = &quot;mlflow&quot;
+  storage_account_id = azurerm_storage_account.sa.id
+}
+output &quot;registry&quot;     { value = azurerm_container_registry.acr.login_server }
+output &quot;artifact_uri&quot; { value = &quot;wasbs://mlflow@${var.sa_name}.blob.core.windows.net/&quot; }
+output &quot;storage_key&quot;  {
+  value     = azurerm_storage_account.sa.primary_access_key
+  sensitive = true
+}</code></pre><p><b>then</b></p><pre><code>cd infra/azure &amp;&amp; terraform init &amp;&amp; terraform apply -var subscription_id=&lt;id&gt; -var acr_name=&lt;uniqueacr&gt; -var sa_name=&lt;uniquestorage&gt;
+az aks get-credentials -g mlops-rg -n mlops
+kubectl create namespace ml &amp;&amp; kubectl -n ml create serviceaccount mlflow
+kubectl -n ml create secret generic cloud-creds --from-literal=AZURE_STORAGE_ACCESS_KEY=$(terraform output -raw storage_key)
+export REGISTRY=$(terraform output -raw registry) ARTIFACT_URI=$(terraform output -raw artifact_uri)
+az acr login -n &lt;uniqueacr&gt;</code></pre></div><h2 id="c">2. Project 1: FastAPI + ML model + MLflow on Kubernetes</h2><p>Flow: MLflow server stores runs in PostgreSQL and model files in the bucket. A training Job logs a scikit-learn model and gives it the alias <code>champion</code>. The FastAPI service loads <code>models:/iris@champion</code> and serves <code>/predict</code>.</p><p><b>ml-api/requirements.txt</b></p><pre><code>fastapi
+uvicorn[standard]
+mlflow&gt;=2.9,&lt;3
+scikit-learn
+pandas</code></pre><p><b>ml-api/app.py</b></p><pre><code>import os
+import mlflow, mlflow.pyfunc
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+mlflow.set_tracking_uri(os.environ[&quot;MLFLOW_TRACKING_URI&quot;])
+app = FastAPI()
+_model = None
+
+class Req(BaseModel):
+    features: list[list[float]]    # e.g. [[5.1, 3.5, 1.4, 0.2]]
+
+def get_model():
+    global _model
+    if _model is None:
+        _model = mlflow.pyfunc.load_model(&quot;models:/iris@champion&quot;)   # loaded lazily
+    return _model
+
+@app.get(&quot;/health&quot;)
+def health():
+    return {&quot;status&quot;: &quot;ok&quot;}
+
+@app.post(&quot;/predict&quot;)
+def predict(r: Req):
+    try:
+        return {&quot;prediction&quot;: get_model().predict(r.features).tolist()}
+    except Exception as ex:
+        raise HTTPException(503, f&quot;model not ready: {ex}&quot;)</code></pre><p><b>ml-api/train.py</b></p><pre><code>import mlflow, mlflow.sklearn
+from sklearn.datasets import load_iris
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+
+mlflow.set_experiment(&quot;iris&quot;)
+X, y = load_iris(return_X_y=True)
+Xtr, Xte, ytr, yte = train_test_split(X, y, random_state=0)
+with mlflow.start_run():
+    m = RandomForestClassifier(n_estimators=100).fit(Xtr, ytr)
+    mlflow.log_metric(&quot;accuracy&quot;, m.score(Xte, yte))
+    info = mlflow.sklearn.log_model(m, artifact_path=&quot;model&quot;)
+mv = mlflow.register_model(info.model_uri, &quot;iris&quot;)
+mlflow.MlflowClient().set_registered_model_alias(&quot;iris&quot;, &quot;champion&quot;, mv.version)
+print(&quot;registered iris version&quot;, mv.version)</code></pre><p><b>ml-api/Dockerfile</b></p><pre><code>FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+USER 1000
+CMD [&quot;uvicorn&quot;, &quot;app:app&quot;, &quot;--host&quot;, &quot;0.0.0.0&quot;, &quot;--port&quot;, &quot;8000&quot;]</code></pre><p><b>mlflow/Dockerfile</b></p><pre><code>FROM python:3.12-slim
+RUN pip install --no-cache-dir &quot;mlflow&gt;=2.9,&lt;3&quot; psycopg2-binary boto3 google-cloud-storage azure-storage-blob
+USER 1000
+EXPOSE 5000</code></pre><p><b>k8s/postgres.yaml (shared by both projects)</b></p><pre><code>apiVersion: apps/v1
+kind: StatefulSet
+metadata: {name: postgres, namespace: &quot;${NS}&quot;}
+spec:
+  serviceName: postgres
+  selector: {matchLabels: {app: postgres}}
+  template:
+    metadata: {labels: {app: postgres}}
+    spec:
+      containers:
+      - name: postgres
+        image: ${PG_IMAGE}
+        ports: [{containerPort: 5432}]
+        env:
+        - {name: POSTGRES_DB, value: &quot;${PG_DB}&quot;}
+        - {name: POSTGRES_PASSWORD, valueFrom: {secretKeyRef: {name: db, key: password}}}
+        - {name: PGDATA, value: /var/lib/postgresql/data/pgdata}
+        volumeMounts: [{name: data, mountPath: /var/lib/postgresql/data}]
+  volumeClaimTemplates:
+  - metadata: {name: data}
+    spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 10Gi}}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: postgres, namespace: &quot;${NS}&quot;}
+spec: {clusterIP: None, selector: {app: postgres}, ports: [{port: 5432}]}</code></pre><p><b>k8s/mlflow.yaml</b></p><pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata: {name: mlflow, namespace: ml}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: mlflow}}
+  template:
+    metadata: {labels: {app: mlflow}}
+    spec:
+      serviceAccountName: mlflow
+      containers:
+      - name: mlflow
+        image: ${REGISTRY}/mlflow:v1
+        command: [&quot;sh&quot;, &quot;-c&quot;]
+        args: [&quot;mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri postgresql://postgres:$DB_PASSWORD@postgres:5432/mlflow --artifacts-destination ${ARTIFACT_URI} --serve-artifacts&quot;]
+        env: [{name: DB_PASSWORD, valueFrom: {secretKeyRef: {name: db, key: password}}}]
+        envFrom: [{secretRef: {name: cloud-creds, optional: true}}]
+        ports: [{containerPort: 5000}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: mlflow, namespace: ml}
+spec: {selector: {app: mlflow}, ports: [{port: 5000}]}</code></pre><p><b>k8s/ml-api.yaml</b></p><pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata: {name: ml-api, namespace: ml}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: ml-api}}
+  template:
+    metadata: {labels: {app: ml-api}}
+    spec:
+      containers:
+      - name: api
+        image: ${REGISTRY}/ml-api:v1
+        env: [{name: MLFLOW_TRACKING_URI, value: &quot;http://mlflow:5000&quot;}]
+        ports: [{containerPort: 8000}]
+        readinessProbe: {httpGet: {path: /health, port: 8000}}
+        resources: {requests: {cpu: 200m, memory: 512Mi}, limits: {memory: 1Gi}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: ml-api, namespace: ml}
+spec: {type: LoadBalancer, selector: {app: ml-api}, ports: [{port: 80, targetPort: 8000}]}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: {name: ml-api, namespace: ml}
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: ml-api}
+  minReplicas: 2
+  maxReplicas: 6
+  metrics: [{type: Resource, resource: {name: cpu, target: {type: Utilization, averageUtilization: 70}}}]
+---
+apiVersion: batch/v1
+kind: Job
+metadata: {name: train-iris, namespace: ml}
+spec:
+  backoffLimit: 4
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: train
+        image: ${REGISTRY}/ml-api:v1
+        command: [&quot;python&quot;, &quot;train.py&quot;]
+        env: [{name: MLFLOW_TRACKING_URI, value: &quot;http://mlflow:5000&quot;}]</code></pre><p><b>Build, push and deploy (all clouds; REGISTRY and ARTIFACT_URI come from section 1)</b></p><pre><code># Build and push (Azure alternative: az acr build -r $ACR -t ml-api:v1 ml-api/ ; same for mlflow)
+docker build -t $REGISTRY/ml-api:v1 ml-api/ &amp;&amp; docker push $REGISTRY/ml-api:v1
+docker build -t $REGISTRY/mlflow:v1 mlflow/ &amp;&amp; docker push $REGISTRY/mlflow:v1
+# AWS only: the ECR repos already exist; GCP/Azure use one registry for all images
+
+kubectl -n ml create secret generic db --from-literal=password=&lt;alphanumeric-password&gt;
+export NS=ml PG_IMAGE=postgres:16 PG_DB=mlflow
+envsubst &#x27;${NS} ${PG_IMAGE} ${PG_DB}&#x27; &lt; k8s/postgres.yaml | kubectl apply -f -
+envsubst &#x27;${REGISTRY} ${ARTIFACT_URI}&#x27; &lt; k8s/mlflow.yaml | kubectl apply -f -
+kubectl -n ml rollout status deploy/mlflow
+envsubst &#x27;${REGISTRY}&#x27; &lt; k8s/ml-api.yaml | kubectl apply -f -
+kubectl -n ml wait --for=condition=complete job/train-iris --timeout=300s
+kubectl -n ml get svc ml-api          # EXTERNAL-IP (AWS shows a hostname)</code></pre><p><b>Test</b></p><pre><code>IP=&lt;EXTERNAL-IP-or-hostname&gt;
+curl http://$IP/health
+curl -X POST http://$IP/predict -H &#x27;Content-Type: application/json&#x27; -d &#x27;{&quot;features&quot;: [[5.1, 3.5, 1.4, 0.2]]}&#x27;
+kubectl -n ml port-forward svc/mlflow 5000:5000      # open http://localhost:5000 to see runs and the model registry</code></pre><h2 id="d">3. Project 2: FastAPI RAG + Redis + PostgreSQL/pgvector on Kubernetes</h2><p>Flow: <code>/ingest</code> embeds text (sentence-transformers, 384 dimensions) and stores it in pgvector. <code>/ask</code> checks the Redis cache, otherwise finds the nearest chunks in pgvector, asks the LLM to answer from them, and caches the reply.</p><p><b>rag-api/app.py</b></p><pre><code>import os, hashlib
+from contextlib import asynccontextmanager
+import psycopg, redis
+from fastapi import FastAPI
+from openai import OpenAI
+from pgvector.psycopg import register_vector
+from pydantic import BaseModel
+from sentence_transformers import SentenceTransformer
+
+URL = os.environ[&quot;DATABASE_URL&quot;]
+emb = SentenceTransformer(&quot;all-MiniLM-L6-v2&quot;)
+cache = redis.from_url(os.environ[&quot;REDIS_URL&quot;])
+llm = OpenAI(base_url=os.getenv(&quot;LLM_BASE_URL&quot;) or None, api_key=os.environ[&quot;LLM_API_KEY&quot;])
+
+@asynccontextmanager
+async def lifespan(app):
+    with psycopg.connect(URL, autocommit=True) as c:
+        c.execute(&quot;CREATE EXTENSION IF NOT EXISTS vector&quot;)
+        c.execute(&quot;CREATE TABLE IF NOT EXISTS docs (id serial PRIMARY KEY, content text, embedding vector(384))&quot;)
+        c.execute(&quot;CREATE INDEX IF NOT EXISTS docs_hnsw ON docs USING hnsw (embedding vector_cosine_ops)&quot;)
+    yield
+
+app = FastAPI(lifespan=lifespan)
+
+def db():
+    c = psycopg.connect(URL, autocommit=True)
+    register_vector(c)
+    return c
+
+class Ingest(BaseModel):
+    texts: list[str]
+
+class Ask(BaseModel):
+    question: str
+
+@app.get(&quot;/health&quot;)
+def health():
+    return {&quot;status&quot;: &quot;ok&quot;}
+
+@app.post(&quot;/ingest&quot;)
+def ingest(b: Ingest):
+    vecs = emb.encode(b.texts)
+    with db() as c:
+        for t, v in zip(b.texts, vecs):
+            c.execute(&quot;INSERT INTO docs (content, embedding) VALUES (%s, %s)&quot;, (t, v))
+    return {&quot;ingested&quot;: len(b.texts)}
+
+@app.post(&quot;/ask&quot;)
+def ask(b: Ask):
+    key = &quot;ans:&quot; + hashlib.sha256(b.question.encode()).hexdigest()
+    hit = cache.get(key)
+    if hit:
+        return {&quot;answer&quot;: hit.decode(), &quot;cached&quot;: True}
+    with db() as c:
+        rows = c.execute(&quot;SELECT content FROM docs ORDER BY embedding &lt;=&gt; %s LIMIT 4&quot;, (emb.encode(b.question),)).fetchall()
+    ctx = &quot;\n---\n&quot;.join(r[0] for r in rows)
+    out = llm.chat.completions.create(model=os.getenv(&quot;LLM_MODEL&quot;, &quot;gpt-4o-mini&quot;), messages=[
+        {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;Answer only from the context. If unknown, say you don&#x27;t know.&quot;},
+        {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: f&quot;Context:\n{ctx}\n\nQuestion: {b.question}&quot;}])
+    ans = out.choices[0].message.content
+    cache.set(key, ans, ex=3600)
+    return {&quot;answer&quot;: ans, &quot;cached&quot;: False}</code></pre><p><b>rag-api/Dockerfile</b></p><pre><code>FROM python:3.12-slim
+WORKDIR /app
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+RUN pip install --no-cache-dir fastapi &quot;uvicorn[standard]&quot; sentence-transformers &quot;psycopg[binary]&quot; pgvector redis openai
+ENV HF_HOME=/opt/hf
+RUN python -c &quot;from sentence_transformers import SentenceTransformer; SentenceTransformer(&#x27;all-MiniLM-L6-v2&#x27;)&quot; &amp;&amp; chmod -R a+rX /opt/hf
+COPY app.py .
+USER 1000
+CMD [&quot;uvicorn&quot;, &quot;app:app&quot;, &quot;--host&quot;, &quot;0.0.0.0&quot;, &quot;--port&quot;, &quot;8000&quot;]</code></pre><p><b>k8s/rag.yaml</b></p><pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata: {name: redis, namespace: rag}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: redis}}
+  template:
+    metadata: {labels: {app: redis}}
+    spec:
+      containers:
+      - {name: redis, image: &quot;redis:7&quot;, ports: [{containerPort: 6379}]}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: redis, namespace: rag}
+spec: {selector: {app: redis}, ports: [{port: 6379}]}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: rag-api, namespace: rag}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: rag-api}}
+  template:
+    metadata: {labels: {app: rag-api}}
+    spec:
+      containers:
+      - name: api
+        image: ${REGISTRY}/rag-api:v1
+        ports: [{containerPort: 8000}]
+        env:
+        - {name: DB_PASSWORD, valueFrom: {secretKeyRef: {name: db, key: password}}}
+        - {name: DATABASE_URL, value: &quot;postgresql://postgres:$(DB_PASSWORD)@postgres:5432/rag&quot;}
+        - {name: REDIS_URL, value: &quot;redis://redis:6379/0&quot;}
+        - {name: LLM_API_KEY, valueFrom: {secretKeyRef: {name: llm, key: api_key}}}
+        - {name: LLM_MODEL, value: &quot;gpt-4o-mini&quot;}
+        readinessProbe: {httpGet: {path: /health, port: 8000}, initialDelaySeconds: 20}
+        resources: {requests: {cpu: 500m, memory: 1Gi}, limits: {memory: 2Gi}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: rag-api, namespace: rag}
+spec: {type: LoadBalancer, selector: {app: rag-api}, ports: [{port: 80, targetPort: 8000}]}</code></pre><p><b>Build, push and deploy (all clouds)</b></p><pre><code>docker build -t $REGISTRY/rag-api:v1 rag-api/ &amp;&amp; docker push $REGISTRY/rag-api:v1   # Azure: az acr build -r $ACR -t rag-api:v1 rag-api/
+kubectl create namespace rag
+kubectl -n rag create secret generic db  --from-literal=password=&lt;alphanumeric-password&gt;
+kubectl -n rag create secret generic llm --from-literal=api_key=&lt;your-llm-api-key&gt;
+export NS=rag PG_IMAGE=pgvector/pgvector:pg16 PG_DB=rag
+envsubst &#x27;${NS} ${PG_IMAGE} ${PG_DB}&#x27; &lt; k8s/postgres.yaml | kubectl apply -f -
+envsubst &#x27;${REGISTRY}&#x27; &lt; k8s/rag.yaml | kubectl apply -f -
+kubectl -n rag rollout status deploy/rag-api
+kubectl -n rag get svc rag-api</code></pre><p><b>Test</b></p><pre><code>IP=&lt;EXTERNAL-IP-or-hostname&gt;
+curl -X POST http://$IP/ingest -H &#x27;Content-Type: application/json&#x27; -d &#x27;{&quot;texts&quot;: [&quot;Our refund window is 30 days.&quot;, &quot;Support is open 9 to 5 on weekdays.&quot;]}&#x27;
+curl -X POST http://$IP/ask -H &#x27;Content-Type: application/json&#x27; -d &#x27;{&quot;question&quot;: &quot;How long do I have to get a refund?&quot;}&#x27;
+# run /ask twice: the second reply has &quot;cached&quot;: true (Redis)
+kubectl -n rag exec -it postgres-0 -- psql -U postgres -d rag -c &quot;SELECT id, left(content,40) FROM docs;&quot;</code></pre><h2 id="e">4. Swap in managed services (production direction)</h2>
+<div class="tw"><table><tr><th></th><th>AWS</th><th>GCP</th><th>Azure</th></tr>
+<tr><td>PostgreSQL</td><td>RDS PostgreSQL (<code>aws_db_instance</code>)</td><td>Cloud SQL (<code>google_sql_database_instance</code>)</td><td>Flexible Server (<code>azurerm_postgresql_flexible_server</code>)</td></tr>
+<tr><td>pgvector enable</td><td><code>CREATE EXTENSION vector;</code> (supported on recent RDS PostgreSQL versions)</td><td><code>CREATE EXTENSION vector;</code></td><td>First allow it: <code>az postgres flexible-server parameter set -g $RG --server-name &lt;srv&gt; --name azure.extensions --value VECTOR</code>, then <code>CREATE EXTENSION vector;</code></td></tr>
+<tr><td>Redis</td><td>ElastiCache</td><td>Memorystore</td><td>Azure Cache for Redis / Azure Managed Redis</td></tr>
+<tr><td>Private access</td><td>Same VPC + security group from EKS nodes</td><td>Private IP + private services access</td><td>VNet integration / private endpoint</td></tr></table></div>
+<p>Steps: create the managed DB and cache <b>in a network the cluster can reach privately</b>; delete the in-cluster <code>postgres</code> / <code>redis</code> workloads; change <code>DATABASE_URL</code>, <code>REDIS_URL</code> (and MLflow's <code>--backend-store-uri</code>); keep the rest unchanged. Store passwords in the cloud secret store (Secrets Manager / Secret Manager / Key Vault) and sync them with the External Secrets Operator or the CSI Secrets Store driver. Not included here: the full private-networking Terraform for managed databases, Ingress with TLS, and monitoring/alerts.</p>
+<h3>Troubleshooting</h3>
+<div class="tw"><table><tr><th>Symptom</th><th>Check</th></tr>
+<tr><td>Pod Pending</td><td><code>kubectl describe pod</code>: PVC not bound (EBS CSI driver missing on EKS) or not enough CPU/memory.</td></tr>
+<tr><td>ImagePullBackOff</td><td>Image name/tag wrong; cluster not allowed to pull (ACR attach, ECR permissions, Artifact Registry reader).</td></tr>
+<tr><td>MLflow CrashLoop</td><td><code>kubectl -n ml logs deploy/mlflow</code>: DB password with special characters in the URI, Postgres not ready, or no bucket permission.</td></tr>
+<tr><td>/predict returns 503</td><td>Training Job not finished or failed: <code>kubectl -n ml logs job/train-iris</code>.</td></tr>
+<tr><td>rag-api slow to start</td><td>Loading the embedding model; raise <code>initialDelaySeconds</code> and memory.</td></tr>
+<tr><td>Extension "vector" not available</td><td>Using plain <code>postgres:16</code> instead of <code>pgvector/pgvector:pg16</code>, or the managed server has not allow-listed it.</td></tr>
+<tr><td>No EXTERNAL-IP</td><td>Wait a few minutes; on AWS check subnet tags and load balancer events with <code>kubectl describe svc</code>.</td></tr></table></div>
+<h2 id="f">5. Cleanup (stops billing)</h2><div class="c aws"><span class="tag t-aws">AWS</span> <b>AWS</b><p><b></b></p><pre><code>kubectl delete svc --all -n ml; kubectl delete svc --all -n rag   # remove load balancers first
+cd infra/aws &amp;&amp; terraform destroy      # or: eksctl delete cluster --name mlops; delete ECR repos; aws s3 rb s3://$BUCKET --force</code></pre></div><div class="c gcp"><span class="tag t-gcp">GCP</span> <b>GCP</b><p><b></b></p><pre><code>kubectl delete svc --all -n ml; kubectl delete svc --all -n rag
+cd infra/gcp &amp;&amp; terraform destroy -var project=&lt;project-id&gt;   # or: gcloud container clusters delete mlops --region=$REGION</code></pre></div><div class="c az"><span class="tag t-az">Azure</span> <b>Azure</b><p><b></b></p><pre><code>kubectl delete svc --all -n ml; kubectl delete svc --all -n rag
+cd infra/azure &amp;&amp; terraform destroy ...   # or: az group delete -n mlops-rg --yes --no-wait</code></pre></div></main><script>document.querySelectorAll('pre').forEach(function(p){var b=document.createElement('button');b.className='cp';b.textContent='Copy';b.onclick=function(){try{navigator.clipboard.writeText(p.querySelector('code').innerText);b.textContent='Copied';setTimeout(function(){b.textContent='Copy'},1200)}catch(e){}};p.appendChild(b)});
+document.querySelectorAll('.bar button').forEach(function(b){b.onclick=function(){document.querySelectorAll('.bar button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');var f=b.dataset.f;['aws','az','gcp'].forEach(function(c){document.querySelectorAll('.c.'+c).forEach(function(el){el.classList.toggle('hide',f!=='all'&&f!==c)})})}});</script></body></html>

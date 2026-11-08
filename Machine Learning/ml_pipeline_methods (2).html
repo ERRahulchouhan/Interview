@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Production ML Pipeline: Stages and Methods</title>
+<style>
+:root{--bg:#f3efe6;--sf:#fbf8f1;--tx:#34383f;--mu:#6b7078;--bd:#ded8c9;--ac:#4a7a8c;--y:#3f7a56;--o:#8a6d2f;--n:#a2594f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1e2329;--sf:#262c33;--tx:#cfd4da;--mu:#8e969f;--bd:#363e47;--ac:#7fb0c2;--y:#7fbf97;--o:#d2b36a;--n:#d68c82}}
+:root[data-theme="dark"]{--bg:#1e2329;--sf:#262c33;--tx:#cfd4da;--mu:#8e969f;--bd:#363e47;--ac:#7fb0c2;--y:#7fbf97;--o:#d2b36a;--n:#d68c82}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.65 Georgia,"Times New Roman",serif;padding:0 16px 60px}
+.wrap{max-width:900px;margin:0 auto}
+header{padding:34px 0 10px}
+h1{font-size:1.85rem;margin:0 0 6px;font-weight:600}
+.sub{color:var(--mu);margin:0;font-family:system-ui,sans-serif;font-size:.95rem}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0;border-bottom:1px solid var(--bd);display:flex;gap:8px;align-items:center;font-family:system-ui,sans-serif}
+input{flex:1;min-width:160px;padding:8px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--sf);color:var(--tx);font:inherit;font-size:.92rem}
+button{padding:7px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--sf);color:var(--tx);font:inherit;font-size:.85rem;cursor:pointer}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.flow{background:var(--sf);border:1px solid var(--bd);border-left:4px solid var(--ac);border-radius:8px;padding:12px 16px;margin:18px 0;font-size:.95rem}
+nav{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;font-family:system-ui,sans-serif}
+nav a{font-size:.78rem;color:var(--ac);text-decoration:none;border:1px solid var(--bd);border-radius:14px;padding:2px 10px;background:var(--sf)}
+section{margin:30px 0}
+h2{font-size:1.2rem;margin:0 0 2px;font-weight:600}
+.note{color:var(--mu);font-size:.92rem;margin:0 0 8px}
+.tb{overflow-x:auto;border:1px solid var(--bd);border-radius:10px;background:var(--sf)}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--bd);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font-family:system-ui,sans-serif;font-size:.8rem;color:var(--mu);font-weight:600}
+td:first-child{font-family:ui-monospace,Consolas,monospace;font-size:.86rem;width:34%;word-break:break-word}
+td:nth-child(3){white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem;width:1%}
+.d{color:var(--y)}.p{color:var(--o)}
+.leg{display:flex;gap:16px;font-family:system-ui,sans-serif;font-size:.88rem;margin:10px 0}
+.q{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px 16px;font-style:italic;margin:0 0 10px}
+.ans{background:var(--sf);border:1px solid var(--bd);border-left:4px solid var(--y);border-radius:10px;padding:8px 20px;margin:0}
+.ans p{margin:12px 0}
+.faq details{background:var(--sf);border:1px solid var(--bd);border-radius:10px;margin:8px 0;padding:0 16px}
+.faq summary{cursor:pointer;padding:12px 0;font-weight:600;list-style-position:outside}
+.faq details[open] summary{border-bottom:1px solid var(--bd);margin-bottom:8px}
+.faq p{margin:8px 0;font-size:.97rem}
+.faq .exp{color:var(--mu);font-family:system-ui,sans-serif;font-size:.88rem}
+.faq .eg{border-left:3px solid var(--ac);padding-left:12px;color:var(--mu);font-size:.92rem}
+.faq .tag{font-family:system-ui,sans-serif;font-size:.7rem;font-weight:500;color:var(--o);border:1px solid var(--bd);border-radius:10px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+.stages .st{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 16px;margin:12px 0}
+.st h3{margin:0 0 2px;font-size:1.05rem;color:var(--tx);font-family:Georgia,serif}
+.st .num{display:inline-block;min-width:26px;text-align:center;background:var(--ac);color:var(--bg);border-radius:6px;font-family:system-ui,sans-serif;font-size:.82rem;margin-right:8px;padding:0 6px}
+.st .one{margin:2px 0 8px;font-size:.97rem}
+.st dl{margin:0;display:grid;grid-template-columns:150px 1fr;gap:6px 14px;font-size:.92rem}
+.st dt{font-family:system-ui,sans-serif;font-size:.78rem;color:var(--mu);font-weight:600;padding-top:2px}
+.st dd{margin:0}
+.st .mk dt,.st .mk{color:var(--n,#a2594f)}
+@media(max-width:600px){.st dl{grid-template-columns:1fr}.st dt{padding-top:6px}}
+.y{color:var(--y)}.w{color:var(--o)}.n{color:var(--n)}
+.g td:first-child{width:22%}
+.g td:nth-child(3){white-space:normal;width:auto;font-family:inherit;font-size:.93rem}
+.g td:nth-child(4){white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem;width:1%}
+.tip{background:var(--sf);border:1px solid var(--bd);border-left:4px solid var(--y);border-radius:8px;padding:10px 14px;margin:10px 0 0;font-size:.93rem}
+.w4 td:first-child{width:15%;font-family:system-ui,sans-serif;font-size:.88rem;font-weight:600}
+.w4 td:nth-child(n+2){white-space:normal;width:auto;font-family:inherit;font-size:.9rem}
+.sech3{font-family:system-ui,sans-serif;font-size:.95rem;color:var(--mu);margin:20px 0 6px}
+pre{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:14px;overflow-x:auto;font-size:.82rem;line-height:1.55;font-family:ui-monospace,Consolas,monospace;margin:8px 0}
+.hide{display:none}
+footer{color:var(--mu);font-size:.88rem;margin-top:30px;font-family:system-ui,sans-serif}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Production ML Pipeline: Stages and Methods</h1>
+<p class="sub">Every stage of the pipeline in <b>ml_pipeline.py</b>, with the method used at each stage.</p>
+</header>
+<div class="bar">
+<input id="q" type="search" placeholder="Search a method, e.g. SimpleImputer" aria-label="Search methods">
+<button id="th" aria-label="Switch theme">Theme</button>
+</div>
+<div class="leg"><span class="d">● Default in this pipeline</span><span class="p">● Optional or alternative</span></div>
+<div class="flow"><b>Flow:</b> Config → Read → Validate → Clean → Split → Missing values → Outliers → Transform → Encode → Scale → Feature selection → Model → Tuning → Cross-validation → Evaluation → Quality gate → Interpretation → Save → Predict → Serve → Monitor → Retrain (when triggered) → back to Read data → Test</div>
+<nav id="nav"></nav>
+<section id="stages" class="stages">
+<h2>The 12 Stages of a Production ML Pipeline</h2>
+<p class="note">Each stage has the purpose, the methods and tools, what to check, a common mistake, and how it is done in this pipeline.</p>
+<div id="stage-list"></div>
+</section>
+<section id="lifecycle" class="stages">
+<h2>The Complete ML Lifecycle: All Concepts Explained</h2>
+<p class="note">Every stage as a concept: what it is, the key ideas, the methods and tools, the output it produces, the check before moving on, and a one-line answer for an interview.</p>
+<div class="flow"><b>Flow:</b> Data Collection → Data Ingestion and Versioning → Data Analysis → Data Validation → Data Cleaning → Data Preprocessing → Feature Engineering → Model Development → Hyperparameter Tuning → Model Evaluation → Accuracy Check → <b>OK?</b> (no: back to data, features or tuning) → Model Registry → Model Deployment → Monitoring and Retraining</div>
+<div class="st"><h3><span class="num">1</span>Data Collection</h3><p class="one">Gathering the raw data from the places where it is created.</p><dl><dt>Key concepts</dt><dd>Sources: transactional databases, application logs and events, sensors, APIs, third-party data, surveys, permitted web scraping. Primary vs secondary data. Labeling: manual, crowdsourcing, weak supervision, active learning. Representativeness and sampling bias. Consent, privacy and personal data rules. A clear definition of the label (what exactly is a churn or a fraud).</dd><dt>Methods and tools</dt><dd>SQL, event tracking and logging, Kafka producers, change data capture, REST APIs, Label Studio, survey tools, data contracts with the data owners, a data dictionary.</dd><dt>Output</dt><dd>Raw datasets, a data dictionary, and a written label definition.</dd><dt>Check before moving on</dt><dd>Does the data represent the situation where the model will be used? Is it legal to use? Are the labels reliable and available at prediction time?</dd><dt>Say it in an interview</dt><dd>“Collection decides what the model can ever learn. Biased or badly labeled data limits every later step.”</dd></dl></div><div class="st"><h3><span class="num">2</span>Data Ingestion</h3><p class="one">Moving data from the sources into one central, reliable place on a repeatable basis.</p><dl><dt>Key concepts</dt><dd>Batch vs streaming vs micro-batch. Full vs incremental load. ETL vs ELT. Change data capture. Idempotent loads (a retry does not create duplicates), retries and backfills, schema evolution. Layers: raw (bronze), cleaned (silver), ready for use (gold). Partitioning and file formats (Parquet, Avro, ORC). Keep an untouched raw copy.</dd><dt>Methods and tools</dt><dd>Airflow, Dagster, Prefect, Kafka, Spark, dbt, Glue, Fivetran, S3 or GCS data lake, Snowflake, BigQuery, Redshift, pd.read_sql, pd.read_parquet.</dd><dt>Output</dt><dd>Raw immutable data in the lake or warehouse, with metadata: source, load time, row counts.</dd><dt>Check before moving on</dt><dd>Row counts match the source, no duplicates after a retry, schema is known, data is fresh.</dd><dt>Say it in an interview</dt><dd>“Ingestion is reliable, repeatable movement of data into one place. I keep a raw copy and make every load idempotent.”</dd></dl></div><div class="st"><h3><span class="num">3</span>Data Ingestion and Versioning</h3><p class="one">Recording exactly which data, code, parameters and environment produced each model, so any result can be rebuilt.</p><dl><dt>Key concepts</dt><dd>What to version: data (DVC, lakeFS, Delta Lake time travel, Apache Iceberg snapshots), code (Git), parameters (params file), pipeline (dvc.yaml), model (registry), environment (Docker image, pinned library versions). Immutable snapshots, content hashes, tags, lineage (data to features to model). Metadata stored with every run, such as the data hash.</dd><dt>Methods and tools</dt><dd>DVC, Git, lakeFS, Delta Lake, Iceberg, MLflow, Docker, pip or conda lock files.</dd><dt>Output</dt><dd>A tagged data snapshot, small pointer files in Git, and a lineage record.</dd><dt>Check before moving on</dt><dd>Can I rebuild model v1.3 exactly, and roll data back to an earlier version in minutes?</dd><dt>Say it in an interview</dt><dd>“Git versions the code, DVC or a lakehouse snapshot versions the data, the registry versions the model, and one tag links them.”</dd></dl></div><div class="st"><h3><span class="num">4</span>Data Analysis (EDA)</h3><p class="one">Understanding the data before modeling, so decisions are based on evidence.</p><dl><dt>Key concepts</dt><dd>Univariate (distribution, skew, kurtosis), bivariate (correlation, group comparison) and multivariate (heatmap, PCA) views. Missingness pattern (MCAR, MAR, MNAR). Outliers, class balance, target analysis, time trends and seasonality, leakage hunting, and a comparison of train data with recent data.</dd><dt>Methods and tools</dt><dd>describe, value_counts, histogram, box plot, Pearson, Spearman and Cramer's V, groupby and pivot tables, ydata-profiling, chi-square test, t-test, ANOVA, seaborn and matplotlib.</dd><dt>Output</dt><dd>A list of issues, hypotheses, feature ideas and decisions.</dd><dt>Check before moving on</dt><dd>Every finding has an action written next to it: impute, cap, transform, drop, or engineer.</dd><dt>Say it in an interview</dt><dd>“EDA is for decisions, not charts. Each finding must lead to an action.”</dd></dl></div><div class="st"><h3><span class="num">5</span>Data Validation</h3><p class="one">Automatic checks that the data meets the agreed contract, before it is used.</p><dl><dt>Key concepts</dt><dd>Schema and types, nulls, ranges, uniqueness, allowed categories, referential integrity, row count, freshness, distribution against a reference. Hard failures stop the pipeline, soft ones warn. Run at ingestion, before training and at serving. Quarantine bad records.</dd><dt>Methods and tools</dt><dd>Great Expectations, Pandera, Pydantic, TFDV, Deepchecks, Soda, dbt tests.</dd><dt>Output</dt><dd>A validation report with pass or fail, and quarantined records.</dd><dt>Check before moving on</dt><dd>The pipeline stops on a hard failure, and the same checks protect the live API.</dd><dt>Say it in an interview</dt><dd>“Validation is a contract on the data. A bad batch is blocked instead of silently reaching the model.”</dd></dl></div><div class="st"><h3><span class="num">6</span>Data Cleaning</h3><p class="one">Fixing the errors that validation and EDA found.</p><dl><dt>Key concepts</dt><dd>Missing values, duplicates, inconsistent formats (dates, units, case, spaces), typos and category merges, invalid values, type conversion, outliers (keep or cap), label errors. Cleaning uses fixed rules and does not learn anything from the data.</dd><dt>Methods and tools</dt><dd>dropna, drop_duplicates, to_datetime, to_numeric with errors coerce, str methods and regex, fuzzy matching (rapidfuzz), unit conversion, business rules, cleanlab for label noise.</dd><dt>Output</dt><dd>A clean dataset and a cleaning log (what changed and how many rows).</dd><dt>Check before moving on</dt><dd>Row counts reconcile, no invented information, and the rules are coded so they also run at serving.</dd><dt>Say it in an interview</dt><dd>“Cleaning fixes errors in the data. Preprocessing then prepares clean data for the algorithm.”</dd></dl></div><div class="st"><h3><span class="num">7</span>Data Preprocessing</h3><p class="one">Turning clean data into numbers the algorithm can use, with parameters learned from training data only.</p><dl><dt>Key concepts</dt><dd>Imputation, encoding (one-hot, ordinal, target), scaling (standardization, normalization), transformation (log, power), outlier clipping with learned limits, text and image steps (tokenizing, resizing). Split first, then fit on train only, handle unseen categories and missing values, keep everything in one Pipeline.</dd><dt>Methods and tools</dt><dd>scikit-learn Pipeline, ColumnTransformer, SimpleImputer, OneHotEncoder, StandardScaler, RobustScaler, PowerTransformer, FunctionTransformer.</dd><dt>Output</dt><dd>A fitted preprocessing pipeline object that is saved with the model.</dd><dt>Check before moving on</dt><dd>Fitted on training data only, identical at serving, and safe for unseen categories and NaN.</dd><dt>Say it in an interview</dt><dd>“Cleaning is fixed rules. Preprocessing learns parameters, so it must be fitted on training data only.”</dd></dl></div><div class="st"><h3><span class="num">8</span>Feature Engineering</h3><p class="one">Creating and selecting inputs that carry the signal.</p><dl><dt>Key concepts</dt><dd>Domain features, group-by aggregates, ratios, date parts and cyclical encoding, lag and rolling features, interactions, binning, text features (TF-IDF, embeddings), feature selection (filter, wrapper, embedded), point-in-time correct features, a feature store for consistency between training and serving.</dd><dt>Methods and tools</dt><dd>pandas, FunctionTransformer, Featuretools, tsfresh, Feast, SelectFromModel, permutation importance, SHAP.</dd><dt>Output</dt><dd>A feature set with written definitions (a feature catalogue).</dd><dt>Check before moving on</dt><dd>Every feature exists at prediction time, shows no leakage, and earns its place in importance checks.</dd><dt>Say it in an interview</dt><dd>“On tabular data, better features usually beat a fancier algorithm.”</dd></dl></div><div class="st"><h3><span class="num">9</span>Model Development</h3><p class="one">Choosing, training and comparing candidate models.</p><dl><dt>Key concepts</dt><dd>Problem type, baseline first, algorithm families (linear, trees, boosting, neural networks), cross-validation, bias and variance, regularization, class imbalance handling, ensembles, fixed random seeds, experiment tracking, training code in scripts and not only notebooks.</dd><dt>Methods and tools</dt><dd>scikit-learn, XGBoost, LightGBM, CatBoost, PyTorch, TensorFlow, MLflow, Weights and Biases.</dd><dt>Output</dt><dd>Candidate models with logged runs (parameters, metrics, artifacts).</dd><dt>Check before moving on</dt><dd>The candidate beats the baseline in cross-validation, the train-validation gap is small, and every run is logged.</dd><dt>Say it in an interview</dt><dd>“I start from a simple baseline and add complexity only when the data proves it is worth it.”</dd></dl></div><div class="st"><h3><span class="num">10</span>Hyperparameter Tuning</h3><p class="one">Searching the settings fixed before training (parameters are learned, hyperparameters are set).</p><dl><dt>Key concepts</dt><dd>Search space, search strategy (grid, random, Bayesian or TPE, Hyperband), cross-validation inside the search, scoring metric, early stopping and pruning, a fixed budget, nested cross-validation for an honest estimate, tune the most important settings first (learning rate, depth), diminishing returns. Never tune on the test set.</dd><dt>Methods and tools</dt><dd>RandomizedSearchCV, GridSearchCV, Optuna, Hyperopt, scikit-optimize, Ray Tune, MLflow for trial logs.</dd><dt>Output</dt><dd>The best parameters and the full trial history.</dd><dt>Check before moving on</dt><dd>The improvement is larger than the fold-to-fold noise, and the result is stable.</dd><dt>Say it in an interview</dt><dd>“Tuning comes after features and data are right, and always inside cross-validation on training data.”</dd></dl></div><div class="st"><h3><span class="num">11</span>Model Evaluation</h3><p class="one">Measuring how well the model will work on unseen data.</p><dl><dt>Key concepts</dt><dd>Metrics that match the problem (classification, regression, ranking, clustering), roles of train, validation and test sets, cross-validation, confusion matrix, threshold choice, calibration, slice and fairness checks, baseline comparison, error analysis, confidence intervals by bootstrap, latency and model size. The test set is used once.</dd><dt>Methods and tools</dt><dd>sklearn.metrics, SHAP, permutation importance, Evidently, Fairlearn.</dd><dt>Output</dt><dd>An evaluation report with metrics, plots and segment results.</dd><dt>Check before moving on</dt><dd>Compared with the baseline and with the current production model on the same data.</dd><dt>Say it in an interview</dt><dd>“I choose the metric from the business cost and use the test set only once.”</dd></dl></div><div class="st"><h3><span class="num">12</span>Accuracy Check (Quality Gate), then OK, then Registry</h3><p class="one">An automatic decision: is this model good enough to be registered? Accuracy here means the agreed metric, which is often PR-AUC or F1 and not plain accuracy.</p><dl><dt>Key concepts</dt><dd>Pre-agreed acceptance rules: minimum metric on the test set, at least as good as the current champion, no regression on key segments, no sign of leakage, latency and size within limits, explainability and fairness checks, a reproducible run with data and code versions recorded, and human sign-off for high-risk models. If it passes, register it. If it fails, go back to data, features or tuning, and do not lower the bar.</dd><dt>Methods and tools</dt><dd>CI checks, MLflow, a metrics threshold file, champion and challenger comparison, model cards.</dd><dt>Output</dt><dd>A pass or fail decision, and for a pass a registered version.</dd><dt>Check before moving on</dt><dd>The rules were written before training, so the result cannot be bent to fit.</dd><dt>Say it in an interview</dt><dd>“A model enters the registry only if it passes agreed checks, not because someone likes the score.”</dd></dl></div><div class="st"><h3><span class="num">13</span>Model Registry</h3><p class="one">The central catalogue of approved model versions and their lifecycle.</p><dl><dt>Key concepts</dt><dd>Version number, stage or alias (Staging, Production, Archived, champion), metrics, data hash, code commit, parameters, model signature (input and output schema), model card, approval and promotion history, access control, rollback to an earlier version.</dd><dt>Methods and tools</dt><dd>MLflow Model Registry, SageMaker Model Registry, Vertex AI Model Registry, Azure ML, or a simple versioned folder with a pointer file.</dd><dt>Output</dt><dd>A registered, versioned model with lineage and a stage.</dd><dt>Check before moving on</dt><dd>Everyone can see which version is live, who approved it, and how it was built.</dd><dt>Say it in an interview</dt><dd>“The registry is the single source of truth for which model is live, and the way back if it fails.”</dd></dl></div><div class="st"><h3><span class="num">14</span>Model Deployment</h3><p class="one">Making the approved model available to users and systems.</p><dl><dt>Key concepts</dt><dd>Modes: batch, real-time API, streaming, edge. Package the preprocessing and the model together, then serve with an API. Docker image, Kubernetes for scaling and rolling updates, CI/CD for tests and release, release strategies (shadow, canary, blue-green, A/B), input validation, authentication, config and secrets, logging of predictions, latency and throughput, rollback. After release comes monitoring and retraining.</dd><dt>Methods and tools</dt><dd>FastAPI, BentoML, TorchServe, Triton, Docker, Kubernetes, GitHub Actions, Jenkins, Argo CD, SageMaker, Vertex AI, Azure ML, Prometheus, Grafana.</dd><dt>Output</dt><dd>A running service, a deployment record, and dashboards with alerts.</dd><dt>Check before moving on</dt><dd>Smoke test and load test pass, the health endpoint works, and a rollback has been tested.</dd><dt>Say it in an interview</dt><dd>“I ship the preprocessing and the model together in one container, release gradually, and keep a rollback ready.”</dd></dl></div>
+<h3 class="sech3">Concepts that are easy to mix up</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Concepts</th><th>The difference</th></tr></thead><tbody><tr><td>Collection vs ingestion</td><td>Collection is creating or obtaining the data and labels. Ingestion is moving that data into a central store in a repeatable way</td></tr><tr><td>Validation vs cleaning</td><td>Validation checks and reports problems automatically. Cleaning fixes them</td></tr><tr><td>Cleaning vs preprocessing</td><td>Cleaning uses fixed rules to fix errors. Preprocessing learns parameters from training data (median, scaler values, category lists) to make data model-ready</td></tr><tr><td>Preprocessing vs feature engineering</td><td>Preprocessing makes existing columns usable. Feature engineering creates and selects new, more informative inputs</td></tr><tr><td>Evaluation vs accuracy check</td><td>Evaluation measures the model. The accuracy check is the decision that compares those results with agreed rules</td></tr><tr><td>Registry vs deployment</td><td>The registry stores approved versions and stages. Deployment runs one version for real users</td></tr><tr><td>Versioning vs tracking</td><td>Versioning stores exact copies of data, code and models. Tracking records parameters and metrics for each run</td></tr></tbody></table></div>
+<h3 class="sech3">Accuracy check (quality gate): the checks before a model enters the registry</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Gate check</th><th>Example rule</th><th>Why</th></tr></thead><tbody><tr><td>Minimum metric on the test set</td><td>ROC-AUC at least 0.75, PR-AUC clearly above the positive rate</td><td>Below this the model has no business value</td></tr><tr><td>Better than the current champion</td><td>Equal or better on the same recent data</td><td>A worse model must not replace a good one</td></tr><tr><td>Key segments</td><td>No big drop for any important region, product or customer group</td><td>An average can hide a failing segment</td></tr><tr><td>No leakage</td><td>Time-based or group split score is similar to the random split score</td><td>A leaked score is not real</td></tr><tr><td>Latency and size</td><td>p95 latency and memory within the service limits</td><td>A great model that is too slow cannot be used</td></tr><tr><td>Explainability and fairness</td><td>Importance reviewed, bias metrics checked where relevant</td><td>Business and regulatory trust</td></tr><tr><td>Reproducibility</td><td>Data hash, code commit, parameters and library versions recorded</td><td>Anyone can rebuild and audit it</td></tr><tr><td>Approval</td><td>Human sign-off for high-risk models</td><td>Accountability</td></tr></tbody></table></div>
+<div class="tip"><b>Decision:</b> if every check passes, register the model as a new version in Staging, approve it, and promote it to Production through a shadow or canary release. If a check fails, go back to the data, features or tuning. Do not lower the bar to make the model pass.</div>
+</section>
+<div id="detail"></div>
+<main id="app"></main>
+<section id="interview">
+<h2>Most Important: How to Explain It in an Interview (2–3 Minutes)</h2>
+<p class="note">If an interviewer asks:</p>
+<div class="q">“Explain your end-to-end machine learning production pipeline.”</div>
+<p class="note">You can give this answer:</p>
+<div class="ans">
+<p>“In my project, I implemented an end-to-end machine learning pipeline following MLOps best practices.</p>
+<p>First, I collected data from databases and external sources using Python and SQL.</p>
+<p>Then I performed data validation to check missing values, duplicates, data types, and data quality.</p>
+<p>After validation, I performed preprocessing, including missing-value imputation, categorical encoding, scaling, outlier handling, and feature engineering.</p>
+<p>Next, I split the dataset into training, validation, and testing datasets. I trained multiple ML algorithms, such as Logistic Regression, Random Forest, and XGBoost, and compared their performance using appropriate evaluation metrics.</p>
+<p>I used MLflow for experiment tracking, where I logged model parameters, metrics, and artifacts. After selecting the best model, I registered it in the MLflow Model Registry with proper versioning.</p>
+<p>For deployment, I created a prediction API using FastAPI, containerized the application using Docker, and deployed it using Kubernetes.</p>
+<p>I also implemented CI/CD using Jenkins or GitHub Actions to automate testing and deployment.</p>
+<p>Finally, I monitored data drift, concept drift, prediction quality, API latency, and system errors using Evidently AI, Prometheus, and Grafana.</p>
+<p>Whenever model performance degrades, we trigger a retraining pipeline, validate the new model, and deploy it only after it passes the required quality checks.</p>
+<p>This makes the complete ML lifecycle automated, reproducible, scalable, and maintainable.”</p>
+</div>
+</section>
+<section id="interview-dataset" class="faq">
+<h2>Most Important: How to Explain It in an Interview (2–3 Minutes): “I Give You a Dataset. How Do You Build the Pipeline and Why These Methods?”</h2>
+<p class="note">If an interviewer asks:</p>
+<div class="q">“If I give you a dataset, how will you approach it, build a machine learning pipeline, and why did you choose those methods and not others?”</div>
+<p class="note">You can give this answer:</p>
+<div class="ans">
+<p>“When I receive a new dataset, I do not start with a model. I start with the problem and the data, and I choose every method from what I see in the data.</p>
+<p>First, I clarify the goal: what we predict, whether it is classification or regression, what a wrong prediction costs, and which metric matters. For a rare-event problem I focus on PR-AUC, precision and recall instead of accuracy.</p>
+<p>Second, I inspect the data: shape, types, missing values, duplicates, class balance, distributions, outliers, correlations, and whether any column leaks the target or would not be available at prediction time. I turn these checks into automated validation so they run on every new batch.</p>
+<p>Third, I split before anything is learned: stratified for classification, time-based for dated data, group-based when one customer has many rows. The test set stays untouched until the end.</p>
+<p>Fourth, preprocessing. For missing values I use the median with a missing flag, because the median is not affected by outliers, and the most frequent value for categories. For outliers I use IQR clipping with limits learned on training data, because the data is skewed, and I do not delete rows since extreme values can be real. Skewed columns get a log transform. Low-cardinality categories get one-hot encoding, high-cardinality ones get target or frequency encoding. I scale only if the model needs it, such as linear models, SVM, KNN or neural networks, not for tree models.</p>
+<p>Fifth, for imbalance I start with class weights and threshold tuning because they do not change the data. I use SMOTE only if that is not enough, and only inside the training folds.</p>
+<p>Sixth, feature selection: domain features first, then variance and correlation filters and importance-based selection, confirmed with permutation importance.</p>
+<p>Seventh, models. I start with a simple baseline, logistic regression, then a gradient boosting model, because for tabular data boosting usually gives the best accuracy with little preprocessing. I compare them with the same cross-validation and metric. I would choose a neural network only for images, text or very large data, and a linear model when explainability is required.</p>
+<p>Eighth, I tune with random search or Optuna using cross-validation on training data, choose the threshold from out-of-fold predictions, and evaluate once on the test set.</p>
+<p>Everything goes into one scikit-learn Pipeline so training and serving run exactly the same steps. Then I version the model, serve it through an API, monitor drift and performance, and retrain when a trigger fires.</p>
+<p>If someone asks why not another method, my answer is always the same: I choose from the data and the business need, and I can explain the trade-off. For example, mean imputation is fine when there are no outliers, but with outliers the median is safer.”</p>
+</div>
+
+<h3 class="sech3">Why this method and why not the others (step by step)</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Step</th><th>What I do</th><th>Why this</th><th>Why not the others</th></tr></thead><tbody><tr><td>1. Problem and metric</td><td>Decide classification or regression. Choose the metric from the business cost, such as PR-AUC, precision and recall for rare events.</td><td>The metric decides every later choice, so it comes first.</td><td>Accuracy misleads when one class is 95% of the data. RMSE punishes big errors, MAE is gentler, so choose by cost.</td></tr><tr><td>2. Data validation</td><td>Automated checks for schema, types, nulls, duplicates, valid target and ranges.</td><td>Catches bad data before it reaches the model and runs on every new batch.</td><td>Manual notebook checks do not run on new data.</td></tr><tr><td>3. Splitting</td><td>Stratified split for classification, time-based for dated data, group split when one customer has many rows. Test set stays untouched.</td><td>Keeps the class ratio and avoids leakage.</td><td>A random split on time data lets the model see the future. A random split with repeated customers leaks the entity.</td></tr><tr><td>4. Missing values</td><td>Median plus a missing flag for numbers, most frequent for categories.</td><td>Median is not pulled by outliers, and the flag keeps the fact that the value was missing.</td><td>Mean is fine when there are no outliers. Dropping rows loses data and cannot be done at serving. KNN and MICE imputers are slow and hard to serve.</td></tr><tr><td>5. Outliers</td><td>IQR clipping with limits learned on training data.</td><td>Works for skewed data, keeps the row, and applies the same limits at serving.</td><td>Z-score assumes roughly normal data and the mean and std are themselves distorted by outliers. Deleting rows loses real events and is impossible at inference. Isolation Forest is for anomaly tasks.</td></tr><tr><td>6. Transformation</td><td>log1p for right-skewed columns such as income.</td><td>Reduces skew, helps linear models and shrinks the effect of extreme values.</td><td>Box-Cox needs positive values, so use Yeo-Johnson or quantile transform for zeros and negatives. Tree models do not need it.</td></tr><tr><td>7. Encoding</td><td>One-hot for few categories, target or frequency encoding for many.</td><td>One-hot adds no false order between categories.</td><td>Label encoding on input features creates a fake order. One-hot on thousands of categories explodes the size. Target encoding needs cross-fitting to avoid leakage.</td></tr><tr><td>8. Scaling</td><td>StandardScaler only for scale-sensitive models.</td><td>Linear models, SVM, KNN, PCA and neural networks need features on a similar scale.</td><td>Tree models and boosting do not need scaling. Min-Max breaks with outliers. Use RobustScaler if outliers stay.</td></tr><tr><td>9. Class imbalance</td><td>Class weights plus threshold tuning.</td><td>No data is changed and probabilities stay meaningful.</td><td>SMOTE can distort probabilities and leaks if done before the split. Undersampling throws away data. Use them only if weights are not enough, inside training folds.</td></tr><tr><td>10. Feature selection</td><td>Variance and correlation filters, SelectFromModel, then permutation importance.</td><td>Cheap, runs inside the Pipeline and removes noise.</td><td>RFE and forward selection are slow. PCA gives features that are hard to explain, so use it for many correlated columns.</td></tr><tr><td>11. Model</td><td>Logistic Regression baseline, then gradient boosting.</td><td>Boosting usually wins on tabular data, handles non-linearity and needs little preprocessing. The baseline shows whether complexity is worth it.</td><td>Deep learning needs lots of data and tuning for tabular problems. KNN and SVM are slow at scale. A single tree overfits. Choose logistic regression if explainability is required.</td></tr><tr><td>12. Tuning</td><td>Random search or Optuna with cross-validation on training data.</td><td>Covers a large space in fewer trials.</td><td>Grid search explodes with many parameters. Tuning on the test set leaks information.</td></tr><tr><td>13. Evaluation and threshold</td><td>PR-AUC, ROC-AUC, F1, confusion matrix. Threshold from out-of-fold predictions. Test set used once.</td><td>The score stays honest and the cut-off fits the business cost.</td><td>A fixed threshold of 0.5 is rarely best. Accuracy alone hides weak minority performance.</td></tr><tr><td>14. Interpretation</td><td>Permutation importance and SHAP.</td><td>Explains the model to the business and exposes leakage.</td><td>Built-in tree importance is biased towards high-cardinality columns.</td></tr><tr><td>15. Production</td><td>One saved Pipeline, API, versioning, monitoring, retraining triggers.</td><td>The same steps run in training and serving, and rollback is possible.</td><td>Preprocessing done separately in notebooks causes training-serving skew.</td></tr></tbody></table></div>
+
+<h3 class="sech3">If you see this in the data, do this</h3>
+<div class="tb"><table class="w4"><thead><tr><th>You see</th><th>Choose</th><th>Reason</th><th>Instead of</th></tr></thead><tbody>
+<tr><td>Skewed numeric column</td><td>log1p or Yeo-Johnson</td><td>Pulls in the long tail</td><td>Leaving it raw for linear models</td></tr>
+<tr><td>Many outliers</td><td>IQR clipping, RobustScaler, tree models</td><td>Not distorted by extremes</td><td>StandardScaler and Z-score rules</td></tr>
+<tr><td>Rare positive class</td><td>Class weights, PR-AUC, threshold tuning</td><td>Focus on the minority class</td><td>Accuracy</td></tr>
+<tr><td>Date column or repeated customers</td><td>Time-based or group split</td><td>No leakage</td><td>Random split</td></tr>
+<tr><td>High-cardinality category</td><td>Target or frequency encoding, native categorical in CatBoost or LightGBM</td><td>Keeps the feature small</td><td>One-hot</td></tr>
+<tr><td>Small dataset (under about 1,000 rows)</td><td>Simple model, repeated cross-validation, strong regularization</td><td>Less overfitting</td><td>Large boosting or deep models</td></tr>
+<tr><td>Hundreds of features</td><td>Filters, SelectFromModel, Lasso, PCA</td><td>Less noise and faster training</td><td>Exhaustive search</td></tr>
+<tr><td>Must explain decisions</td><td>Logistic regression or shallow tree, plus SHAP</td><td>Transparent</td><td>Black-box stacks</td></tr>
+<tr><td>Images, text, audio</td><td>Pre-trained networks and embeddings</td><td>Learn the structure of unstructured data</td><td>Hand-made features on tabular models</td></tr>
+</tbody></table></div>
+
+<h3 class="sech3">Likely follow-up questions</h3>
+<details><summary>Why gradient boosting and not deep learning?</summary>
+<p>For tabular data, boosting is usually as accurate or better, trains faster, needs less data and less tuning, and handles missing values and mixed feature types. Deep learning is the better choice for images, text, audio, or very large datasets.</p></details>
+<details><summary>Why median and not mean for missing values?</summary>
+<p>The mean is pulled by outliers, so it can fill gaps with an unrealistic value. The median is stable. If the column has no outliers and is roughly symmetric, mean and median are almost the same, so mean is fine.</p></details>
+<details><summary>Why not remove the outliers?</summary>
+<p>Extreme values are sometimes real, for example a big customer or a fraud case. Deleting them removes information, and at serving time you cannot delete a request. Clipping with limits learned on training data keeps the row and limits the damage.</p></details>
+<details><summary>Why not SMOTE straight away?</summary>
+<p>SMOTE creates synthetic points, which can distort predicted probabilities, add noise near the class border, and leak information if applied before the split. Class weights and threshold tuning solve most imbalance problems without changing the data, so I try them first.</p></details>
+<details><summary>Why not just use accuracy?</summary>
+<p>If 95% of the rows are one class, a model that always predicts that class has 95% accuracy and no value. PR-AUC, precision, recall and F1 show how well the rare class is handled, and the threshold is chosen from business cost.</p></details>
+<details><summary>How do you choose between two models with similar scores?</summary>
+<p>I pick the simpler, faster and more explainable one. I also compare the standard deviation across cross-validation folds, because a stable model is safer, and check latency, memory use and how easily it can be monitored and retrained.</p></details>
+<details><summary>What if the dataset is very small or very large?</summary>
+<p>Small: simple models, strong regularization, repeated cross-validation, and no heavy resampling. Large: sample for fast experiments, use Parquet and Spark, Dask or Polars for processing, and use boosting or neural networks that scale. In both cases I keep the same pipeline structure.</p></details>
+<div class="tip"><b>Tip:</b> Say what you check in the data before every choice. The interviewer wants to see that the method comes from the data and the business need, not from habit. Mention only methods you can explain, and be honest about what you have used in a real project and what you only know in theory.</div>
+</section>
+
+<section id="interview-retrain" class="faq">
+<h2>Most Important: How to Explain It in an Interview (2–3 Minutes): When Do You Retrain a Model?</h2>
+<p class="note">If an interviewer asks:</p>
+<div class="q">“When do you retrain a machine learning model?” or “How do you decide when a model needs retraining?”</div>
+<p class="note">You can give this answer:</p>
+<div class="ans">
+<p>“I do not retrain only on a fixed calendar. I use a combination of triggers, and I first check that retraining is really the right action.</p>
+<p>The first trigger is a schedule. Depending on how fast the data changes, I retrain weekly or monthly as a safety net, so the model never becomes too old.</p>
+<p>The second trigger is data drift. At training time I save a baseline of every feature distribution and of the prediction scores. For each new batch I calculate PSI. Below 0.10 is stable, between 0.10 and 0.25 I watch closely, and above 0.25 raises an alert. I also compare missing-value rates and category proportions.</p>
+<p>The third trigger is performance. When real labels arrive, I compare ROC-AUC or PR-AUC with the scores I saved at training time. If the drop is larger than an agreed limit, for example 5%, I retrain. This is the most reliable trigger, because input drift does not always hurt accuracy, and concept drift can only be confirmed with real labels. When labels arrive late, as in churn or fraud, I rely on drift and score distribution in the meantime.</p>
+<p>The fourth trigger is a business or data event: a large amount of new labeled data, a new product or region, a pricing or policy change, a schema change, or a known seasonal period.</p>
+<p>Before I retrain, I check for a data quality problem, such as a broken feed, wrong units or sudden nulls. In that case I fix the data pipeline instead, because retraining on bad data makes the model worse.</p>
+<p>When a trigger is confirmed, an automated pipeline pulls the new data, validates it, trains the model, and evaluates it on the most recent data using a time-based split. The new model is compared with the current production model and must pass a quality gate, for example a minimum ROC-AUC. If it passes, I register it as a new version, release it with a shadow or canary deployment, and keep the old version ready for rollback. Then I save a fresh drift baseline and continue monitoring.</p>
+<p>So I retrain when there is evidence that it is needed, not blindly, and every new model is validated before it replaces the old one.”</p>
+</div>
+
+<h3 style="font-family:system-ui,sans-serif;font-size:.95rem;color:var(--mu);margin:18px 0 6px">30-second version (if the interviewer is in a hurry)</h3>
+<div class="ans">
+<p>“I retrain based on triggers: a drift alert from PSI, a performance drop once real labels arrive, enough new labeled data, a business or schema change, or a scheduled interval as a safety net. I first rule out data quality problems. The new model is trained on fresh validated data, compared with the current model, must pass a quality gate, and is released gradually with rollback ready.”</p>
+</div>
+
+<h3 style="font-family:system-ui,sans-serif;font-size:.95rem;color:var(--mu);margin:18px 0 6px">Likely follow-up questions</h3>
+<details><summary>What if labels arrive late?</summary>
+<p>I monitor input drift, prediction score distribution and missing rates as early warnings, and I measure real performance later when labels are final. I train only on rows whose label is complete, so the newest rows may be left out of the training window.</p></details>
+<details><summary>How do you know the new model is better?</summary>
+<p>I evaluate both the current model and the new model on the same recent test data, using the same metric. The new model is promoted only if it beats the minimum quality gate and is at least as good as the current one. A shadow, canary or A/B test then confirms it on live traffic.</p></details>
+<details><summary>How much data do you retrain on?</summary>
+<p>It depends on how fast the world changes. An expanding window uses all history and is more stable. A sliding window uses only recent months and adapts faster. I compare both on a time-based test set and choose the one with the better recent score.</p></details>
+<details><summary>How do you avoid retraining on bad data?</summary>
+<p>The retraining pipeline starts with data validation: schema, data types, null ratio, duplicates, valid target and range checks. If validation fails the run stops and alerts the team, and the current model keeps serving.</p></details>
+<details><summary>Is more frequent retraining always better?</summary>
+<p>No. It costs compute and review time, can learn from noise or a temporary spike, and each release carries risk. I choose the frequency from how quickly drift appears and how costly a wrong prediction is.</p></details>
+<details><summary>How often did you retrain in your project?</summary>
+<p>Answer with your own real numbers, for example the schedule you used, which trigger fired, and what changed. Do not claim tools or schedules that you did not use. If you only designed the process, say that clearly and explain the design.</p></details>
+</section>
+
+<section id="interview-retrain-methods" class="faq">
+<h2>Most Important: How to Explain It in an Interview (2–3 Minutes): Retraining, the Methods, Why I Chose Them, and How I Decide “Retrain Now”</h2>
+<p class="note">If an interviewer asks:</p>
+<div class="q">“Explain how you decide that a model needs retraining. Which methods do you use to detect it, why those methods and not others, and when do you decide that we must retrain now?”</div>
+<p class="note">You can give this answer:</p>
+<div class="ans">
+<p>“I treat retraining as a decision with evidence, not as a calendar habit. I watch three kinds of signals, and I act when they agree.</p>
+<p>The first signal is data drift. At training time I save a baseline of every feature and of the prediction scores. For each new batch I calculate PSI. I chose PSI because it measures how big the shift is, it works for numeric and categorical columns, and it has simple limits: below 0.10 is stable, between 0.10 and 0.25 I watch, and above 0.25 is an alert. I did not rely on KS or Chi-square p-values alone, because with large batches they flag tiny differences and create false alarms. I also track missing rates and new categories, which catch broken data feeds early.</p>
+<p>The second signal is the prediction score distribution. It needs no labels, so it is my early warning when labels arrive late, as in churn or fraud.</p>
+<p>The third signal is real performance. When labels arrive, I compare ROC-AUC or PR-AUC with the test score saved at release, using a rolling window and a margin, for example a 5% relative drop. This is the only direct proof of concept drift, because input drift does not always hurt the model. I also check calibration, because probabilities can be wrong while AUC looks fine, and then recalibrating is cheaper than retraining. For streaming systems with immediate labels I would add detectors like ADWIN or DDM.</p>
+<p>To decide that we must retrain now, I ask six questions in order. Is the data healthy? If not, I fix the pipeline and do not retrain. Is there evidence of change, drift or a performance drop? Does it last for several batches and is it not just seasonality? Did the important features drift, and does it matter to the business? Do I have enough new data with final labels? And will retraining really help, or would a threshold change or a feature fix be enough? If drift and a performance drop appear together, I retrain now. If only drift appears, I watch and prepare. If only performance drops, I investigate concept drift and label quality first.</p>
+<p>The retraining itself is the same versioned pipeline run on new, validated data. I choose the training window with a time-based backtest, evaluate on the newest data, and compare the new model with the current one. It must pass a quality gate. Then I release it through shadow and canary, keep the old version for rollback, and save a fresh baseline for monitoring.</p>
+<p>So I retrain when there is lasting, meaningful evidence that the model has gone stale, and every new model must prove itself before it replaces the old one.”</p>
+</div>
+
+<h3 class="sech3">30-second version</h3>
+<div class="ans"><p>“I compare each batch with a training baseline using PSI on features and scores, track missing rates, and measure real ROC-AUC or PR-AUC when labels arrive. I retrain now when the change is lasting, affects important features, and drift and performance agree, after ruling out data quality problems. The new model must beat the current one and pass a quality gate before a gradual release.”</p></div>
+
+<h3 class="sech3">Detection methods: what, why I chose it, why not the others</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Check or method</th><th>What it measures</th><th>Why I chose it</th><th>Why not the others</th></tr></thead><tbody><tr><td>PSI on each feature</td><td>How much a feature distribution moved from the training baseline, using bins. Example limits: below 0.10 stable, 0.10 to 0.25 watch, above 0.25 alert</td><td>One number per feature, works for numeric and categorical columns, and has well-known limits that are easy to alert on</td><td>KS and Chi-square p-values flag tiny, meaningless differences when batches are large, so they cause false alarms. PSI measures the size of the shift</td></tr><tr><td>KS test (numeric) and Chi-square (categorical)</td><td>Statistical test of whether two samples come from the same distribution</td><td>Useful as a second opinion, together with the size of the difference</td><td>Used alone, the p-value is not enough, because with large data almost everything is significant</td></tr><tr><td>Wasserstein or Jensen-Shannon distance</td><td>Distance between two distributions</td><td>Good for continuous features and dashboards. Jensen-Shannon is symmetric and bounded</td><td>No simple, widely agreed alert limits, so PSI stays the default</td></tr><tr><td>PSI on prediction scores</td><td>Whether the model output distribution moved</td><td>Needs no labels, and shows the shift as the model sees it, so it is a fast early warning</td><td>A stable score does not prove the model is still right, so I still need real performance</td></tr><tr><td>Missing rate and category share</td><td>Nulls and new or vanished categories</td><td>Cheap and catches broken data feeds early</td><td>Not a drift test alone, it is a data quality guard</td></tr><tr><td>Real performance (ROC-AUC, PR-AUC, F1) against the saved test score</td><td>Is the model still as good as when it was released</td><td>The only direct proof of concept drift. I compare on a rolling window and allow a margin, for example a 5% relative drop</td><td>Accuracy hides minority-class problems. Single small batches are noisy, so I use confidence intervals or several batches</td></tr><tr><td>Calibration (Brier score, reliability curve)</td><td>Whether predicted probabilities still match real rates</td><td>Probabilities can be wrong while AUC is fine. The cheaper fix is recalibration, not a full retrain</td><td>Looking only at AUC would miss it</td></tr><tr><td>DDM, EDDM, ADWIN, Page-Hinkley</td><td>Error-rate change detectors for data streams</td><td>Best for streaming systems where labels arrive immediately</td><td>For batch systems with delayed labels, PSI plus periodic performance checks is simpler and easier to explain</td></tr><tr><td>Business KPI or A/B result</td><td>Real impact such as customers saved or fraud caught</td><td>It is the final judge of value</td><td>Slow and noisy, so it supports the technical checks and does not replace them</td></tr><tr><td>Latency, error rate, CPU</td><td>System health</td><td>Needed for operations</td><td>Not a retrain trigger. High latency needs infrastructure or model-size fixes, not new training</td></tr></tbody></table></div>
+
+<h3 class="sech3">How I decide “retrain now” (six questions)</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Step</th><th>Question I ask</th><th>If the answer is no</th></tr></thead><tbody><tr><td>1. Is the data healthy?</td><td>Does validation pass, with no broken feed, wrong units, or sudden nulls?</td><td>Fix the data pipeline and do not retrain on bad data</td></tr><tr><td>2. Is there evidence of change?</td><td>Is PSI above the alert limit on important features or on the score, or has real performance dropped past the agreed margin?</td><td>Keep monitoring</td></tr><tr><td>3. Is the change lasting?</td><td>Does it persist over several batches (for example 3), and is it not a known seasonal or one-off campaign effect?</td><td>Wait and watch more batches</td></tr><tr><td>4. Does it matter?</td><td>Did the features that drifted rank high in permutation importance, and is there business impact?</td><td>Note it, retrain at the next scheduled run</td></tr><tr><td>5. Do I have enough good new data?</td><td>Are there enough rows with final labels in the new period?</td><td>Collect more data, or recalibrate for now</td></tr><tr><td>6. Will retraining actually help?</td><td>Is the cause a real data change, and not a threshold, a rule, or a feature bug that a smaller fix solves?</td><td>Recalibrate, change the threshold, or fix the feature</td></tr></tbody></table></div>
+<h3 class="sech3">Decision matrix</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Drift signal</th><th>Performance</th><th>Decision</th></tr></thead><tbody><tr><td>Yes (PSI alert)</td><td>Dropped</td><td>Retrain now. Both signals agree</td></tr><tr><td>Yes (PSI alert)</td><td>Still fine or labels not yet available</td><td>Watch closely, prepare the retrain, and retrain at the next run if it persists</td></tr><tr><td>No</td><td>Dropped</td><td>Investigate concept drift, label quality, or a feature bug, then retrain on a newer window</td></tr><tr><td>No</td><td>Fine</td><td>No retrain. Keep the schedule</td></tr></tbody></table></div>
+<p class="note" style="margin-top:8px">The limits (PSI 0.10 and 0.25, a 5% drop, 3 batches, at least 200 rows per batch) are common starting points. Tune them by replaying your own history and counting how many false alarms and missed problems each limit would have given.</p>
+
+<h3 class="sech3">How I retrain: method, why chosen, why not the other</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Retraining method</th><th>Why I chose it</th><th>Why not the other</th></tr></thead><tbody><tr><td>Re-run the same versioned pipeline on new data (full retrain)</td><td>Reproducible, easy to test and audit, and works well for tree-based tabular models</td><td>Incremental or online learning is harder to validate and can follow noise or forget older patterns. I use it only for very large or streaming data</td></tr><tr><td>Expanding or sliding window, chosen by a time-based backtest</td><td>Let the data decide how much history helps</td><td>Choosing a window by habit can mix old behaviour into a changed world, or throw away useful history</td></tr><tr><td>Evaluate on the newest data with a time-based split</td><td>The score reflects the future</td><td>A random split leaks the future and gives a better but false score</td></tr><tr><td>Champion and challenger with a quality gate</td><td>Promote only if the new model is at least as good as the current one and passes the minimum</td><td>Automatic replacement can silently make things worse</td></tr><tr><td>Shadow, then canary release</td><td>Test on live traffic with limited risk</td><td>A big-bang release has no safety net</td></tr><tr><td>Fresh baseline and a new version, old version kept</td><td>Monitoring compares with the new data, and rollback takes minutes</td><td>Overwriting the old model removes the way back</td></tr><tr><td>Fine-tuning or warm start</td><td>For neural networks and large pre-trained models</td><td>For small tabular models, a full retrain is cheap and cleaner</td></tr></tbody></table></div>
+
+<h3 class="sech3">Retrain, recalibrate, or rebuild?</h3>
+<div class="tip"><b>Smallest fix first:</b> change the threshold, then recalibrate the probabilities, then retrain the same pipeline on new data, then re-tune the hyperparameters, and only then redesign features or change the model type. Each step costs more than the one before.</div>
+
+<h3 class="sech3">Likely follow-up questions</h3>
+<details><summary>PSI is high but accuracy is still fine. Do you retrain?</summary>
+<p>Not immediately. Input drift does not always hurt the model, for example when the drifted feature has low importance. I check permutation importance and the score distribution, and keep watching. If the drift lasts or performance starts to fall, I retrain.</p></details>
+<details><summary>Labels arrive late. How do you decide?</summary>
+<p>I use feature drift, score drift and missing rates as early warnings, and confirm with real performance when labels are final. I train only on rows with final labels, so the newest rows may be left out of the training window.</p></details>
+<details><summary>Why not retrain every day?</summary>
+<p>It costs compute and review time, can learn from noise or a temporary spike, and every release carries risk. I choose the frequency from how fast drift appears and what a wrong prediction costs.</p></details>
+<details><summary>How do you avoid reacting to noise?</summary>
+<p>I require the signal to last for several batches, ignore PSI on small batches (under about 200 rows), use confidence intervals on performance, and compare with the same period last year when seasonality matters.</p></details>
+<details><summary>An alert fires at 2 am. What happens?</summary>
+<p>The monitoring job exits with an alert code, the scheduler notifies the team, and the data checks run. The current model keeps serving. If the data is healthy and the alert persists, the retraining pipeline runs. A new model goes live only after it passes the quality gate.</p></details>
+<details><summary>How do you know the new model is better?</summary>
+<p>Both models are scored on the same recent, time-based test data with the same metric. The new one must pass the minimum score and be at least as good as the current one. A shadow or canary release then confirms it on live traffic.</p></details>
+<details><summary>What is the difference between data drift and concept drift for your decision?</summary>
+<p>Data drift is visible without labels and is a warning. Concept drift, a change in the feature-to-target relationship, is confirmed only through real performance. Data drift alone makes me watch and prepare. A confirmed performance drop makes me act.</p></details>
+<div class="tip"><b>Tip:</b> Say the methods and the reason for each choice, give example limits, and say that you tuned them on history. Be honest about which of these you ran in a real project and which you designed.</div>
+</section>
+
+<section id="interview-focus" class="faq">
+<h2>Most Important: How to Explain It in an Interview (2–3 Minutes): Which Areas Need More Focus in Supervised and Unsupervised ML?</h2>
+<p class="note">If an interviewer asks:</p>
+<div class="q">“Which areas do you think need the most focus in supervised and unsupervised machine learning, and why?”</div>
+<p class="note">You can give this answer:</p>
+<div class="ans">
+<p>“In both cases I think the algorithm is rarely the main problem. The areas that need the most focus are the ones that decide whether the result can be trusted and used.</p>
+<p>For supervised learning, I would focus first on problem framing and the metric, because a wrong metric gives a model that looks good and is useless. For rare events I use PR-AUC, precision and recall, and a threshold based on business cost. Second is data and label quality, including leakage, because the model can only learn what the labels say. Third is correct validation: stratified, time-based or group splits, every step fitted inside a pipeline, and the test set used once. Fourth is features and class imbalance, since on tabular data better features and class weights usually matter more than a fancier model. After that I would work on interpretability with SHAP and permutation importance, calibration, and production monitoring for drift and retraining.</p>
+<p>For unsupervised learning there are no labels, so the focus changes. First I define the goal clearly: segmentation, anomaly detection or dimension reduction, and how the output will be used. Second is preprocessing, because distance-based methods are very sensitive to scale, outliers and categorical encoding. Third is choosing an algorithm that fits the shape of the data: K-Means for round clusters, Gaussian Mixture for elliptical ones, DBSCAN or HDBSCAN for arbitrary shapes and noise. Fourth is choosing the number of clusters and parameters with silhouette, elbow and BIC. Fifth, and the weakest area in most projects, is evaluation without labels: internal scores, stability across resamples and validation with the business. Finally, I profile and name the clusters so someone can act on them, and in production I monitor cluster sizes and drift.</p>
+<p>The two areas also help each other. Unsupervised methods give supervised models useful inputs, such as PCA components, cluster labels, anomaly scores and embeddings, and semi-supervised learning helps when labels are expensive.</p>
+<p>If I had to say it in one line: for supervised learning the focus is trust, meaning metric, leakage-free validation and data quality. For unsupervised learning the focus is usefulness, meaning evaluation and interpretation.”</p>
+</div>
+
+<h3 class="sech3">30-second version</h3>
+<div class="ans"><p>“In supervised learning I focus on the metric, data and label quality, leakage-free validation, imbalance, and features, then on interpretability and monitoring. In unsupervised learning I focus on a clear goal, scaling and preprocessing, choosing the algorithm and number of clusters, evaluating without labels, and interpreting clusters. Supervised is about trust, unsupervised is about usefulness.”</p></div>
+
+<h3 class="sech3">Supervised ML: where to focus</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Focus area</th><th>Why it matters</th><th>What to learn and practice</th><th>Priority</th></tr></thead><tbody><tr><td>Problem framing and metric</td><td>A wrong metric produces a model that looks good and is useless. The metric must follow the business cost</td><td>Classification vs regression, PR-AUC vs ROC-AUC, precision and recall, RMSE vs MAE, cost-based threshold</td><td class="y" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">High</td></tr><tr><td>Data and label quality</td><td>The model can only learn what the labels say. Noisy, late or biased labels cap the result</td><td>Validation checks, label audits, delayed labels, target leakage checks, duplicate and missing-value handling</td><td class="y" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">High</td></tr><tr><td>Correct validation</td><td>Most inflated scores come from leakage and a wrong split</td><td>Stratified, time-based and group splits, fit every step inside a Pipeline, cross-validation, nested CV, a single final test</td><td class="y" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">High</td></tr><tr><td>Class imbalance</td><td>Real problems (fraud, churn, defects) are rare events</td><td>Class weights, threshold tuning, PR-AUC, SMOTE and its limits, cost-sensitive learning, focal loss</td><td class="y" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">High</td></tr><tr><td>Feature engineering and selection</td><td>On tabular data, better features usually beat a fancier algorithm</td><td>Group-by aggregates, ratios, lag and rolling features, date parts, encoding, Lasso, SelectFromModel, permutation importance</td><td class="y" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">High</td></tr><tr><td>Choosing and understanding models</td><td>Knowing why a model fits or fails is what interviewers test</td><td>Bias and variance, overfitting, regularization, logistic regression, Random Forest, gradient boosting, when deep learning is justified</td><td class="y" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">High</td></tr><tr><td>Production and drift</td><td>A model that is not monitored decays silently</td><td>Same pipeline in training and serving, versioning, PSI drift, performance monitoring, retraining triggers, rollback</td><td class="y" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">High</td></tr><tr><td>Interpretability and fairness</td><td>Business, regulators and users ask why</td><td>SHAP, permutation importance, partial dependence, performance by segment, bias checks</td><td class="y" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">High</td></tr><tr><td>Calibration and thresholds</td><td>Many decisions use the probability, not just the class</td><td>Brier score, reliability curve, Platt scaling, isotonic regression</td><td class="w" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">Medium</td></tr><tr><td>Hyperparameter tuning</td><td>Gives a gain after the basics are right, not before</td><td>Random search, Optuna, early stopping, learning rate and tree depth</td><td class="w" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">Medium</td></tr><tr><td>Regression-specific checks</td><td>Averages hide big errors</td><td>Residual analysis, heteroscedasticity, target transform, outlier effect, MAPE problems near zero</td><td class="w" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">Medium</td></tr></tbody></table></div>
+
+<h3 class="sech3">Unsupervised ML: where to focus</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Focus area</th><th>Why it matters</th><th>What to learn and practice</th><th>Priority</th></tr></thead><tbody><tr><td>Define the goal</td><td>With no labels, an unclear goal means a result nobody can use</td><td>Segmentation, anomaly detection, dimension reduction, topic discovery, recommendation. Decide how the output will be used first</td><td class="y" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">High</td></tr><tr><td>Preprocessing for distance</td><td>Distance-based methods are very sensitive to scale, outliers and categorical encoding</td><td>StandardScaler or RobustScaler, outlier handling, Gower distance or K-Prototypes for mixed data, correlated or irrelevant features</td><td class="y" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">High</td></tr><tr><td>Match the algorithm to the data shape</td><td>Each algorithm assumes a cluster shape</td><td>K-Means (round, similar size), Gaussian Mixture (elliptical, soft membership), Hierarchical (dendrogram, small data), DBSCAN and HDBSCAN (any shape, noise), Spectral</td><td class="y" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">High</td></tr><tr><td>Choosing K and parameters</td><td>The number of clusters is not given by the data</td><td>Elbow, silhouette, gap statistic, BIC and AIC for Gaussian Mixture, dendrogram cut, k-distance plot for DBSCAN eps</td><td class="y" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">High</td></tr><tr><td>Evaluation without labels</td><td>There is no accuracy to report, so evidence must be built</td><td>Silhouette, Davies-Bouldin, Calinski-Harabasz, stability on resamples, adjusted Rand index when some labels exist, business validation</td><td class="y" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">High</td></tr><tr><td>Interpreting and profiling clusters</td><td>A cluster nobody can describe cannot be acted on</td><td>Per-cluster averages and sizes, naming segments, a decision tree on cluster labels, SHAP, comparison with business groups</td><td class="y" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">High</td></tr><tr><td>Dimensionality reduction</td><td>High-dimensional data weakens distances and hides structure</td><td>PCA (explained variance), TruncatedSVD, autoencoders. t-SNE and UMAP for visualization only</td><td class="y" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">High</td></tr><tr><td>Anomaly detection</td><td>Used a lot in fraud, quality and security, with no labels</td><td>Isolation Forest, Local Outlier Factor, One-Class SVM, autoencoder, choosing the alert threshold, human review feedback</td><td class="y" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">High</td></tr><tr><td>Production of unsupervised models</td><td>Clusters change over time</td><td>Assign new records with the saved model, monitor cluster sizes and drift, scheduled refresh, keeping segment names stable</td><td class="w" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">Medium</td></tr><tr><td>Association rules and recommendation</td><td>Common for baskets and recommendations</td><td>Apriori, FP-Growth, support, confidence, lift, matrix factorization</td><td class="w" style="white-space:nowrap;font-family:system-ui,sans-serif;font-size:.85rem">Medium</td></tr></tbody></table></div>
+
+<h3 class="sech3">Side by side</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Aspect</th><th>Supervised</th><th>Unsupervised</th></tr></thead><tbody><tr><td>Main question</td><td>How well can we predict a known target?</td><td>What structure or unusual behaviour exists in the data?</td></tr><tr><td>Biggest risk</td><td>Leakage and a wrong metric give a false sense of accuracy</td><td>Clusters that look neat but mean nothing</td></tr><tr><td>How you evaluate</td><td>Metrics against labels on a clean test set</td><td>Internal scores, stability, and business validation</td></tr><tr><td>Where most effort goes</td><td>Data quality, validation, features, imbalance</td><td>Scaling, choosing the algorithm and K, interpretation</td></tr><tr><td>Typical production problem</td><td>Data and concept drift, retraining</td><td>Cluster drift, assigning new points, unstable segments</td></tr><tr><td>Common interview trap</td><td>Reporting accuracy on imbalanced data</td><td>Saying K-Means is always right, or trusting t-SNE plots</td></tr></tbody></table></div>
+
+<h3 class="sech3">Likely follow-up questions</h3>
+<details><summary>Which is harder, supervised or unsupervised?</summary>
+<p>Unsupervised is harder to validate, because there is no ground truth and different algorithms give different, equally plausible structures. Supervised is harder to keep honest at scale, because leakage and drift are easy to miss.</p></details>
+<details><summary>How do you evaluate clustering without labels?</summary>
+<p>I use internal scores such as silhouette, Davies-Bouldin and Calinski-Harabasz, check stability by re-clustering on resamples, compare with known groups using adjusted Rand index if any exist, and validate with the business: are the segments distinct, sizeable and actionable?</p></details>
+<details><summary>How do you choose the number of clusters?</summary>
+<p>I combine the elbow plot, silhouette score, and for Gaussian Mixture the BIC. For hierarchical clustering I cut the dendrogram, and for DBSCAN I use the k-distance plot to pick eps. Then I pick the value that is stable and makes business sense, not just the best score.</p></details>
+<details><summary>Why not use t-SNE or UMAP as features in production?</summary>
+<p>t-SNE has no reliable way to transform new points and its distances and cluster sizes are not meaningful, so it is for visualization only. UMAP can transform new data but is less stable and harder to reproduce. PCA is the safer choice for production features.</p></details>
+<details><summary>When do you use unsupervised learning before supervised?</summary>
+<p>When there are many correlated features (PCA), when segments behave differently (cluster labels as a feature or separate models), when outlier scores add signal, or when embeddings are needed for text and images. All of these must be fitted on training data only.</p></details>
+<details><summary>How do you know clusters are useful?</summary>
+<p>They are stable across resamples, clearly different on the features that matter, large enough to act on, describable in plain words, and linked to an action or a different outcome, such as different churn or spend.</p></details>
+<details><summary>What about semi-supervised and self-supervised learning?</summary>
+<p>Semi-supervised learning uses a small labeled set plus a large unlabeled set, for example pseudo-labeling. Self-supervised learning creates its own labels from the data, as in language models and image embeddings. Both are valuable when labels are expensive, and the labeled test set must stay clean.</p></details>
+<details><summary>Which area would you like to improve most?</summary>
+<p>Answer honestly with your own situation. A solid example: “I am strong in supervised pipelines and want to go deeper on evaluating and productionizing unsupervised models, especially cluster stability and anomaly thresholds.”</p></details>
+<div class="tip"><b>Tip:</b> Give a clear opinion, then support it with reasons and examples from your own work. Interviewers like candidates who can say what matters most and why, and who admit which area they are still building.</div>
+</section>
+
+<section id="interview-monitor" class="faq">
+<h2>Most Important: How to Explain It in an Interview (2–3 Minutes): Data Monitoring, API Errors, Retraining and Versioning with DVC</h2>
+<p class="note">If an interviewer asks:</p>
+<div class="q">“How do you monitor a deployed model for data drift, data quality and API errors, when do you retrain, and how do you version data and models?”</div>
+<p class="note">You can give this answer:</p>
+<div class="ans"><p>“I monitor a deployed model in five layers: data quality, data drift, model quality, the API and system, and the business KPI.</p><p>For data quality, every incoming batch or request is checked against a schema: required columns, types, null rate, duplicates, valid ranges, allowed categories, row count and freshness. I use Great Expectations or Pandera, and a failed check stops the batch and alerts the team instead of guessing.</p><p>For data drift, I save a baseline of every feature and of the prediction scores at training time. For each new batch I calculate PSI, with KS test and Chi-square as support, and track missing rates and new categories. Below 0.10 is stable, between 0.10 and 0.25 I watch, and above 0.25 is an alert. Evidently AI can produce the reports.</p><p>For model quality, I watch the score distribution and positive rate, and when labels arrive I compare rolling ROC-AUC or PR-AUC with the score saved at release.</p><p>For the API, I expose metrics from FastAPI to Prometheus and build Grafana dashboards: latency p50, p95 and p99, error rate split into 4xx and 5xx, throughput and resource use, with alerts. A rise in 4xx usually points to bad input from a client, while 5xx points to a bug or an overloaded service.</p><p>Not every alert means retrain. A data quality failure means fixing the data pipeline. API errors mean fixing or rolling back the service. Drift alone means watch. Lasting drift together with a performance drop means retrain. If the model produces clearly wrong output, I roll back to the previous version first, then find the cause and retrain.</p><p>For versioning I use DVC with Git. The dataset is tracked with dvc add, Git stores only the small pointer file, and dvc push sends the data to remote storage. The pipeline is defined in dvc.yaml with the data, code, parameters and outputs, so dvc repro rebuilds only what changed. I compare versions with dvc metrics diff, and I tag the data and model together, so rollback is one git checkout plus dvc checkout.”</p></div>
+
+<h3 class="sech3">Five monitoring layers</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Layer</th><th>What to watch</th><th>Methods and tools</th><th>Example alert</th></tr></thead><tbody><tr><td>1. Data quality</td><td>Schema, data types, null rate, duplicates, valid ranges, allowed categories, row count, freshness</td><td>Great Expectations, Pandera, Pydantic, Deepchecks, SQL checks. Fail loudly, never guess</td><td>Null rate of income is 20% against a baseline of 8%</td></tr><tr><td>2. Data drift</td><td>Distribution of every important feature and of the prediction score</td><td>PSI (main), KS test for numeric, Chi-square for categorical, Wasserstein or Jensen-Shannon, Evidently AI reports</td><td>PSI above 0.25 for several batches</td></tr><tr><td>3. Model quality</td><td>Score distribution, positive rate, calibration, and real performance when labels arrive</td><td>PSI on scores, rolling ROC-AUC or PR-AUC against the saved test score, Brier score</td><td>PR-AUC falls more than 5% relative</td></tr><tr><td>4. API and system</td><td>Latency p50, p95 and p99, error rate (4xx and 5xx), throughput, timeouts, CPU and memory</td><td>Prometheus metrics from FastAPI, Grafana dashboards, Alertmanager, OpenTelemetry traces, structured logs</td><td>5xx above 1% for 5 minutes, or p95 above 300 ms</td></tr><tr><td>5. Business</td><td>The KPI the model exists for</td><td>Dashboards, A/B results</td><td>Customers saved or conversion drops</td></tr></tbody></table></div>
+
+<h3 class="sech3">When is an issue big enough to retrain?</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Issue</th><th>Severity</th><th>What I do</th><th>Retrain?</th></tr></thead><tbody><tr><td>Missing column, schema break, too many nulls</td><td>Critical</td><td>Block the batch, alert the team, fix the upstream feed. The current model keeps serving</td><td>No. Fix the data first</td></tr><tr><td>API 5xx spike, timeouts, high latency</td><td>Critical</td><td>Roll back the release, scale up, or debug the service</td><td>No. It is an engineering issue</td></tr><tr><td>4xx spike (bad requests)</td><td>Warning</td><td>Check client changes and input validation, tell the data owner</td><td>No</td></tr><tr><td>PSI between 0.10 and 0.25</td><td>Warning</td><td>Watch, find the cause (new segment, source change)</td><td>No</td></tr><tr><td>PSI above 0.25 on important features, lasting several batches</td><td>High</td><td>Prepare retraining, confirm with performance</td><td>Yes if it lasts or performance drops</td></tr><tr><td>Performance drop beyond the agreed margin</td><td>High</td><td>Check labels and features, then retrain on a recent window</td><td>Yes</td></tr><tr><td>Model output is clearly wrong or hurts the business</td><td>Critical</td><td>Roll back to the previous model version at once, then find the cause</td><td>Yes, after the cause is known</td></tr></tbody></table></div>
+
+<h3 class="sech3">DVC: versioning data, pipeline and models (commands)</h3>
+<p class="note">A realistic flow, from the first dataset to a rollback.</p>
+<pre># one-time setup
+git init
+dvc init
+dvc remote add -d storage s3://my-bucket/dvc-store      # or gdrive://, azure://, or a shared folder
+git commit -m "Initialize DVC"
+
+# version the dataset (v1)
+dvc add data/train.parquet                              # creates data/train.parquet.dvc, Git ignores the big file
+git add data/train.parquet.dvc data/.gitignore
+git commit -m "Training data v1"
+git tag data-v1
+dvc push                                                # upload the data to remote storage
+
+# new data arrives (v2)
+dvc add data/train.parquet
+git add data/train.parquet.dvc
+git commit -m "Training data v2: added October records"
+git tag data-v2
+dvc push
+
+# go back to an older version
+git checkout data-v1
+dvc checkout                                            # restores the matching data (or: dvc pull)
+
+# define the training pipeline once
+dvc stage add -n train \
+  -d src/train.py -d data/train.parquet \
+  -p train.max_depth,train.learning_rate \
+  -o models/model.joblib -M metrics/metrics.json \
+  python src/train.py
+dvc repro                                               # re-runs only the stages whose inputs changed
+dvc dag                                                 # shows the pipeline graph
+
+# compare versions
+dvc metrics show
+dvc metrics diff data-v1                                # metric change against the older tag
+dvc params diff
+dvc diff                                                # which data or model files changed
+
+# release a model version
+git add dvc.yaml dvc.lock params.yaml metrics/metrics.json
+git commit -m "Model v1.3 trained on data-v2"
+git tag model-v1.3
+dvc push</pre>
+<div class="tb"><table class="w4"><thead><tr><th>DVC part</th><th>What it does</th><th>Why I use it</th></tr></thead><tbody><tr><td>dvc add and .dvc files</td><td>Tracks big data files. Git stores a small pointer file, remote storage holds the data</td><td>Git stays small and every data version is reproducible</td></tr><tr><td>dvc remote and dvc push or pull</td><td>Stores and shares data and models on S3, GCS, Azure or a shared drive</td><td>Team members and servers get the same data</td></tr><tr><td>dvc.yaml stages and dvc repro</td><td>Describes the pipeline (data, code, params, outputs) and re-runs only what changed</td><td>Reproducible, and saves time</td></tr><tr><td>params.yaml, dvc params diff</td><td>Keeps hyperparameters in one file and compares versions</td><td>Clear record of what changed between models</td></tr><tr><td>dvc metrics show and diff</td><td>Stores metrics per version and compares them</td><td>Quick check that a new model is better</td></tr><tr><td>Git tags (data-v2, model-v1.3)</td><td>Name a version of data, code and model together</td><td>Rollback is one checkout and one dvc checkout</td></tr></tbody></table></div>
+
+<h3 class="sech3">Likely follow-up questions</h3>
+<details><summary>Why DVC and not just Git?</summary><p>Git is built for small text files. Datasets and models are large binary files that make a repository slow. DVC keeps a small pointer in Git and stores the real file in remote storage, so code and data versions stay linked.</p></details><details><summary>What is the difference between data quality and data drift?</summary><p>Data quality asks whether the data is valid (right columns, types, ranges, no sudden nulls). Data drift asks whether valid data has changed compared with training. Bad quality means fix the data. Drift means the world changed and the model may need retraining.</p></details><details><summary>What do you do when the API error rate rises?</summary><p>I split 4xx from 5xx. For 4xx I check the client and the input validation. For 5xx I check the latest release, logs and resource use, and roll back if needed. Retraining is not the answer to an engineering fault.</p></details><details><summary>How do you roll back a model?</summary><p>Serving reads a pointer to the model version. I point it back to the previous version, and with DVC and Git tags I can also check out the earlier data, parameters and model. It should take minutes.</p></details><details><summary>Which metrics do you alert on?</summary><p>Hard failures (schema break, 5xx rate, latency p95) alert immediately. Softer signals (PSI warnings, small drops) go to a daily report. This avoids alert fatigue.</p></details>
+<div class="tip"><b>Tip:</b> Only quote the commands and tools you have really used, and say clearly which parts you have designed but not run in production.</div>
+</section>
+
+<section id="interview-model" class="faq">
+<h2>Most Important: How to Explain It in an Interview (2–3 Minutes): XGBoost, AdaBoost or Random Forest, and Why Not Random Forest?</h2>
+<p class="note">If an interviewer asks:</p>
+<div class="q">“Which model would you choose between XGBoost, AdaBoost and Random Forest, and why would you not use Random Forest?”</div>
+<p class="note">You can give this answer:</p>
+<div class="ans"><p>“For a typical tabular problem I start with a simple baseline, logistic regression. Then I compare Random Forest and a gradient boosting model such as XGBoost on the same cross-validation and the same metric. In most cases I choose XGBoost.</p><p>XGBoost builds trees in sequence, and each tree corrects the errors of the previous ones, so it reduces bias. It has built-in regularization (L1, L2, learning rate, subsampling, minimum child weight) and early stopping to control variance. It handles missing values natively, trains fast, and usually gives the best accuracy on structured data after tuning.</p><p>Random Forest trains many deep trees independently and averages them, which mainly reduces variance. It is robust, needs little tuning, and is a very strong baseline. I would choose it when the data is noisy, when I have little time to tune, or when its score is already close to boosting.</p><p>AdaBoost reweights the samples that were misclassified and combines weak learners. It is sensitive to noise and outliers, it cannot train in parallel, and it has fewer regularization options, so it is rarely my production choice today.</p><p>Why not Random Forest? It is usually a bit less accurate than tuned boosting on tabular data, the model is large and slower at inference because of many deep trees, it cannot extrapolate beyond the training range in regression, its probabilities are often not well calibrated, and its impurity importance is biased towards high-cardinality features.</p><p>But this is not a fixed rule. The final choice is proven on the data with the same validation, and I also consider latency, explainability and maintenance. If Random Forest scores the same with less tuning and meets the latency, I choose it for simplicity.”</p></div>
+
+<h3 class="sech3">Side by side: Random Forest, AdaBoost, XGBoost</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Criterion</th><th>Random Forest</th><th>AdaBoost</th><th>XGBoost</th></tr></thead><tbody><tr><td>How it works</td><td>Many deep trees trained independently on bootstrap samples and random feature subsets, then averaged (bagging)</td><td>Many weak learners (often stumps) trained in turn. Each gives more weight to the samples the last one got wrong (boosting)</td><td>Trees trained in turn, each fitting the errors (gradient) of the previous ones, with regularization (gradient boosting)</td></tr><tr><td>Main effect</td><td>Reduces variance</td><td>Reduces bias</td><td>Reduces bias, with controls for variance</td></tr><tr><td>Accuracy on tabular data</td><td>Good, strong baseline</td><td>Moderate</td><td>Usually the best after tuning</td></tr><tr><td>Overfitting control</td><td>Naturally resistant because of averaging</td><td>Can overfit noisy data</td><td>L1 and L2, learning rate, subsample, colsample, min child weight, early stopping</td></tr><tr><td>Noise and outliers</td><td>Robust</td><td>Sensitive, it keeps raising the weight of hard or noisy points</td><td>Fairly robust with regularization, label noise still hurts</td></tr><tr><td>Missing values</td><td>Needs imputation (newer scikit-learn versions can handle NaN)</td><td>Needs imputation</td><td>Handles NaN natively</td></tr><tr><td>Training speed</td><td>Fast, trains in parallel</td><td>Slow, trains in sequence</td><td>Fast, histogram method, multi-core and GPU</td></tr><tr><td>Model size and latency</td><td>Large with many deep trees, slower inference</td><td>Small and quick with stumps</td><td>Medium, fast inference</td></tr><tr><td>Tuning effort</td><td>Low</td><td>Low to medium (n_estimators, learning_rate, base depth)</td><td>Higher (depth, learning rate, trees, subsample, regularization)</td></tr><tr><td>Probabilities</td><td>Often not well calibrated</td><td>Often distorted</td><td>Better with the log-loss objective, still check</td></tr><tr><td>Best use</td><td>Quick robust baseline, noisy data, little tuning time</td><td>Small clean data, teaching, simple weak learners</td><td>Main production choice for structured data</td></tr></tbody></table></div>
+
+<h3 class="sech3">Why I may not use Random Forest</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Reason</th><th>Explanation</th></tr></thead><tbody><tr><td>Usually lower accuracy than tuned boosting</td><td>On structured data, gradient boosting tends to win after tuning because each tree corrects previous errors</td></tr><tr><td>Large model and slower prediction</td><td>Hundreds of deep trees take memory and time, which matters for low-latency APIs and edge use</td></tr><tr><td>Cannot extrapolate</td><td>A tree predicts averages of seen values, so for regression it cannot go beyond the training range (trends, growth)</td></tr><tr><td>Probabilities need calibration</td><td>Voting averages tend to be pulled away from 0 and 1, so Platt scaling or isotonic regression is often needed</td></tr><tr><td>Biased importance</td><td>Impurity importance favours high-cardinality and continuous features, so use permutation importance or SHAP</td></tr><tr><td>Weak on very sparse, high-dimensional data</td><td>Linear models or boosting usually do better on text-like sparse features</td></tr><tr><td>No sequential learning</td><td>It does not focus on hard cases the way boosting does</td></tr></tbody></table></div>
+<div class="tip"><b>When Random Forest is still the right choice:</b> a fast robust baseline, noisy labels, small tuning budget, the need for an out-of-bag score, or when its accuracy is close to boosting and the model size is acceptable.</div>
+
+<h3 class="sech3">Likely follow-up questions</h3>
+<details><summary>Why not LightGBM or CatBoost?</summary><p>They are equally good choices. LightGBM is very fast on large data. CatBoost handles many categorical columns well with little encoding. I would test them in the same comparison, and XGBoost is the example I know best.</p></details><details><summary>Would you really try all three?</summary><p>Yes, under the same cross-validation, metric and features. I compare the mean score and its spread, training time, latency and model size, and then choose the simplest model that is good enough.</p></details><details><summary>When would you choose logistic regression instead?</summary><p>When explainability or regulation is a priority, when the data is small, or when the relationship is close to linear. It is also the baseline that shows whether a complex model adds value.</p></details><details><summary>How do you stop XGBoost from overfitting?</summary><p>Lower the learning rate, limit max_depth, raise min_child_weight, use subsample and colsample_bytree, add L1 and L2 regularization, and use early stopping on a validation set.</p></details><details><summary>How does the choice connect to bias and variance?</summary><p>Random Forest mainly lowers variance by averaging. Boosting mainly lowers bias by learning from errors. If a model underfits I move towards boosting. If it overfits I add regularization or move towards bagging.</p></details>
+<div class="tip"><b>Tip:</b> Show that the choice comes from evidence, not habit: say what you compared, on which metric, and which trade-offs (accuracy, latency, size, explainability) decided it.</div>
+</section>
+
+<section id="interview-leakage" class="faq">
+<h2>Most Important: How to Explain It in an Interview (2–3 Minutes): How Do You Handle Data Leakage?</h2>
+<p class="note">If an interviewer asks:</p>
+<div class="q">“What is data leakage and how do you detect it and prevent it?”</div>
+<p class="note">You can give this answer:</p>
+<div class="ans"><p>“Data leakage is when information that would not be available at prediction time gets into the training process. The model then looks excellent in validation and fails in production.</p><p>There are a few common types. Target leakage is a feature that is only known after the outcome. Train-test contamination is when I fit an imputer, scaler or feature selector on all the data before splitting. There is also resampling leakage, such as SMOTE before the split, temporal leakage from using future data, group leakage when the same customer is in both train and test, and tuning on the test set.</p><p>To detect it, I look for scores that are too good, one feature dominating the importance, a big gap between a random split and a time-based or group split, duplicates between train and test, and an ID or timestamp that matters. I also run adversarial validation and compare offline scores with live scores after deployment.</p><p>To prevent it, I split first, before any learning. Every step that learns from data lives inside a single scikit-learn Pipeline and is fitted on training data only. I choose the split to match the problem: time-based for dated data, group-based for repeated entities, stratified for classification. I check every feature for availability at prediction time, build features with point-in-time correct joins, remove duplicates before splitting, resample only inside training folds, tune with cross-validation, and use the test set once.</p><p>So the habit is: split first, pipeline everything, ask for every feature whether it would exist at prediction time, and be suspicious of results that look too good.”</p></div>
+
+<h3 class="sech3">Types of leakage: example, detection, prevention</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Type of leakage</th><th>Example</th><th>How to detect</th><th>How to prevent</th></tr></thead><tbody><tr><td>Target leakage</td><td>A feature that is only known after the outcome, such as a cancellation date or a refund flag when predicting churn or fraud</td><td>One feature dominates importance, near-perfect score, the feature is not available at prediction time</td><td>Check every feature for availability at prediction time and remove post-outcome fields</td></tr><tr><td>Train-test contamination</td><td>Imputer, scaler, encoder or selector fitted on all data before the split</td><td>Test score is better than it should be, drop after deployment</td><td>Split first and fit every step inside a Pipeline on training data only</td></tr><tr><td>Resampling leakage</td><td>SMOTE or oversampling done before the split, so copies of a row land in both train and test</td><td>Great validation score, poor live score</td><td>Resample only inside training folds (imbalanced-learn Pipeline)</td></tr><tr><td>Temporal leakage</td><td>Using future data to predict the past, random split on time series, rolling features that look ahead</td><td>Time-based split scores much lower than random split</td><td>Time-based split, point-in-time correct features, TimeSeriesSplit</td></tr><tr><td>Group or entity leakage</td><td>The same customer, patient or device appears in both train and test</td><td>Duplicate IDs across splits, a big gap between group and random split</td><td>GroupKFold or GroupShuffleSplit</td></tr><tr><td>Duplicate leakage</td><td>Duplicate or near-duplicate rows across splits</td><td>Exact and fuzzy duplicate check between train and test</td><td>Drop duplicates before splitting</td></tr><tr><td>Tuning leakage</td><td>Hyperparameters or the threshold chosen on the test set, or feature selection done on all data</td><td>Score drops on new data</td><td>Tune with cross-validation on training data, nested CV for honest comparison, test set used once</td></tr><tr><td>Proxy or ID leakage</td><td>Row ID, timestamp or file order that encodes the label</td><td>An ID column is important in the model</td><td>Remove IDs, shuffle checks, review features with the domain expert</td></tr></tbody></table></div>
+
+<h3 class="sech3">Detection checklist</h3>
+<div class="tip"><b>Warning signs:</b> validation score far above what the business expects, one feature with huge importance, a big drop when you switch to a time-based or group split, a feature that cannot exist before the outcome, duplicate rows across splits, and a large gap between offline and live performance.<br><b>Useful checks:</b> permutation importance, a single-feature model score, train-test duplicate check, adversarial validation, and a review of every feature with the domain expert.</div>
+
+<h3 class="sech3">Likely follow-up questions</h3>
+<details><summary>What is adversarial validation?</summary><p>Train a classifier to tell training rows from test or new rows. If it separates them well (AUC clearly above 0.5), the sets differ in distribution, and the features that separate them point to a leak or a drift. It is useful both for leakage and for drift.</p></details><details><summary>Give an example of target leakage.</summary><p>In a churn model, a feature like days since cancellation request is created after the customer decides to leave. It makes the model look perfect and is unavailable when you need to predict.</p></details><details><summary>Why does a Pipeline help?</summary><p>Inside cross-validation, the pipeline refits the imputer, scaler, encoder and selector on each training fold only, so nothing from the validation fold leaks in. The same object is then used in serving.</p></details><details><summary>How do you avoid leakage with time series?</summary><p>Use a time-based split, TimeSeriesSplit for validation, features built only from past data (lags and rolling windows with no look-ahead), and a gap between train and test when the label takes time to arrive.</p></details><details><summary>How do you handle leakage in feature stores?</summary><p>Use point-in-time correct joins, so each training row gets the feature values that were known at that row's timestamp, not the latest values.</p></details>
+<div class="tip"><b>Tip:</b> Give one real example from your own work if you have one, and always say the three habits: split first, pipeline everything, check availability at prediction time.</div>
+</section>
+
+<section id="interview-drift" class="faq">
+<h2>Most Important: How to Explain It in an Interview (2–3 Minutes): What Is Concept Drift, How Does It Come, and How Do You Handle It?</h2>
+<p class="note">If an interviewer asks:</p>
+<div class="q">“Explain the concept of drift. How does it come, and how do you detect and handle it?”</div>
+<p class="note">You can give this answer:</p>
+<div class="ans"><p>“Drift means the world the model sees in production is no longer the world it was trained on. There are three ideas to keep apart. Data drift, or covariate shift, is a change in the input distribution. Label shift is a change in how common each class is. Concept drift is a change in the relationship between inputs and target, so the same input now leads to a different outcome.</p><p>Drift comes from changes in customer behaviour, outside events such as competitors, regulation or the economy, business changes such as new products or pricing, adversaries such as fraudsters who adapt, changes in a source system or in the definition of a label, and seasonality. It can be sudden, gradual, or recurring.</p><p>To detect it, I use PSI, KS test and Chi-square on features, PSI on the prediction score and the positive rate, and missing-rate checks. These need no labels. Concept drift can only be confirmed with real labels, so I track rolling ROC-AUC or PR-AUC against the release score and check calibration. For streaming systems I add detectors such as ADWIN or DDM. Adversarial validation gives a quick view of how different the new data is.</p><p>To handle it, I first make sure it is not a data quality problem. Then I choose the smallest fix that works: update the threshold or recalibrate, then retrain on a sliding or expanding window chosen by a time-based backtest, with recency weights if useful. For seasonal drift I add seasonal features or use the same period of last year. For covariate shift I can use importance weighting, and for streams I can use incremental learning. If retraining does not help, I redesign features. Every new model goes through a quality gate, champion and challenger comparison, and a canary release, and I keep rollback ready.</p><p>So drift is expected, not a surprise. The real skill is to detect it early, tell data drift from concept drift, and respond in proportion.”</p></div>
+
+<h3 class="sech3">Three ideas to keep apart</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Kind of shift</th><th>What changes</th><th>Example</th><th>Visible without labels?</th></tr></thead><tbody><tr><td>Covariate shift (data drift)</td><td>The input distribution P(X)</td><td>A new customer segment or region appears</td><td>Yes</td></tr><tr><td>Prior probability (label) shift</td><td>The share of each class P(y)</td><td>Fraud rate doubles</td><td>Partly, through score and positive rate</td></tr><tr><td>Concept drift</td><td>The relationship between inputs and target P(y given X)</td><td>The same customer profile now churns for a new reason after a competitor offer</td><td>No, needs real labels</td></tr><tr><td>Sudden drift</td><td>Abrupt change</td><td>Policy change, pandemic, a bug in the source system</td><td>Often yes</td></tr><tr><td>Gradual or incremental drift</td><td>Slow change over time</td><td>Changing customer taste</td><td>Late</td></tr><tr><td>Recurring or seasonal drift</td><td>Patterns come back</td><td>Festival or year-end behaviour</td><td>Yes, repeats on a calendar</td></tr></tbody></table></div>
+
+<h3 class="sech3">How drift comes</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Cause</th><th>Example</th></tr></thead><tbody><tr><td>Behaviour change</td><td>Customers or users change habits</td></tr><tr><td>External events</td><td>Competitor offers, economy, regulation, pandemic, weather</td></tr><tr><td>Business change</td><td>New product, new pricing, new region, new channel</td></tr><tr><td>Adversaries</td><td>Fraudsters adapt to the model</td></tr><tr><td>Data or system change</td><td>Source system update, new sensor, changed definition of a column or a label</td></tr><tr><td>Seasonality</td><td>Holidays, month-end, sales periods</td></tr></tbody></table></div>
+
+<h3 class="sech3">How to detect it</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Detection method</th><th>What it checks</th><th>Use when</th></tr></thead><tbody><tr><td>Rolling performance (ROC-AUC, PR-AUC, F1) against the release score</td><td>Real proof of concept drift</td><td>Labels arrive (after a delay)</td></tr><tr><td>DDM, EDDM, ADWIN, Page-Hinkley, KSWIN</td><td>Change in the error rate or in a data stream</td><td>Streaming, labels arrive quickly</td></tr><tr><td>PSI, KS, Chi-square, Wasserstein on features</td><td>Covariate shift</td><td>Always, no labels needed</td></tr><tr><td>PSI on prediction scores and positive rate</td><td>Output shift as an early warning</td><td>Always</td></tr><tr><td>Adversarial validation</td><td>Can a classifier tell old data from new data</td><td>Quick check of how big the shift is</td></tr><tr><td>Calibration (Brier score, reliability curve)</td><td>Probabilities no longer match real rates</td><td>Probability-based decisions</td></tr><tr><td>Business KPI or A/B result</td><td>Real impact</td><td>Long-term check</td></tr></tbody></table></div>
+
+<h3 class="sech3">How to handle it</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Handling method</th><th>How it works</th><th>Why or when</th></tr></thead><tbody><tr><td>Retrain on recent data (sliding window)</td><td>Train only on the latest months</td><td>Fast-changing data, chosen by a time-based backtest</td></tr><tr><td>Expanding window</td><td>Train on all history plus new data</td><td>Stable, slow-changing data</td></tr><tr><td>Recency weighting</td><td>Give newer rows a higher sample weight</td><td>Keeps history but follows change</td></tr><tr><td>Seasonal features or same-period training</td><td>Add month or holiday features, or use the same period of last year</td><td>Recurring drift</td></tr><tr><td>Importance weighting</td><td>Weight training rows by how similar they are to new data</td><td>Covariate shift</td></tr><tr><td>Recalibration or threshold update</td><td>Fix probabilities or the cut-off without retraining</td><td>Cheapest fix when only calibration moved</td></tr><tr><td>Online or incremental learning (partial_fit, River)</td><td>Update the model with each new batch</td><td>Streaming or very large data. Harder to validate</td></tr><tr><td>Dynamic ensemble or model switching</td><td>Weight several models by recent performance</td><td>Frequent changes</td></tr><tr><td>Feature redesign or new features</td><td>Add signals that capture the new behaviour</td><td>When retraining alone does not help</td></tr><tr><td>Champion and challenger, shadow, canary release</td><td>Test the new model before replacing the old</td><td>Always, safe rollout</td></tr><tr><td>Rollback and fallback rules</td><td>Return to the previous model or a simple rule</td><td>When the model is clearly failing</td></tr></tbody></table></div>
+
+<h3 class="sech3">Likely follow-up questions</h3>
+<details><summary>What is the difference between data drift and concept drift?</summary><p>Data drift changes the inputs P(X) and can be seen without labels. Concept drift changes the relationship P(y given X), so the same inputs mean something different, and it can only be confirmed with real labels or business outcomes.</p></details><details><summary>Can there be concept drift without data drift?</summary><p>Yes. The inputs can look the same while behaviour changes. For example, customers with the same profile start churning for a new reason. Only performance monitoring shows it.</p></details><details><summary>Can there be data drift without performance loss?</summary><p>Yes. If the drifted feature is unimportant, or the model generalises well, performance holds. I check feature importance and keep watching before retraining.</p></details><details><summary>What if labels arrive months later?</summary><p>Use feature drift, score drift and positive rate as early warnings, and confirm with performance later. Train only on rows whose labels are final, and consider a proxy label if the business accepts one.</p></details><details><summary>Online learning or periodic retraining?</summary><p>Periodic retraining of a validated pipeline is simpler to test, audit and roll back, so it is my default. Online learning fits streams and very large data, but it is harder to validate and can follow noise.</p></details>
+<div class="tip"><b>Tip:</b> Always separate the three ideas (data drift, label shift, concept drift), and say that you respond in proportion: threshold, recalibration, retrain, then redesign.</div>
+</section>
+
+<section id="interview-biasvar" class="faq">
+<h2>Most Important: How to Explain It in an Interview (2–3 Minutes): Bias vs Variance, and What Is Your Approach to Handle It?</h2>
+<p class="note">If an interviewer asks:</p>
+<div class="q">“Explain bias and variance, and what is your approach to handle them?”</div>
+<p class="note">You can give this answer:</p>
+<div class="ans"><p>“Prediction error has three parts: bias squared, variance, and irreducible noise. Bias is the error from a model that is too simple to capture the pattern, which is underfitting. Variance is the error from a model that is too sensitive to the training data, which is overfitting. Making a model more complex lowers bias and raises variance, so the goal is a balance that gives the lowest validation error.</p><p>My approach starts with a simple baseline and a clean validation setup. Then I compare training and validation scores, and I plot learning curves and watch the spread across cross-validation folds.</p><p>If both training and validation errors are high, it is a bias problem. I use a more flexible model such as deeper trees or boosting, add or engineer better features and interactions, lower the regularization, or train longer.</p><p>If training error is low and validation error is much higher, it is a variance problem. I get more data, add regularization such as L1, L2, dropout or weight decay, limit tree depth or raise the minimum samples per leaf, remove noisy features, use bagging such as Random Forest, lower the learning rate and use early stopping for boosting, and use data augmentation for images and text.</p><p>The choice of model matters too. Random Forest mainly lowers variance by averaging many trees. Boosting mainly lowers bias by learning from errors, but it can overfit, so I tune depth, learning rate, number of trees and subsampling, and use early stopping. I iterate with cross-validation, and I keep the test set for one final check.</p><p>And if validation looks good but the live result is poor, I look beyond bias and variance at leakage and drift.”</p></div>
+
+<h3 class="sech3">How to diagnose and fix</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Symptom</th><th>Diagnosis</th><th>How to fix</th></tr></thead><tbody><tr><td>High error on both train and validation</td><td>High bias (underfitting). The model is too simple or features are weak</td><td>Use a more flexible model (deeper trees, boosting), add or engineer features, add interactions, lower regularization, train longer, check for label noise</td></tr><tr><td>Low train error, high validation error (big gap)</td><td>High variance (overfitting)</td><td>Get more data, add regularization (L1, L2, dropout, weight decay), limit tree depth or increase minimum samples per leaf, select fewer features, use bagging (Random Forest), early stopping, lower the learning rate, data augmentation</td></tr><tr><td>Validation score changes a lot between folds</td><td>High variance or too little data</td><td>Repeated or stratified cross-validation, simpler model, more data</td></tr><tr><td>Train and validation both good, but live performance is worse</td><td>Not bias or variance. Leakage, drift or a different data distribution</td><td>Check leakage and drift</td></tr><tr><td>Both errors are high and not improving with a better model</td><td>Irreducible noise or poor labels</td><td>Improve labels, features or the problem definition</td></tr></tbody></table></div>
+
+<h3 class="sech3">Bias and variance by model</h3>
+<div class="tb"><table class="w4"><thead><tr><th>Model or technique</th><th>Effect on bias and variance</th><th>Main controls</th></tr></thead><tbody><tr><td>Linear or logistic regression</td><td>Higher bias, low variance</td><td>Add features and interactions, tune regularization (C, alpha)</td></tr><tr><td>Deep decision tree</td><td>Low bias, high variance</td><td>max_depth, min_samples_leaf, pruning</td></tr><tr><td>Random Forest (bagging)</td><td>Lowers variance by averaging</td><td>n_estimators, max_features, min_samples_leaf</td></tr><tr><td>Boosting (AdaBoost, XGBoost)</td><td>Lowers bias, can overfit</td><td>learning_rate, n_estimators, max_depth, subsample, reg_lambda, early stopping</td></tr><tr><td>KNN</td><td>Small k: low bias and high variance. Large k: the opposite</td><td>n_neighbors</td></tr><tr><td>SVM</td><td>Large C: low bias, high variance</td><td>C, gamma</td></tr><tr><td>Neural network</td><td>Low bias, high variance without control</td><td>Dropout, weight decay, early stopping, data augmentation, smaller network</td></tr><tr><td>Regularization</td><td>Adds a little bias to cut variance</td><td>L1, L2, Elastic Net</td></tr></tbody></table></div>
+
+<h3 class="sech3">My approach, step by step</h3>
+<div class="tip"><b>1.</b> Build a simple baseline. <b>2.</b> Compare training and validation scores. <b>3.</b> Plot learning curves and look at fold-to-fold spread. <b>4.</b> Decide: high bias or high variance. <b>5.</b> Apply the matching fix (more flexible model and features, or more data and regularization). <b>6.</b> Re-check with cross-validation. <b>7.</b> Use the test set once. <b>8.</b> Monitor after deployment, because drift looks like a variance or bias problem later.</div>
+
+<h3 class="sech3">Likely follow-up questions</h3>
+<details><summary>What does a learning curve tell you?</summary><p>If training and validation errors are both high and close together, more data will not help and you need a more flexible model (bias). If there is a large gap, more data or regularization will help (variance).</p></details><details><summary>Does more data fix bias?</summary><p>No. A model that is too simple stays too simple. More data mainly helps with variance. For bias you need better features or a more flexible model.</p></details><details><summary>Why does Random Forest reduce variance but not bias?</summary><p>Each deep tree has low bias and high variance. Averaging many different trees cancels much of the variance, but the average has about the same bias as one tree.</p></details><details><summary>How does regularization help?</summary><p>It penalises complexity, such as large coefficients or deep trees, which adds a small amount of bias and reduces variance. It is a trade that usually lowers validation error.</p></details><details><summary>How do you tell overfitting from leakage?</summary><p>With overfitting, validation is clearly worse than training and live performance matches validation. With leakage, validation looks excellent and live performance is far worse. Time-based or group splits and a feature availability review help separate them.</p></details>
+<div class="tip"><b>Tip:</b> Draw the picture if you can: train error falls and validation error forms a U as complexity grows. Then name your fix for each side.</div>
+</section>
+
+<section id="faq" class="faq">
+<h2>Frequently Asked Production ML Interview Questions</h2>
+<p class="note">Tap a question to open the answer. Each one has what the interviewer expects, a proper answer you can say, and where it applies to this pipeline. Questions tagged Extra are additional ones that are asked often.</p>
+<div id="faq-list"></div>
+</section>
+<footer>Rule for every learning step (imputer, clipper, scaler, encoder, selector, model): fit on train data only, keep it inside one Pipeline, and save it as one file so training and serving behave the same.</footer>
+</div>
+<script>
+// "method|what it does|d or p"
+var D=[
+["Configuration","One place for every setting.",[
+"Config (dataclass)|Columns, ranges, split size, model type, quality gate|d",
+"frozen dataclass|Settings cannot change by accident during a run|d",
+"dataclasses.replace|Override a setting from the command line|d",
+"Environment variable ML_ARTIFACT_DIR|Change the model folder per environment|d"]],
+["Read the data","",[
+"pd.read_parquet|Preferred format, fast and keeps data types|d",
+"pd.read_csv|Fallback for csv files|d",
+"pd.read_sql|Replace the loader with a database query|p"]],
+["Data validation","Automated checks that stop a bad run early.",[
+"Required column check|Fails if a feature or the target column is missing|d",
+"drop_duplicates, dropna(subset=target)|Removes repeated rows and unlabeled rows|d",
+"Binary target check|Target must be only 0 and 1, with both classes present|d",
+"Minimum row count|Stops training on too little data|d",
+"Null ratio check|Fails if a feature has too many missing values|d",
+"Range check (soft)|Warns when more than 1% of rows are outside the expected range|d",
+"DataValidationError|Clear error that the API turns into HTTP 422|d",
+"Great Expectations, Pandera|Heavier validation frameworks|p"]],
+["Data cleaning","Custom transformer that is saved inside the model.",[
+"DataCleaner|Selects columns, fixes types and normalises text in one step|d",
+"pd.to_numeric(errors='coerce')|Text such as N/A in a numeric column becomes missing|d",
+"replace(inf, -inf, NaN)|Infinite values become missing|d",
+"str.strip, str.lower, regex punctuation removal|Normalises category text|d",
+"Empty string to NaN|Blank values count as missing|d"]],
+["Splitting","",[
+"train_test_split(stratify=y)|Keeps the class ratio in train and test|d",
+"Time-based split|Past is train and future is test when a date column is set|d",
+"StratifiedKFold|Cross-validation for classification|d",
+"TimeSeriesSplit|Cross-validation for time data|d",
+"GroupKFold, GroupShuffleSplit|When one customer has many rows|p"]],
+["Missing values","",[
+"SimpleImputer(strategy='median')|Numeric columns, safe with outliers|d",
+"SimpleImputer(strategy='most_frequent')|Categorical columns|d",
+"add_indicator=True|Adds a 'was missing' flag column|d",
+"KNNImputer|Fill from nearest neighbours, slow on big data|p",
+"IterativeImputer (MICE)|Model-based fill, slow and hard to serve|p",
+"Native NaN support in gradient boosting|No imputation needed for tree boosters|p"]],
+["Outliers","",[
+"OutlierClipper (IQR, factor 1.5)|Custom transformer, limits learned on train only|d",
+"np.nanpercentile 25 and 75|Computes the IQR limits|d",
+"np.clip|Caps extreme values and keeps missing values as missing|d",
+"IsolationForest|Detects anomalies as a separate model|p",
+"Z-score, LocalOutlierFactor|Other detection methods|p"]],
+["Transformation","",[
+"FunctionTransformer(log1p)|Reduces skew in columns such as income|d",
+"Safe log (clip at 0 first)|Avoids errors on negative values|d",
+"PowerTransformer (Yeo-Johnson, Box-Cox)|Alternative for skewed data|p",
+"QuantileTransformer|Alternative, makes a uniform or normal shape|p"]],
+["Encoding","",[
+"OneHotEncoder|Turns categories into 0/1 columns|d",
+"handle_unknown='infrequent_if_exist'|Unseen categories do not crash serving|d",
+"min_frequency=0.01|Groups rare categories together|d",
+"TargetEncoder, CountEncoder, HashingEncoder|For high-cardinality columns|p",
+"OrdinalEncoder|For ordered categories|p",
+"LabelEncoder|Target column only, never for input features|p"]],
+["Scaling","Only needed for linear and distance based models.",[
+"StandardScaler|Applied when model type is logistic regression|d",
+"MinMaxScaler, RobustScaler, MaxAbsScaler|Alternatives|p",
+"No scaling for tree models|Gradient boosting and Random Forest do not need it|d"]],
+["Preprocessing structure","",[
+"ColumnTransformer|Different steps for plain numeric, log numeric and categorical columns|d",
+"Pipeline|Chains every step so one fit and one save covers everything|d",
+"remainder='drop'|Ignores any column that is not a declared feature|d",
+"get_feature_names_out|Lists the final feature names after all steps|d"]],
+["Feature selection","",[
+"VarianceThreshold|Drops constant columns|d",
+"SelectFromModel(RandomForestClassifier)|Keeps features above an importance cut-off (0.5 * mean)|d",
+"SelectKBest, chi2, f_classif, mutual_info_classif|Filter alternatives|p",
+"RFE, RFECV|Slow, for training time only|p",
+"Lasso or ElasticNet coefficients|Embedded alternative|p",
+"Boruta|Alternative wrapper method|p"]],
+["Dimension reduction","Not enabled by default.",[
+"PCA|Add after preprocessing if there are very many features|p",
+"IncrementalPCA|Large data|p",
+"TruncatedSVD|Sparse and text features|p",
+"LinearDiscriminantAnalysis|Supervised reduction|p"]],
+["Model","",[
+"HistGradientBoostingClassifier|Default model for tabular data|d",
+"class_weight='balanced'|Handles imbalanced classes without synthetic data|d",
+"early_stopping=True|Stops adding trees when validation score stops improving|d",
+"LogisticRegression|Simple, explainable model|d",
+"XGBoost, LightGBM, CatBoost|Alternative boosters|p",
+"RandomForestClassifier|Baseline, also used inside the selector|d"]],
+["Hyperparameter tuning","Switched on with the tune option.",[
+"RandomizedSearchCV|Samples settings, scored with average_precision|d",
+"Search space|learning rate, leaf nodes, min samples, L2 regularization (or C for logistic regression)|d",
+"Optuna|Bayesian search with pruning|p",
+"GridSearchCV|Only for very small search spaces|p"]],
+["Cross-validation and threshold","",[
+"Out-of-fold predictions|Every training row is predicted by a model that did not see it|d",
+"precision_recall_curve|Candidates for the decision threshold|d",
+"Best F1 threshold|Threshold chosen without touching the test set|d",
+"Cost-based threshold|Use business cost of false positive vs false negative|p",
+"clone(pipeline)|Fresh copy for each fold, no leakage between folds|d"]],
+["Evaluation","Measured once, on the untouched test set.",[
+"roc_auc_score|Ranking quality|d",
+"average_precision_score (PR-AUC)|Main metric for imbalanced data|d",
+"precision, recall, f1|At the chosen threshold|d",
+"brier_score_loss|Quality of the probabilities|d",
+"confusion_matrix|True and false positives and negatives|d",
+"Positive rate|Baseline to compare PR-AUC against|d",
+"CalibratedClassifierCV|Calibration when probabilities must be exact|p"]],
+["Quality gate","",[
+"min_roc_auc|Model is saved but not promoted if test ROC-AUC is below the limit|d",
+"LATEST pointer file|Serving only reads the promoted version|d",
+"--force option|Manual override|p"]],
+["Interpretation","",[
+"permutation_importance|Importance of each raw input column on the test set|d",
+"Selected feature list|Saved in the metadata|d",
+"SHAP, LIME|Per-prediction explanations|p",
+"Partial dependence plots|Effect of one feature|p"]],
+["Saving and versioning","",[
+"joblib.dump(compress=3)|Saves the whole pipeline as one file|d",
+"Timestamp version folder|One folder per training run|d",
+"metadata.json|Metrics, threshold, features, library versions, data hash|d",
+"baseline.json|Training distributions for drift checks|d",
+"ONNX|Cross-language export|p",
+"MLflow, Weights and Biases, DVC|Experiment tracking and data versioning|p"]],
+["Prediction","",[
+"Predictor class|Loads the latest model and validates the input|d",
+"predict_proba|Returns the probability|d",
+"Saved threshold|Turns probability into a 0/1 prediction|d",
+"Batch prediction command|Scores a whole csv or parquet file|d",
+"scikit-learn version check|Warns if serving uses a different library version|d"]],
+["Serving","REST API, optional dependency.",[
+"FastAPI|Web framework|d",
+"Pydantic request model|Validates the request, limits batch size to 1000|d",
+"Lifespan startup load|Model is loaded once, not per request|d",
+"/predict, /health, /model-info|The three endpoints|d",
+"HTTP 422 on bad input|Client errors are not reported as server errors|d",
+"uvicorn|Server process|d",
+"Docker, Kubernetes|Packaging and scaling|p"]],
+["Monitoring","",[
+"PSI (Population Stability Index)|Compares new data with the training distribution|d",
+"Decile bins for numeric columns|Bin edges saved at training time|d",
+"Category proportions with an other bucket|Handles unseen categories|d",
+"Prediction score drift|PSI on the model output|d",
+"Missing rate comparison|Baseline versus new batch|d",
+"OK below 0.10, WARN below 0.25, ALERT above|Status levels, exit code 2 on ALERT|d",
+"KS test, Chi-square|Extra statistical tests|p",
+"Evidently, Prometheus, Grafana|Dashboards and alerting|p",
+"Retraining trigger|Schedule, drift based or performance based|p"]],
+["When to retrain","Retrain when a trigger fires, not only on a calendar. Default means the pipeline already supports it. Optional needs a scheduler or extra tooling.",[
+"Drift trigger: PSI above 0.25 (ALERT)|Input features or prediction scores moved away from training data. The monitor command exits with code 2 so a scheduler can start retraining|d",
+"Drift warning: PSI 0.10 to 0.25 for several runs in a row|Investigate first, retrain if it keeps growing|d",
+"Performance trigger|Real labels arrive and ROC-AUC or PR-AUC drops (for example 5% or more below the saved test score). The most reliable trigger|p",
+"Prediction score shift|Average predicted probability or positive rate changes a lot with no business reason|d",
+"Scheduled retrain|Fixed cadence such as weekly or monthly. Simple safety net for slowly changing data|p",
+"Enough new labeled data|A set number or percentage of new labeled rows has arrived (for example 20% of the training size)|p",
+"Label delay|Churn, fraud or default labels arrive weeks later. Retrain only on rows whose label is final|p",
+"Business or policy change|New product, price change, new region, new customer segment, changed rules|p",
+"Seasonality|Retrain before a known seasonal period (festival, holiday, year end), using last year's same period|p",
+"Schema or feature change|New or removed column, changed meaning of a column, new category in a main field|p",
+"Upstream data fix|A bug in the source data was corrected, so old training rows are wrong|p",
+"Model age limit|Retrain when the model is older than a set number of months even if nothing alarms|p",
+"Alert fatigue guard|Ignore PSI on very small batches (under 200 rows), the value is unreliable|d"]],
+["When NOT to retrain","Retraining on bad data makes the model worse.",[
+"Data quality problem|Nulls, wrong units, broken feed: fix the pipeline, do not retrain on it|d",
+"Validation errors|Missing columns or bad target stop the run by design|d",
+"Short temporary spike|One-off campaign or outage: wait and watch more batches|p",
+"Small batch of new data|Not enough rows for a stable model or a reliable PSI|d",
+"Quality gate failure|If the new model is below the minimum ROC-AUC it is saved but not promoted|d"]],
+["How to retrain safely","",[
+"Expanding window|Train on all history plus new data, stable but slow to adapt|p",
+"Sliding window|Train only on the most recent months, adapts faster to change|p",
+"Time-based split|Test on the newest data so the score reflects the future|d",
+"Champion and challenger|Compare the new model with the live one on the same recent test data and promote only if better|p",
+"Quality gate|Automatic minimum score before a new version can go live|d",
+"Versioned artifacts|Every retrain is a new timestamp folder, old versions are kept|d",
+"LATEST pointer|Serving switches version by changing one pointer file|d",
+"Rollback|Point LATEST back to the previous version if the new one misbehaves|d",
+"Shadow deployment|New model scores live traffic silently, results are only compared|p",
+"Canary or A/B rollout|Send a small share of traffic to the new model first|p",
+"Fine-tune vs full retrain|Fine-tune neural networks on new data, fully retrain tree models|p",
+"Fresh drift baseline|Every retrain saves a new baseline so monitoring compares with the new data|d",
+"Scheduler (Airflow, Dagster, Prefect, cron)|Runs monitor first, then train only when a trigger fires|p",
+"Retrain log|Record why a retrain happened, data hash, old and new scores|d"]],
+["Testing","Built-in selftest command.",[
+"Train and promote check|Model beats the minimum ROC-AUC|d",
+"Artifact check|Files and LATEST pointer exist|d",
+"Prediction round trip|Probabilities between 0 and 1|d",
+"Dirty input check|NaN, text in numeric, unseen category|d",
+"Outlier check|Extreme value does not break the prediction|d",
+"Missing column check|Fails with a clear error|d",
+"Quality gate check|Noise data is not promoted|d",
+"Drift check|Same data OK, shifted data ALERT|d",
+"API check|Health, predict and 422 response|d",
+"pytest|Alternative test runner|p"]]
+];
+var T={d:"Default",p:"Optional"};
+var h="",nv="";
+D.forEach(function(s,i){
+ nv+='<a href="#s'+(i+1)+'">'+(i+1)+' '+s[0]+'</a>';
+ h+='<section id="s'+(i+1)+'"><h2>'+(i+1)+'. '+s[0]+'</h2>'+(s[1]?'<p class="note">'+s[1]+'</p>':'')+
+ '<div class="tb"><table><thead><tr><th>Method</th><th>What it does</th><th>Status</th></tr></thead><tbody>';
+ s[2].forEach(function(r){var p=r.split("|");
+  h+='<tr><td>'+p[0].replace(/</g,"&lt;")+'</td><td>'+p[1]+'</td><td class="'+p[2]+'">● '+T[p[2]]+'</td></tr>';});
+ h+='</tbody></table></div></section>';
+});
+document.getElementById("app").innerHTML=h;
+document.getElementById("nav").innerHTML='<a href="#stages">12 Stages</a><a href="#lifecycle">All Concepts</a>'+nv+'<a href="#interview">Interview answer</a><a href="#interview-dataset">Dataset interview answer</a><a href="#interview-retrain">Retrain interview answer</a><a href="#interview-retrain-methods">Retrain methods interview answer</a><a href="#interview-focus">Focus areas interview answer</a><a href="#interview-monitor">Monitoring and DVC interview answer</a><a href="#interview-model">Model choice interview answer</a><a href="#interview-leakage">Data leakage interview answer</a><a href="#interview-drift">Concept drift interview answer</a><a href="#interview-biasvar">Bias vs variance interview answer</a><a href="#faq">Interview Q&amp;A</a>';
+
+
+// [title, one-line, methods and tools, what to check, common mistake, in this pipeline]
+var ST=[
+["Data Ingestion","Collect data from databases, APIs, CSV, S3, Kafka, or data warehouses.",
+"SQL queries and pd.read_sql for databases. pd.read_parquet or read_csv for files. REST APIs with retries and rate-limit handling. S3 with boto3. Kafka consumers for streaming. Warehouses such as Snowflake, BigQuery and Redshift. Airflow, Dagster or Prefect to schedule the load.",
+"Keep an untouched raw copy. Prefer Parquet over CSV. Record the source, extraction time and query. Use incremental loads for big tables. Take a snapshot so the same data can be reloaded later.",
+"Reading straight from a live table whose content keeps changing, so a run cannot be reproduced.",
+"load_data reads Parquet or CSV. For a database, replace it with a SQL query. The data hash is stored with every trained model."],
+["Data Validation","Check schema, data types, missing values, duplicates, invalid records, and data quality.",
+"Required column and schema check. Data type check. Null ratio. Duplicate check. Range check (for example age below 0 is invalid). Allowed category values. Row count and freshness. Target must be valid. Tools: Great Expectations, Pandera, Pydantic, TFDV, Deepchecks.",
+"Hard failures stop the pipeline (missing column, bad target, too few rows). Soft problems are logged as warnings (some values out of range). Run the same checks on live requests, not only at training time.",
+"Validating only at training time, so bad data at serving time silently gives wrong predictions.",
+"Required columns, duplicates, binary target, minimum rows, null ratio and range warnings are checked. DataCleaner converts text such as N/A to missing. A bad request returns HTTP 422."],
+["Data Preprocessing","Handle missing values, categorical encoding, scaling, normalization, and outliers.",
+"Missing values: SimpleImputer (median, mode), missing indicator, KNNImputer. Encoding: OneHotEncoder, OrdinalEncoder, TargetEncoder. Scaling: StandardScaler, MinMaxScaler, RobustScaler. Normalization: L1 or L2 Normalizer. Outliers: IQR clipping, winsorizing, IsolationForest.",
+"Learn every statistic (median, mean, scaler values, category list, clip limits) on training data only. Tree models need no scaling. Handle unseen categories. Use median when outliers are present and mean when they are not.",
+"Fitting the scaler or imputer on the full dataset, which leaks test information into training.",
+"SimpleImputer with a missing flag, OutlierClipper (IQR), OneHotEncoder that ignores unseen categories, StandardScaler only for logistic regression. All are inside one Pipeline."],
+["Feature Engineering","Create meaningful features using domain knowledge and statistical techniques.",
+"Ratios and differences. Group-by aggregates (average per customer). Date parts (month, weekday) and sin/cos cycles. Lag and rolling-window features for time data. Interactions and polynomial features. Binning. Log or power transforms. Text: TF-IDF, embeddings. Feature selection: VarianceThreshold, SelectFromModel, mutual information, SHAP.",
+"Use only information that will be available at prediction time. Compute features the same way in training and serving. Check importance and drop features that add noise. Group-by features are often the strongest for tabular data.",
+"Using future information (for example a column filled in after the outcome), which gives a great test score and a useless live model.",
+"log1p for skewed columns, missing indicators, and feature selection with VarianceThreshold plus SelectFromModel (Random Forest importance). Extra features can be added with a custom transformer."],
+["Data Splitting","Split data into training, validation, and testing datasets.",
+"train_test_split with stratify. StratifiedKFold or KFold for cross-validation. TimeSeriesSplit and time-based splits for dated data. GroupKFold when one customer has many rows. Typical sizes: 60/20/20 or 70/15/15.",
+"Training data fits the model, validation data tunes settings and the threshold, test data is used once at the end. Keep the class ratio equal in every part. For time data, the test set must be the newest period.",
+"Tuning on the test set, or a random split on time data, which lets the model peek at the future.",
+"A stratified train and test split, with cross-validation inside the training part acting as the validation set. The threshold comes from out-of-fold predictions. A time column switches to a time-based split."],
+["Model Training","Train models such as Logistic Regression, Random Forest, XGBoost, etc.",
+"Baseline first: Logistic Regression. Then Random Forest, Gradient Boosting (XGBoost, LightGBM, CatBoost, HistGradientBoosting), SVM, neural networks. Imbalance: class weights, threshold tuning. Regularization: L1, L2, early stopping. Tuning: RandomizedSearchCV, Optuna.",
+"Compare several models on the same split and metric. Keep the simplest model that is good enough. Fix random seeds. Save the full pipeline, not only the estimator.",
+"Training one fancy model with no baseline, so nobody knows whether it actually adds value.",
+"HistGradientBoostingClassifier by default and LogisticRegression as an option, class_weight set to balanced, early stopping, and optional RandomizedSearchCV with the tune switch."],
+["Model Evaluation","Evaluate using Accuracy, Precision, Recall, F1-score, ROC-AUC, RMSE, etc.",
+"Classification: Accuracy, Precision, Recall, F1, ROC-AUC, PR-AUC, Log Loss, confusion matrix, Brier score, calibration. Regression: RMSE, MAE, R2, MAPE. Ranking: NDCG, MAP. Clustering: Silhouette score.",
+"Pick the metric from the business cost. Accuracy misleads on imbalanced data, so use PR-AUC, precision and recall. Compare with a simple baseline (for example the positive rate). Check performance on important segments too.",
+"Reporting accuracy on data where 95% of rows are one class.",
+"Test ROC-AUC, PR-AUC next to the positive-rate baseline, precision, recall, F1, Brier score and confusion matrix, plus permutation importance. A minimum ROC-AUC acts as a quality gate."],
+["Experiment Tracking","Track parameters, metrics, datasets, code versions, and artifacts using MLflow.",
+"MLflow Tracking: log_param, log_metric, log_artifact, log_model, tags and run comparison. Alternatives: Weights and Biases, Neptune, DVC for data versions. Git commit hash for the code version.",
+"Log the parameters, metrics, dataset version or hash, code commit, library versions, plots and the model file for every run, so the best run can be reproduced exactly.",
+"Keeping results in notebook cells or file names such as model_final_v2_new.pkl.",
+"Each run writes a metadata file with metrics, config, data hash, selected features and library versions. MLflow is the optional upgrade when a team runs many experiments."],
+["Model Registry","Store approved model versions and manage their lifecycle.",
+"MLflow Model Registry, SageMaker Model Registry, Vertex AI Model Registry. Versions, stages or aliases (Staging, Production, Archived), approval step, model description and lineage.",
+"Only a version that passed the quality checks and was approved gets promoted. Record who promoted it and why. Keep old versions so a rollback is possible.",
+"Copying a model file by hand to the server with no record of which version is live.",
+"A timestamp folder per version, a quality gate, and a LATEST pointer that serving reads. Moving the pointer promotes or rolls back a version."],
+["Model Deployment","Deploy the model using FastAPI, Docker, Kubernetes, or cloud services.",
+"FastAPI for the REST API with Pydantic validation. Docker for a repeatable environment. Kubernetes for scaling, rolling updates and health checks. Cloud: SageMaker, Vertex AI, Azure ML. Modes: batch, real-time, streaming. Release methods: shadow, canary, A/B test. CI/CD with GitHub Actions or Jenkins.",
+"Load the model once at startup. Add health and model-info endpoints. Limit request size. Return clear errors for bad input. Pin library versions. Test before release and keep rollback ready.",
+"Different library versions in training and serving, so the saved model fails to load or behaves differently.",
+"FastAPI with /predict, /health and /model-info, input validation with HTTP 422 on bad data, a batch predict command, and a version warning if scikit-learn differs."],
+["Monitoring","Monitor latency, errors, prediction quality, data drift, and concept drift.",
+"System: latency, throughput, error rate, CPU and memory with Prometheus and Grafana. Model: data drift with PSI, KS test, Chi-square; prediction score drift; missing rate; real performance once labels arrive; concept drift with DDM or ADWIN. Evidently AI for reports.",
+"Save a baseline from training data. Compare every new batch with it. Set alert levels (PSI below 0.10 OK, up to 0.25 warn, above 0.25 alert). Ignore tiny batches. Send alerts to the team.",
+"Watching only server health, so the API looks fine while the predictions slowly become wrong.",
+"The monitor command calculates PSI for every feature and the prediction score, compares missing rates and exits with code 2 on an alert so a scheduler can react."],
+["Retraining","Retrain the model when performance decreases or new data becomes available.",
+"Triggers: drift alert, performance drop, enough new labeled data, schedule, business or schema change. Windows: expanding or sliding. Release: champion and challenger comparison, shadow, canary, then promote. Orchestration: Airflow, Dagster, Prefect.",
+"Check that the new data is valid first. Train, then evaluate against the current model on the same recent test data. Promote only if it passes the quality gate. Save a new drift baseline. Keep the old version for rollback. Wait for final labels when labels arrive late.",
+"Retraining automatically on corrupted data, which replaces a good model with a worse one.",
+"Rerunning the train command validates, trains, gates and versions a new model with a fresh baseline. See the 'When to retrain' section for the triggers."]
+];
+var sh="";
+ST.forEach(function(x,i){
+ sh+='<div class="st"><h3><span class="num">'+(i+1)+'</span>'+x[0]+'</h3><p class="one">'+x[1]+'</p><dl>'+
+ '<dt>Methods and tools</dt><dd>'+x[2]+'</dd><dt>What to check</dt><dd>'+x[3]+'</dd>'+
+ '<dt>Common mistake</dt><dd>'+x[4]+'</dd><dt>In this pipeline</dt><dd>'+x[5]+'</dd></dl></div>';
+});
+document.getElementById("stage-list").innerHTML=sh;
+
+// [title, note, rows "method|how it works|when to use|y/w/n", tip]
+var G=[
+["Feature Selection","Keep only useful features. Do it inside the Pipeline on training data only. Filter methods are fast and model-free, wrapper methods test subsets with a model (slow), embedded methods select while the model trains.",[
+"FILTER: Variance Threshold|Drops features with (almost) no variance|Always as the first cheap step|y",
+"FILTER: Missing-value ratio|Drops features with too many nulls (for example above 50%)|Always|y",
+"FILTER: Correlation (Pearson, Spearman)|Of two features correlated above about 0.9, keep one|Numeric, redundant features|y",
+"FILTER: VIF (Variance Inflation Factor)|Measures how well one feature is explained by the others. Above 5 to 10 means multicollinearity|Linear models|y",
+"FILTER: Chi-square (chi2)|Tests dependence between a non-negative feature and a class target|Categorical or count features, classification|y",
+"FILTER: ANOVA F-test (f_classif)|Compares feature means across the target classes|Numeric features, classification|y",
+"FILTER: f_regression|Strength of linear relation with a numeric target|Regression|y",
+"FILTER: Mutual Information|Any dependence, including non-linear|Mixed data, non-linear links|y",
+"FILTER: Cramers V|Association strength between two categorical columns|Categorical analysis|w",
+"FILTER: SelectKBest, SelectPercentile|Keep the top K or top percent by a chosen score|With chi2, f_classif or mutual information|y",
+"FILTER: SelectFpr, SelectFdr, SelectFwe|Select by p-value error rate|Statistical screening|w",
+"FILTER: Fisher score, ReliefF|Class separation score, nearest-neighbour weights|Small datasets|w",
+"WRAPPER: RFE|Train, drop the weakest feature(s), repeat until K remain|Small to medium data, slow|w",
+"WRAPPER: RFECV|RFE with cross-validation to pick the number of features|When K is unknown|w",
+"WRAPPER: Forward selection|Add the best feature one at a time|Few features|n",
+"WRAPPER: Backward elimination|Start with all, remove the worst one at a time|Few features|n",
+"WRAPPER: Stepwise, exhaustive search|Combine add and remove, or try all subsets|Research only, too slow|n",
+"WRAPPER: Boruta|Compares each feature with shuffled shadow copies using Random Forest|Finding all relevant features|w",
+"WRAPPER: Genetic algorithm|Evolves feature subsets|Rare, large search|n",
+"EMBEDDED: Lasso (L1)|Shrinks weak coefficients to exactly zero|Linear and logistic models|y",
+"EMBEDDED: Elastic Net|L1 plus L2, keeps groups of correlated features|Correlated features|y",
+"EMBEDDED: Ridge (L2)|Shrinks but does not remove, can rank features|Ranking only|w",
+"EMBEDDED: Tree and forest importance|Total impurity reduction per feature. Biased towards high-cardinality columns|Quick ranking|y",
+"EMBEDDED: Gradient boosting gain|Importance by split gain (XGBoost, LightGBM, CatBoost)|Tabular models|y",
+"EMBEDDED: SelectFromModel|Keeps features above an importance threshold from any model|Standard sklearn step|y",
+"MODEL-AGNOSTIC: Permutation importance|Shuffle one feature on validation data and measure the score drop|Reliable final check|y",
+"MODEL-AGNOSTIC: SHAP importance|Average absolute SHAP value per feature|Selection and explanation|y",
+"MODEL-AGNOSTIC: Stability selection|Repeat selection on many subsamples and keep stable features|Noisy, wide data|w",
+"OTHER: Domain knowledge|Remove IDs, leaky columns and fields not available at prediction time|Always|y"],
+"Practical combination: variance filter, then correlation filter, then SelectFromModel, then confirm with permutation importance on validation data. Remove IDs and leaky columns first. PCA and SVD reduce dimensions by creating new features, so they are not feature selection."],
+
+["Outlier Handling","First detect, then decide. Check whether an extreme value is an error or a real rare event before changing it. Learn all limits on training data and apply the same limits at serving.",[
+"DETECT: IQR rule (box plot)|Outlier if below Q1 minus 1.5 times IQR, or above Q3 plus 1.5 times IQR|Skewed or non-normal data, default choice|y",
+"DETECT: Z-score|z = (x minus mean) divided by standard deviation. Outlier if absolute z is above 3|Roughly normal data. Mean and std are themselves affected by outliers|y",
+"DETECT: Modified Z-score (MAD)|0.6745 times (x minus median) divided by MAD. Outlier if above 3.5|Robust version for skewed or small data|w",
+"DETECT: Percentile limits|Flag values below the 1st or above the 99th percentile|Any distribution, simple|y",
+"DETECT: Domain rules|Impossible values such as age 250 or negative price|Always|y",
+"DETECT: Grubbs test|Statistical test for one outlier in normal data|Small samples|n",
+"DETECT: Visual (box plot, scatter, histogram)|Look at the data|Exploration|n",
+"DETECT: Mahalanobis distance|Distance that accounts for correlation between features|Multivariate, roughly normal|w",
+"DETECT: Isolation Forest|Random splits isolate anomalies in few steps|Large and high-dimensional data|y",
+"DETECT: Local Outlier Factor|Compares local density with the neighbours|Clusters of different density, slow|w",
+"DETECT: DBSCAN|Points outside every dense cluster are noise|Cluster-shaped data|w",
+"DETECT: One-Class SVM, Elliptic Envelope|Learn a boundary around normal data|Small clean training set|w",
+"DETECT: Autoencoder|Large reconstruction error means anomaly|Complex or high-dimensional data|y",
+"TREAT: Keep as is|Leave real extreme values untouched|Fraud, rare events. Tree models are robust|y",
+"TREAT: Clip or cap (winsorize)|Replace values beyond the limits with the limit (IQR bounds or 1st and 99th percentile)|Best default, limits from training data|y",
+"TREAT: Remove rows|Delete the rows|Proven errors, training only. Never drop rows at inference|w",
+"TREAT: Replace and impute|Set to missing, then fill with median|Errors where a good estimate exists|w",
+"TREAT: Transform (log, sqrt, Box-Cox)|Compress the long tail|Right-skewed columns|y",
+"TREAT: Binning|Extreme values fall into the last bin|When exact value is not needed|w",
+"TREAT: Robust scaler or robust model|Median and IQR scaling, Huber loss, tree models|When outliers must stay|y",
+"TREAT: Outlier flag feature|Add a 0/1 column saying the value was extreme|Outlier itself is informative|y",
+"TREAT: Separate model or segment|Model large customers apart from small ones|Distinct sub-populations|w"],
+"Rule of thumb: IQR for skewed data, Z-score for roughly normal data, Isolation Forest for many columns. Default treatment is clipping with limits learned on training data."],
+
+["Standardization and Scaling","Puts features on a similar scale. Needed for linear and logistic regression, SVM, KNN, K-Means, PCA, regularized models and neural networks. Not needed for decision trees, Random Forest, XGBoost, LightGBM and CatBoost. Fit the scaler on training data only and save it.",[
+"Standardization (Z-score), StandardScaler|(x minus mean) divided by standard deviation. Result has mean 0 and std 1|Default for linear models, SVM, KNN, PCA, neural networks. Sensitive to outliers|y",
+"Min-Max normalization, MinMaxScaler|(x minus min) divided by (max minus min). Result between 0 and 1|Neural networks, image pixels, bounded inputs. Very sensitive to outliers|y",
+"Robust scaling, RobustScaler|(x minus median) divided by IQR|Data with outliers|y",
+"MaxAbs scaling, MaxAbsScaler|x divided by the largest absolute value. Range minus 1 to 1, keeps zeros|Sparse data|y",
+"Mean normalization|(x minus mean) divided by (max minus min)|Rarely used, textbooks|n",
+"Unit vector L2 normalization, Normalizer|Scales each row so its length is 1|Text vectors, cosine similarity, KNN. Works per row, not per column|w",
+"L1 normalization|Scales each row so absolute values sum to 1|Proportions, histograms|w",
+"Decimal scaling|Divide by a power of 10|Textbooks only|n",
+"Log scaling|Compress large ranges|See Transformation|y"],
+"Standardization changes the centre and spread but keeps the shape. Normalization (Min-Max) squeezes values into a fixed range. Neither fixes skew, use a transformation for that."],
+
+["Transformation","Changes the shape of a feature. Skewness above 1 or below minus 1 is a sign that a transformation may help. Wrap custom steps with FunctionTransformer so they live inside the Pipeline.",[
+"Log, log1p|log(x), or log(1 + x) when zeros exist. Strong fix for right skew|Income, price, counts, durations|y",
+"Square root|Milder than log|Count data|y",
+"Cube root|Like square root but works for negative values|Skewed data with negatives|w",
+"Square or higher power|Stretches the upper range|Left-skewed data|w",
+"Reciprocal (1 divided by x)|Very strong compression|Extreme right skew, positive values only|w",
+"Box-Cox|Power transform with a lambda learned from data. Positive values only|Make data closer to normal. Save the lambda|y",
+"Yeo-Johnson, PowerTransformer|Like Box-Cox but allows zero and negative values|General default power transform|y",
+"Quantile transformer|Maps values by rank to a uniform or normal shape|Heavy outliers, any shape|y",
+"Rank transformation|Replace values by their rank|Ordinal meaning only|w",
+"Binning (equal width, equal frequency, KBinsDiscretizer)|Turn numbers into groups|Non-linear effect in linear models, age groups|w",
+"Binarization|Value above a threshold becomes 1, else 0|Present or absent flags|y",
+"Polynomial features|Squares and cross-products|Few features, grows fast|w",
+"Interaction and ratio features|Product or ratio of two columns|Domain meaning, such as price per unit|y",
+"Cyclical encoding (sin and cos)|Maps hour, weekday, month on a circle so 23 is close to 0|Time features|y",
+"Date and time decomposition|Year, month, weekday, hour, is weekend|Date columns|y",
+"Logit, arcsine|For proportions between 0 and 1|Rate columns|w",
+"Target transformation|Train on log(target), convert back at prediction|Skewed regression target|y",
+"FunctionTransformer|Wraps any function as a pipeline step|Custom transformations|y"],
+"Transformation changes the distribution, scaling changes the range. Typical order: transform for skew, clip outliers, impute, then scale."],
+
+["Hyperparameter Tuning","Hyperparameters are set before training (for example learning rate or tree depth). Tune on training data with cross-validation, never on the test set.",[
+"Manual search|Choose values by experience|Starting point, quick checks|n",
+"Grid Search, GridSearchCV|Tries every combination|Very small search space|w",
+"Random Search, RandomizedSearchCV|Tries random combinations. Usually finds a good setting in far fewer trials|Default simple choice|y",
+"Bayesian optimization|Learns from past trials which region is promising. Tools: Optuna, Hyperopt, scikit-optimize|Expensive models, many parameters|y",
+"TPE (Tree-structured Parzen Estimator)|Bayesian method used by default in Optuna and Hyperopt|Mixed and conditional parameters|y",
+"Gaussian Process optimization|Smooth surrogate model|Few continuous parameters|w",
+"Successive Halving, HalvingGridSearchCV|Start many settings on little data, keep the best half, give them more data|Large data, many candidates|y",
+"Hyperband|Successive halving run with several budgets|Deep learning, large searches|y",
+"BOHB|Bayesian optimization plus Hyperband|Large searches|w",
+"Population Based Training|Trains many models and copies good ones with mutation|Neural networks|w",
+"Genetic and evolutionary search (TPOT, DEAP)|Evolves settings or whole pipelines|Rare|w",
+"AutoML (Auto-sklearn, FLAML, H2O, AutoGluon)|Automatic model and parameter search|Fast baseline|w",
+"Early stopping|Stop training when the validation score stops improving|Boosting and neural networks|y",
+"Pruning (Optuna MedianPruner)|Stop poor trials early|With Bayesian search|y",
+"Cross-validation inside the search|StratifiedKFold, TimeSeriesSplit, GroupKFold|Always|y",
+"Nested cross-validation|Inner loop tunes, outer loop gives an unbiased score|Honest model comparison, slow|w",
+"Scoring choice|average_precision, roc_auc, f1, neg RMSE|Match the business metric|y",
+"MODEL: Logistic Regression|C, penalty, solver, class_weight|Use log scale for C|y",
+"MODEL: Random Forest|n_estimators, max_depth, min_samples_leaf, max_features|Limit depth to reduce overfit|y",
+"MODEL: XGBoost, LightGBM, CatBoost|learning_rate, n_estimators, max_depth or num_leaves, subsample, colsample_bytree, reg_alpha, reg_lambda, min_child_weight|Lower learning rate with more trees|y",
+"MODEL: SVM|C, kernel, gamma|Scale features first|w",
+"MODEL: KNN|n_neighbors, weights, distance metric|Scale features first|w",
+"MODEL: Neural network|learning rate, batch size, layers, units, dropout, weight decay|Tune learning rate first|y",
+"MODEL: K-Means|n_clusters|Use silhouette score|w"],
+"Tips: search learning rate and C on a log scale, start wide then narrow, fix random_state, use early stopping for boosting, and log every trial (MLflow or Optuna storage)."],
+
+["Sampling Techniques","Two different meanings. First: resampling to fix class imbalance. Second: choosing a subset of data. For imbalance, resample only the training fold (use an imbalanced-learn Pipeline), never validation or test data, and judge the model with PR-AUC, precision and recall.",[
+"IMBALANCE: Class weights|Penalize mistakes on the minority class more. No data change|First choice, default in production|y",
+"IMBALANCE: Threshold tuning|Move the decision cut-off using precision-recall or business cost|Always|y",
+"IMBALANCE: Cost-sensitive learning|Use a cost for each type of error|When error costs are known|y",
+"IMBALANCE: Focal loss|Reduces the weight of easy examples|Deep learning, object detection|y",
+"IMBALANCE: Random oversampling|Duplicates minority rows|Simple, can overfit|w",
+"IMBALANCE: Random undersampling|Removes majority rows|Very large data, loses information|w",
+"IMBALANCE: SMOTE|Creates synthetic minority points between a minority sample and its nearest minority neighbours|Numeric features. Can distort probabilities|w",
+"IMBALANCE: SMOTE-NC, SMOTEN|SMOTE for mixed or purely categorical features|Categorical data|w",
+"IMBALANCE: Borderline-SMOTE|Synthesizes only near the class border|Overlapping classes|w",
+"IMBALANCE: SVM-SMOTE|Uses support vectors to place synthetic points|Overlapping classes|w",
+"IMBALANCE: K-Means SMOTE|Cluster first, then SMOTE inside clusters|Spread-out minority groups|w",
+"IMBALANCE: ADASYN|Creates more points where the minority is hard to learn|Complex borders|w",
+"IMBALANCE: Tomek Links|Removes majority points that form closest pairs with minority points|Clean the border|w",
+"IMBALANCE: Edited Nearest Neighbours|Removes samples whose neighbours disagree with them|Noise cleaning|w",
+"IMBALANCE: NearMiss (1, 2, 3)|Keeps majority samples by distance to minority samples|Undersampling with a rule|w",
+"IMBALANCE: Cluster Centroids|Replaces majority groups with K-Means centroids|Undersampling|w",
+"IMBALANCE: SMOTETomek, SMOTEENN|Oversample, then clean the border|Combined approach|w",
+"IMBALANCE: Balanced Random Forest, EasyEnsemble|Each tree or bag is trained on a balanced undersample|Strong imbalance|y",
+"IMBALANCE: Anomaly detection view|Treat the rare class as outliers|Extremely rare events|y",
+"IMBALANCE: Collect more data, augmentation|Gather minority examples, flip or rotate images, back-translate text|Best long-term fix|y",
+"SUBSET: Simple random sampling|Every row has an equal chance|Quick samples|y",
+"SUBSET: Stratified sampling|Keeps the class or segment proportions|Train and test splits|y",
+"SUBSET: Systematic sampling|Every k-th row|Unordered data only|w",
+"SUBSET: Cluster sampling|Pick whole clusters at random|Surveys, grouped data|w",
+"SUBSET: Group sampling (GroupShuffleSplit)|Keeps all rows of one customer or entity together|Repeated records per entity|y",
+"SUBSET: Time-based sampling|Past for training, future for testing|Time data|y",
+"SUBSET: Bootstrap|Random sampling with replacement. Used in bagging and confidence intervals|Random Forest, uncertainty|y",
+"SUBSET: Reservoir sampling|Fixed-size random sample from a stream|Streaming data|y",
+"SUBSET: Weighted or importance sampling|Rows chosen with unequal probability|Correct a biased sample|w"],
+"Production default for imbalance: class weights plus threshold tuning plus the right metric. SMOTE and other synthetic methods are tried when that is not enough, and they must run only inside training folds."]
+];
+var ST2={y:"✔ Production",w:"▲ With care",n:"✖ Notebook"};
+var dh="",dn="";
+G.forEach(function(g,i){
+ dn+='<a href="#g'+(i+1)+'">'+g[0]+'</a>';
+ dh+='<section id="g'+(i+1)+'"><h2>'+g[0]+'</h2><p class="note">'+g[1]+'</p><div class="tb"><table class="g"><thead><tr><th>Method</th><th>How it works</th><th>When to use</th><th>Production</th></tr></thead><tbody>';
+ g[2].forEach(function(r){var c=r.split("|");
+  dh+='<tr><td>'+c[0]+'</td><td>'+c[1]+'</td><td>'+c[2]+'</td><td class="'+c[3]+'">'+ST2[c[3]]+'</td></tr>';});
+ dh+='</tbody></table></div><div class="tip"><b>Rule:</b> '+g[3]+'</div></section>';
+});
+document.getElementById("detail").innerHTML=dh;
+document.getElementById("nav").insertAdjacentHTML("afterbegin",dn);
+// [question, interviewer expects, answer, in this pipeline, extra]
+var F=[
+["What is MLOps?","Automating ML lifecycle",
+"MLOps is applying DevOps practices to machine learning. It automates and connects the whole lifecycle: data collection and validation, training, experiment tracking, deployment, monitoring and retraining. The goal is that a model is reproducible, tested, versioned and safely updated, instead of living in a notebook.",
+"One command trains, validates, gates and versions the model. Another command monitors drift, so the full loop is automated.",0],
+["What is MLflow?","Experiment tracking and model management",
+"MLflow is an open source platform with four parts: Tracking (log parameters, metrics and artifacts for every run), Projects (reproducible runs), Models (a standard packaging format) and the Model Registry (versions and stages such as Staging and Production). It lets me compare runs, reproduce the best one and promote a model with a clear history.",
+"This pipeline saves metrics and parameters in a metadata file per version. MLflow is the optional upgrade when many people run many experiments.",0],
+["What is model versioning?","Managing multiple model versions",
+"Model versioning means every trained model gets a unique version together with the exact code, data, parameters, metrics and library versions that produced it. I can then compare versions, reproduce a result, audit a decision and roll back. Data and code are versioned too (DVC, Git), not only the model file.",
+"Each run saves a timestamp folder with the model, metadata (metrics, threshold, library versions, data hash) and a drift baseline.",0],
+["What is data drift?","Change in input distribution",
+"Data drift is when the distribution of the input features in production changes compared with the training data, for example average income rises or a new customer segment appears. The model may still be correct for the old world but is now seeing inputs it was not trained on. I detect it with PSI, KS test or Chi-square on each feature.",
+"PSI is calculated per feature and on the prediction score: OK below 0.10, WARN below 0.25, ALERT above.",0],
+["What is concept drift?","Change in feature-target relationship",
+"Concept drift is when the relationship between the features and the target changes, even if the inputs look the same. For example, customers with the same profile start churning for a new reason after a competitor launches an offer. It cannot be seen from inputs alone. I detect it by tracking real performance when labels arrive (ROC-AUC, PR-AUC, error rate), or with methods such as DDM and ADWIN.",
+"Prediction score drift is an early warning. Confirming concept drift needs real labels to compare with the saved test metrics.",0],
+["Why Docker?","Consistent deployment environment",
+"Docker packages the code, Python version, libraries and system dependencies into one image, so the model runs the same on my laptop, in testing and in production. It removes the 'works on my machine' problem, makes deployments repeatable and is the base unit for Kubernetes.",
+"A saved model only loads reliably with the same scikit-learn version, which an image pins.",0],
+["Why Kubernetes?","Container orchestration and scaling",
+"Kubernetes runs and manages containers across many machines. It gives auto-scaling when traffic grows, self-healing (restarts failed containers), rolling updates with zero downtime, load balancing, health checks and easy rollback. I use it when a model API needs high availability and variable load. For a small internal service, plain Docker or a managed service can be enough.",
+"The API has a /health endpoint that Kubernetes can use for readiness and liveness checks.",0],
+["Why FastAPI?","Exposing model through REST APIs",
+"FastAPI is a fast Python web framework with automatic request validation through Pydantic, automatic OpenAPI documentation, async support and good performance. It lets other systems call the model through a simple REST endpoint. I load the model once at startup, not on every request, and return clear errors for bad input.",
+"Endpoints /predict, /health and /model-info. A bad request returns HTTP 422 instead of a server error.",0],
+["What is CI/CD?","Automated testing and deployment",
+"CI (continuous integration) automatically runs tests, linting and data or model checks on every code change. CD (continuous delivery or deployment) automatically builds the image and releases it through staging to production. For ML it also includes data validation, training checks and a quality gate on model metrics. Tools: GitHub Actions, Jenkins, GitLab CI.",
+"The selftest command is the test step a CI job would run before deployment.",0],
+["What is model monitoring?","Tracking model and system health",
+"Model monitoring is watching the live system after deployment. There are two sides. Model health: data drift, concept drift, prediction distribution, missing values and, when labels arrive, accuracy. System health: latency, throughput, error rate, CPU and memory. Tools: Evidently AI, Prometheus, Grafana. Alerts trigger investigation or retraining.",
+"The monitor command reports PSI and missing rates, and exits with code 2 on an alert so a scheduler can react.",0],
+["What is model rollback?","Returning to a previous stable model",
+"Rollback means quickly switching production back to the last stable model version when the new one performs badly or breaks. It needs old versions kept and a simple switch, such as changing a registry stage or a pointer. A rollback should take minutes, and it is a key reason to version every model.",
+"Serving reads a LATEST pointer. Pointing it to the previous version folder is a rollback.",0],
+["What is feature store?","Centralized feature management",
+"A feature store is a central place to define, compute, store and serve features so training and serving use exactly the same logic. It has an offline store for training (history, point-in-time correct) and an online store for low-latency serving. It prevents training-serving skew and lets teams reuse features. Tools: Feast, Tecton, Databricks Feature Store.",
+"Here the cleaning and feature steps are inside the saved pipeline, which gives the same consistency for a single model.",0],
+["What is Airflow?","Workflow orchestration",
+"Apache Airflow schedules and orchestrates workflows as DAGs (directed acyclic graphs) of tasks. For ML I use it to run ingestion, validation, training, evaluation and deployment in order, with retries, dependencies, alerts and logs. Alternatives: Dagster, Prefect, Kubeflow Pipelines.",
+"Each command (train, monitor) is one task. A DAG would run monitor first and run train only when a trigger fires.",0],
+["What is A/B testing?","Comparing models in production",
+"A/B testing sends a share of live traffic to the new model (B) and the rest to the current one (A) at the same time, then compares real business and model metrics such as conversion, churn saved or error rate. Users are split randomly and the test runs long enough to reach statistical significance. It shows real impact, which offline metrics cannot.",
+"",0],
+["What is canary deployment?","Gradually releasing a new model",
+"A canary deployment releases the new model to a small percentage of traffic first, for example 5%, while watching errors, latency and prediction quality. If it is healthy the share is increased step by step to 100%. If not, traffic returns to the old model. The goal is limiting the damage of a bad release. A/B testing compares business outcomes; a canary mainly checks safety.",
+"",0],
+["What is training-serving skew?","Same processing in training and production",
+"Training-serving skew is when the features seen in production are computed differently from the ones used in training, for example different cleaning code or missing columns. The model then performs worse than its test score. The fix is to put preprocessing and the model in one pipeline object, or use a feature store, and to validate inputs.",
+"Cleaning, imputation, encoding, selection and the model are saved in one file, so serving cannot differ from training.",1],
+["What is data leakage and how do you avoid it?","Fit on train only",
+"Data leakage is when information from outside the training data, such as test rows or future values, influences the model, which gives unrealistically good scores. I avoid it by splitting first, fitting every imputer, scaler, encoder and selector on the training data only inside a Pipeline, using time-based splits for time data and group splits when one customer has many rows.",
+"The threshold is chosen from out-of-fold predictions, and the test set is used once.",1],
+["What is a model registry?","Central store with versions and stages",
+"A model registry is a central catalogue of trained models with versions, metrics, lineage and a stage such as Staging, Production or Archived. It controls who can promote a model and gives deployment a single source of truth. MLflow Model Registry and SageMaker Model Registry are common examples.",
+"The versioned artifact folders and the LATEST pointer play this role in a small setup.",1],
+["What is shadow deployment?","Test on live traffic without risk",
+"In shadow deployment the new model receives a copy of live requests and makes predictions, but its output is not shown to users. I compare its predictions with the current model and with later real labels. It tests latency and behaviour on real data with zero user risk, before a canary or A/B test.",
+"",1],
+["What is a quality gate?","Automatic check before release",
+"A quality gate is an automatic rule that blocks a model from going live unless it passes, for example a minimum ROC-AUC on the test set, no failed data validation and acceptable latency. It stops a worse model from replacing a good one without a human noticing.",
+"If test ROC-AUC is below the limit, the model is saved but the LATEST pointer is not changed.",1],
+["How do you detect drift?","PSI, KS test and baselines",
+"I save the training distribution as a baseline, then compare each new batch with it. PSI (Population Stability Index) is common: below 0.10 is stable, 0.10 to 0.25 needs attention and above 0.25 is a major shift. For numeric columns I also use the KS test, for categorical columns Chi-square. I check the prediction score distribution too, and ignore very small batches because the values are unreliable.",
+"Baseline bins are saved at training time. Unseen categories fall into an 'other' bucket.",1],
+["When do you retrain a model?","Trigger based, not only scheduled",
+"I retrain when a trigger fires: a drift alert, a drop in real performance once labels arrive, enough new labeled data, a business or schema change, or a scheduled interval as a safety net. I do not retrain on bad data, I fix the data pipeline first. The new model must pass the quality gate and beat the current model before it is promoted.",
+"",1],
+["Batch vs real-time inference?","Choose by latency need",
+"Batch inference scores many records on a schedule, for example nightly churn scores, and is cheaper and simpler. Real-time inference answers one request in milliseconds through an API, for example fraud checks at payment. I choose by how fast the decision is needed, and many systems use both.",
+"The same saved model supports a batch predict command and a real-time API.",1],
+["How do you handle imbalanced data in production?","Weights, threshold and the right metric",
+"I use class weights and threshold tuning rather than synthetic data, because oversampling such as SMOTE can distort probabilities. I judge the model with PR-AUC, precision and recall instead of accuracy, and I choose the threshold from business cost. In production I also monitor the positive rate over time.",
+"class_weight is balanced, the main metric is PR-AUC, and the threshold comes from out-of-fold predictions.",1],
+["How do you make an ML pipeline reproducible?","Same inputs give the same model",
+"I fix random seeds, version the code, the data (hash or DVC) and the configuration, pin library versions, keep all steps in one pipeline, log every run and containerize the environment. Then anyone can rebuild the exact model and explain how it was made.",
+"Metadata stores the data hash, config and library versions of each run.",1]
+];
+var fl="";
+F.forEach(function(f){
+ fl+='<details><summary>'+f[0]+(f[4]?'<span class="tag">Extra</span>':'')+'</summary>'+
+ '<p class="exp"><b>Interviewer expects:</b> '+f[1]+'</p><p>'+f[2]+'</p>'+
+ (f[3]?'<p class="eg"><b>In this pipeline:</b> '+f[3]+'</p>':'')+'</details>';
+});
+document.getElementById("faq-list").innerHTML=fl;
+var q=document.getElementById("q");
+q.addEventListener("input",function(){
+ var t=q.value.toLowerCase();
+ document.querySelectorAll("tbody tr").forEach(function(r){r.classList.toggle("hide",!!t&&r.textContent.toLowerCase().indexOf(t)<0);});
+ document.querySelectorAll("#app section").forEach(function(s){s.classList.toggle("hide",!s.querySelector("tbody tr:not(.hide)"));});
+ document.querySelectorAll("#detail section").forEach(function(x){x.querySelectorAll("tbody tr").forEach(function(r){r.classList.toggle("hide",!!t&&r.textContent.toLowerCase().indexOf(t)<0);});x.classList.toggle("hide",!x.querySelector("tbody tr:not(.hide)"));});
+ document.querySelectorAll(".st").forEach(function(d){d.classList.toggle("hide",!!t&&d.textContent.toLowerCase().indexOf(t)<0);});
+ document.querySelectorAll("#faq-list details").forEach(function(d){d.classList.toggle("hide",!!t&&d.textContent.toLowerCase().indexOf(t)<0);});
+});
+document.getElementById("th").addEventListener("click",function(){
+ var r=document.documentElement,d=r.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+ r.dataset.theme=d==="dark"?"light":"dark";});
+</script>
+</body>
+</html>
