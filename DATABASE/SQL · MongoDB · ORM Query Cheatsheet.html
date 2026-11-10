@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SQL · MongoDB · ORM Query Cheatsheet</title>
+<style>
+:root{--bg:#f4ecd8;--card:#fbf6e6;--ink:#3b3226;--mut:#7a6c58;--bd:#dccfae;--code:#efe5c8;--sql:#2f6f8f;--mongo:#3f7d4e;--orm:#9a5b2e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1f1d19;--card:#2a2722;--ink:#e6dcc6;--mut:#a89c85;--bd:#3d382f;--code:#201e1a;--sql:#7fb9d8;--mongo:#86c796;--orm:#e0a56f}}
+:root[data-theme="dark"]{--bg:#1f1d19;--card:#2a2722;--ink:#e6dcc6;--mut:#a89c85;--bd:#3d382f;--code:#201e1a;--sql:#7fb9d8;--mongo:#86c796;--orm:#e0a56f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Georgia,"Times New Roman",serif}
+main{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:1.6rem;margin:.2em 0}
+.sub{color:var(--mut);margin:0 0 14px}
+#q{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;margin-bottom:10px}
+h2{margin:28px 0 8px;font-size:1.2rem;border-bottom:1px solid var(--bd);padding-bottom:4px}
+.item{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin:10px 0}
+.item h3{margin:0 0 8px;font-size:1rem}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:800px){.cols{grid-template-columns:1fr}}
+.c{min-width:0}
+.tag{font:700 .72rem/1 system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.sql .tag{color:var(--sql)}.mongo .tag{color:var(--mongo)}.orm .tag{color:var(--orm)}
+pre{margin:0;background:var(--code);border-radius:6px;padding:8px 10px;overflow-x:auto;font:13px/1.45 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+.note{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;color:var(--mut);font-size:.92rem}
+.scale{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:6px 16px 14px;margin-top:26px}.scale h3{margin:14px 0 4px;font-size:1.02rem}.scale p,.scale li{margin:4px 0}.scale ul{padding-left:20px;margin:4px 0}.scale code{background:var(--code);padding:1px 5px;border-radius:4px;font:13px ui-monospace,Menlo,Consolas,monospace}.scale table{border-collapse:collapse;width:100%;font-size:.92rem}.scale th,.scale td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:top}.scale .wrap{overflow-x:auto}
+.qa details{border:1px solid var(--bd);border-radius:8px;margin:6px 0;background:var(--card)}.qa summary{cursor:pointer;padding:8px 12px;font-weight:700}.qa details>div{padding:0 12px 10px}.qa p{margin:4px 0}.qa pre{margin:6px 0}
+</style></head><body><main>
+<h1>SQL · MongoDB · ORM — every query, side by side</h1>
+<p class="sub">ORM = Python SQLAlchemy 2.0 (session <code>s</code>). MongoDB = mongosh syntax (PyMongo uses the same names in snake_case).</p>
+<div class="note">Sample data — SQL tables: <b>users</b>(id, name, email, age, city), <b>orders</b>(id, user_id, amount, status). MongoDB collections: <b>users</b>, <b>orders</b> (with <code>user_id</code>). ORM models: <code>User</code>, <code>Order</code>. Imports: <code>from sqlalchemy import select, update, delete, func, or_, and_, case, exists</code></div>
+<input id="q" type="search" placeholder="Filter: select, join, group, update, index …">
+<div id="out"></div>
+<h2>Scaling: 1 million+ records, indexing &amp; sharding</h2>
+<div class="scale">
+<p>A million records is small for a modern database. Fix the basics first, then scale step by step.</p>
+<h3>1. Indexing (biggest win)</h3>
+<p>Without an index the database scans every row. Index columns used in <code>WHERE</code>, <code>JOIN</code> and <code>ORDER BY</code>. Don’t over-index, because every index slows inserts and updates. Check with <code>EXPLAIN</code>.</p>
+<h3>2. Pagination</h3>
+<p><code>OFFSET 900000</code> is slow because the database still walks past 900k rows. Use keyset pagination instead:</p>
+<div class="cols">
+<div class="c sql"><div class="tag">SQL</div><pre>SELECT * FROM users
+WHERE id &gt; :last_id
+ORDER BY id LIMIT 20;</pre></div>
+<div class="c mongo"><div class="tag">MongoDB</div><pre>db.users.find({_id:{$gt:lastId}})
+  .sort({_id:1}).limit(20)</pre></div>
+<div class="c orm"><div class="tag">ORM</div><pre>select(User).where(User.id &gt; last_id)
+  .order_by(User.id).limit(20)</pre></div>
+</div>
+<h3>3. Query hygiene</h3>
+<ul><li>Select only the columns you need, avoid <code>SELECT *</code>.</li><li>Avoid N+1 queries in the ORM (use joins or eager loading).</li><li>Do heavy work in the database, not in Python loops.</li></ul>
+<h3>4. Caching</h3>
+<p>Keep hot, rarely changing data in Redis or an in-memory cache so it doesn’t hit the database every time.</p>
+<h3>5. Read replicas</h3>
+<p>The primary handles writes and copies of it handle reads. Best when the app reads far more than it writes.</p>
+<h3>6. Partitioning</h3>
+<p>Split one big table into smaller pieces inside the same database, usually by date or range (for example one partition per month). Queries on recent data only touch the recent partition.</p>
+<h3>7. Archiving</h3>
+<p>Move old data (for example orders older than 3 years) to an archive table or cold storage.</p>
+<h3>8. Sharding (when one server is not enough)</h3>
+<p>Sharding splits data across multiple servers. Each server (shard) holds only part of the data.</p>
+<ul>
+<li><b>Shard key:</b> the field that decides which shard stores a record, such as <code>user_id</code>.</li>
+<li><b>Hash sharding:</b> the key is hashed, so data spreads evenly. Good load balance, poor for range queries.</li>
+<li><b>Range sharding:</b> for example users 1–1M on shard A, 1M–2M on shard B. Range queries are easy, but one shard can become a hotspot.</li>
+<li><b>Pitfalls:</b> a bad shard key creates hotspots, cross-shard joins are slow, cross-shard transactions are complex, and resharding later is painful.</li>
+</ul>
+<p>MongoDB shard setup:</p>
+<pre>sh.enableSharding("shop")
+sh.shardCollection("shop.users", { user_id: "hashed" })</pre>
+<h3>MongoDB vs SQL</h3>
+<div class="wrap"><table>
+<tr><th></th><th>MongoDB</th><th>SQL (MySQL / Postgres)</th></tr>
+<tr><td>Sharding</td><td>Built in. Pick a shard key and the cluster balances chunks automatically.</td><td>Not built in. Use partitioning and replicas first; Citus, Vitess or app-level sharding if truly needed.</td></tr>
+<tr><td>Joins across shards</td><td><code>$lookup</code> is limited on sharded data</td><td>Hard and slow</td></tr>
+<tr><td>Transactions</td><td>Supported, costly across shards</td><td>Easy on one server, complex across servers</td></tr>
+</table></div>
+<h3>What to use, in order</h3>
+<ol><li>Indexes + keyset pagination</li><li>Cache (Redis)</li><li>Read replicas</li><li>Partitioning + archiving</li><li>Sharding, only when one machine can no longer handle the write load or data size</li></ol>
+</div>
+<h2>Sharding in simple words</h2>
+<div class="scale">
+<h3>The idea</h3>
+<p>Imagine one library with 10 million books. One librarian, one building, and it is getting slow and crowded. So you open 4 libraries, each holding some of the books. A rule decides which library has which book, for example by the first letter of the title. Each librarian now handles fewer books and fewer visitors.</p>
+<p>That is sharding: you split one big database into smaller databases (<b>shards</b>) on different servers, and a rule (the <b>shard key</b>) decides where each record goes.</p>
+<h3>Why do it?</h3>
+<p>One server has limits: disk space, memory, CPU, and writes per second. A bigger server (vertical scaling) gets very expensive and still has a ceiling. Sharding adds more normal servers (horizontal scaling). Each shard holds less data, so queries and writes are faster and the load is shared.</p>
+<h3>When to do it?</h3>
+<p>Only after the simpler steps failed. Sharding is the last step, not the first. Do it when:</p>
+<ol><li>Your data is too large for one server (many hundreds of GB to TBs).</li><li>Write traffic is too high for one server, even after indexes, caching and good queries.</li><li>Read replicas don’t help, because the problem is writes or data size, not reads.</li></ol>
+<h3>When NOT to do it</h3>
+<ul><li>You have around 1 million records. Indexes will be enough.</li><li>The app is slow because of missing indexes or bad queries. Fix those first.</li><li>Traffic is mostly reads. Use caching and read replicas.</li></ul>
+<p>Sharding adds complexity: cross-shard joins and transactions are hard, and changing the shard key later is painful.</p>
+<h3>How to do it, step by step</h3>
+<ol>
+<li><b>Pick the shard key.</b> This is the most important decision. Ask: “What field do most of my queries filter by?” Often it is <code>user_id</code>. A good key has many different values, spreads data evenly, and appears in most queries.</li>
+<li><b>Pick the method.</b><ul><li>Hash sharding: <code>hash(user_id) % number_of_shards</code>. Even spread, slow range queries.</li><li>Range sharding: users 1–1M on shard A, 1M–2M on shard B. Easy range queries, but a shard can become a hotspot.</li></ul></li>
+<li><b>Route queries.</b> Every query should include the shard key so the system knows which shard to ask. MongoDB’s router (<code>mongos</code>) does this for you. In SQL, your app or a tool like Vitess or Citus does it.</li>
+<li><b>Plan for growth.</b> Leave room to add more shards later.</li>
+</ol>
+<h3>Bad vs good shard key</h3>
+<div class="wrap"><table>
+<tr><th>Key</th><th>Result</th></tr>
+<tr><td><code>country</code> (bad)</td><td>Most users sit in one or two countries, so one shard gets almost all the load (hotspot).</td></tr>
+<tr><td><code>user_id</code> hashed (good)</td><td>Users spread evenly across all shards.</td></tr>
+</table></div>
+<h3>MongoDB example</h3>
+<pre>sh.enableSharding("shop")
+sh.shardCollection("shop.orders", { user_id: "hashed" })</pre>
+<p>MongoDB then splits the data and balances it between the shards automatically.</p>
+<h3>Rule to remember</h3>
+<p><b>Index first, then cache, then replicas, then partitioning, and shard last.</b></p>
+</div>
+<h2>Production concepts (must know)</h2>
+<div class="scale">
+<h3>1. Connection pooling</h3>
+<p>Opening a new connection per request is slow, and databases have a maximum connection limit. A pool keeps a fixed set of connections open and reuses them.</p>
+<div class="cols">
+<div class="c orm"><div class="tag">ORM (SQLAlchemy)</div><pre>create_engine(url, pool_size=10,
+  max_overflow=20, pool_pre_ping=True,
+  pool_recycle=1800)</pre></div>
+<div class="c mongo"><div class="tag">MongoDB (PyMongo)</div><pre>MongoClient(uri, maxPoolSize=50,
+  serverSelectionTimeoutMS=5000)</pre></div>
+<div class="c sql"><div class="tag">Rule</div><pre>pool size x app instances
+  &lt; DB max connections
+(create the client once, not per request)</pre></div>
+</div>
+<h3>2. Security</h3>
+<p>Never build queries by joining strings with user input. Use parameters.</p>
+<div class="cols">
+<div class="c sql"><div class="tag">SQL</div><pre>cur.execute(
+ "SELECT * FROM users WHERE email=%s",
+ (email,))   # never f"...{email}"</pre></div>
+<div class="c mongo"><div class="tag">MongoDB</div><pre># NoSQL injection: user sends {"$ne": null}
+email = str(body["email"])  # force a string
+db.users.find_one({"email": email})</pre></div>
+<div class="c orm"><div class="tag">ORM</div><pre># safe by default (bound parameters)
+select(User).where(User.email == email)</pre></div>
+</div>
+<ul>
+<li>Give the app a <b>least-privilege</b> user (no DROP, no admin rights).</li>
+<li>Turn on authentication (MongoDB), use TLS, and never expose the DB port to the public internet.</li>
+<li>Keep passwords in environment variables or a secrets manager, not in code. Encrypt data at rest; hash passwords with bcrypt or argon2.</li>
+</ul>
+<h3>3. Migrations (schema changes)</h3>
+<p>Never change production tables by hand. Use versioned migrations (Alembic, Flyway; for MongoDB, versioned scripts). For zero downtime, change in small steps:</p>
+<ol><li>Add the new column as nullable.</li><li>Backfill old rows in small batches.</li><li>Deploy code that uses the new column.</li><li>Add constraints, and drop the old column in a later release.</li></ol>
+<p>Never rename or drop a column in the same release as the code change. Large <code>ALTER TABLE</code> on millions of rows can lock the table, so test it on a copy first.</p>
+<h3>4. Backup &amp; recovery</h3>
+<pre>mysqldump -u user -p shop &gt; shop.sql
+pg_dump -Fc shop &gt; shop.dump
+mongodump --db shop --out /backup/2026-11-10</pre>
+<ul>
+<li><b>Point-in-time recovery (PITR):</b> keep binlogs (MySQL), WAL (Postgres) or the oplog (MongoDB) so you can restore to any minute.</li>
+<li><b>RPO</b> = how much data you can afford to lose. <b>RTO</b> = how long you can be down.</li>
+<li>A backup you never restored is not a backup. Test restores regularly, and store copies in another region.</li>
+</ul>
+<h3>5. Replication &amp; failover</h3>
+<p>Run at least 3 nodes (primary + 2 replicas, a MongoDB replica set, or a managed Multi-AZ service). If the primary dies, a replica is promoted automatically.</p>
+<ul>
+<li><b>Replication lag:</b> a replica can be a little behind. A user who just saved something may not see it if you read from a replica. Read important data from the primary.</li>
+<li>MongoDB: <code>writeConcern: {w: "majority"}</code> makes a write safe against failover. <code>readPreference</code> chooses primary or secondary reads.</li>
+</ul>
+<h3>6. Transactions, isolation &amp; deadlocks</h3>
+<ul>
+<li><b>ACID:</b> Atomic, Consistent, Isolated, Durable. Use a transaction when several writes must succeed or fail together (money transfer, order + stock).</li>
+<li><b>Isolation levels:</b> Read Committed (common default), Repeatable Read, Serializable (safest, slowest).</li>
+<li><b>Deadlock:</b> two transactions wait for each other. Keep transactions short, update rows in the same order, and retry on a deadlock error.</li>
+<li>MongoDB: a single document update is already atomic. Design documents so most work needs only one document, and avoid multi-document transactions when you can.</li>
+</ul>
+<h3>7. Schema design</h3>
+<ul>
+<li><b>SQL:</b> normalize (no repeated data, use foreign keys). Denormalize only for proven read speed needs.</li>
+<li><b>MongoDB embed vs reference:</b> embed when data is read together and stays small (order + its items). Reference when data is large, shared, or grows without limit (user and all their logs).</li>
+<li>Avoid unbounded arrays. A MongoDB document is limited to 16 MB.</li>
+<li>Validate data in the database too:</li>
+</ul>
+<pre>db.createCollection("users", {validator: {$jsonSchema: {
+  required: ["name","email"],
+  properties: {age: {bsonType: "int", minimum: 0}}}}})</pre>
+<h3>8. Data lifecycle</h3>
+<ul>
+<li><b>Soft delete:</b> add a <code>deleted_at</code> column and filter on it instead of really deleting. Easy to undo, good for audit.</li>
+<li><b>Auto-expire (MongoDB TTL index):</b></li>
+</ul>
+<pre>db.sessions.createIndex({createdAt: 1}, {expireAfterSeconds: 3600})</pre>
+<ul><li>In SQL, use a scheduled job to archive or delete old rows in small batches.</li></ul>
+<h3>9. Monitoring</h3>
+<pre>-- MySQL
+SET GLOBAL slow_query_log=1; SET GLOBAL long_query_time=1;
+-- Postgres: enable pg_stat_statements
+// MongoDB
+db.setProfilingLevel(1, {slowms: 100})</pre>
+<p>Watch: queries per second, p95 latency, active connections, replication lag, disk space, cache hit ratio, slow queries. Set alerts before disk is full or connections run out.</p>
+<h3>10. Resilience in the app</h3>
+<ul>
+<li><b>Timeouts</b> on every query, so one slow query doesn’t freeze the app.</li>
+<li><b>Retries with backoff</b> for temporary errors, and <b>idempotency keys</b> so a retry doesn’t create a duplicate order or payment.</li>
+<li><b>Bulk operations:</b> insert and update in batches (for example 1,000 at a time), not one by one and not millions at once.</li>
+<li>Rate limiting and caching protect the database from traffic spikes.</li>
+<li>Avoid N+1 queries (use joins or eager loading), and never run heavy reports on the primary. Use a replica.</li>
+</ul>
+<h3>11. Consistency trade-off (CAP)</h3>
+<p>When the network between servers breaks, you must choose: stay <b>consistent</b> (some requests fail) or stay <b>available</b> (some data may be stale). Banking-type data should choose consistency. Feeds, likes and counters can accept stale data.</p>
+<h3>Production checklist</h3>
+<div class="wrap"><table>
+<tr><th>Area</th><th>Check</th></tr>
+<tr><td>Performance</td><td>Indexes on filter/join/sort columns, keyset pagination, no N+1, slow query log on</td></tr>
+<tr><td>Reliability</td><td>Replica set or Multi-AZ, automatic failover, timeouts, retries, idempotency</td></tr>
+<tr><td>Safety</td><td>Daily backups + PITR, restore tested, migrations versioned</td></tr>
+<tr><td>Security</td><td>Parameterized queries, least privilege, TLS, auth on, secrets not in code</td></tr>
+<tr><td>Scale</td><td>Connection pool, cache, read replicas, partitioning, shard last</td></tr>
+<tr><td>Operations</td><td>Monitoring + alerts, disk and connection limits, archive old data</td></tr>
+</table></div>
+</div>
+<h2>Interview questions &amp; answers</h2>
+<p class="sub">Tap a question to open the answer.</p>
+<div class="scale qa">
+<h3>SQL basics</h3>
+<details><summary>WHERE vs HAVING?</summary><div><p><code>WHERE</code> filters rows before grouping. <code>HAVING</code> filters groups after <code>GROUP BY</code>, so it can use aggregates like <code>COUNT(*)</code>.</p></div></details>
+<details><summary>INNER JOIN vs LEFT JOIN?</summary><div><p>INNER returns only rows that match in both tables. LEFT returns all rows from the left table, with NULLs where the right side has no match. Use LEFT JOIN + <code>WHERE right.id IS NULL</code> to find rows with no match.</p></div></details>
+<details><summary>DELETE vs TRUNCATE vs DROP?</summary><div><p><b>DELETE</b> removes rows (can use WHERE, can roll back, logged row by row). <b>TRUNCATE</b> removes all rows fast and resets auto-increment, with no WHERE. <b>DROP</b> removes the whole table, structure included.</p></div></details>
+<details><summary>Primary key vs unique key vs foreign key?</summary><div><p>Primary key: unique and not null, one per table. Unique key: unique values, can allow NULL, many per table. Foreign key: a column that points to the primary key of another table and keeps the data consistent.</p></div></details>
+<details><summary>UNION vs UNION ALL?</summary><div><p>UNION removes duplicates (extra sort/work). UNION ALL keeps everything and is faster. Use UNION ALL when you know there are no duplicates or don’t care.</p></div></details>
+<details><summary>What is normalization? When do you denormalize?</summary><div><p>Normalization removes repeated data by splitting it into related tables (1NF, 2NF, 3NF). It avoids update mistakes. Denormalize only when a read is too slow because of many joins and you have measured it.</p></div></details>
+<details><summary>What is a CTE and how is it different from a subquery?</summary><div><p>A CTE (<code>WITH name AS (...)</code>) is a named temporary result you can reuse and read top to bottom. It is cleaner than nested subqueries and supports recursion (for example, tree or hierarchy data).</p></div></details>
+<h3>Indexes &amp; performance</h3>
+<details><summary>How does an index work? What is the cost?</summary><div><p>It is a sorted structure (usually a B-tree) that lets the database jump to rows instead of scanning the table. Cost: extra disk space, and slower inserts, updates and deletes because the index must be updated too.</p></div></details>
+<details><summary>Clustered vs non-clustered index?</summary><div><p>A clustered index decides the physical order of rows (one per table, usually the primary key). A non-clustered index is a separate structure with pointers to the rows (many per table).</p></div></details>
+<details><summary>What is the leftmost prefix rule for a composite index?</summary><div><p>An index on <code>(a, b, c)</code> helps queries filtering on <code>a</code>, <code>a,b</code> or <code>a,b,c</code>, but not on <code>b</code> alone. Order columns by equality filters first, then range or sort.</p></div></details>
+<details><summary>Why might a query not use an index?</summary><div><p>Function on the column (<code>WHERE YEAR(date)=2026</code>), leading wildcard (<code>LIKE '%abc'</code>), type mismatch (string vs number), low-selectivity column, or the planner thinks a scan is cheaper. Check with <code>EXPLAIN</code>.</p></div></details>
+<details><summary>A query is slow. How do you optimize it?</summary><div><p>Run <code>EXPLAIN</code>, look for full scans, add or fix indexes, select only needed columns, remove N+1 patterns, rewrite subqueries as joins if needed, paginate with keyset, cache the result, and only then consider replicas or sharding.</p></div></details>
+<details><summary>OFFSET pagination vs keyset pagination?</summary><div><p>OFFSET still walks past all skipped rows, so page 50,000 is slow. Keyset uses <code>WHERE id &gt; last_id ORDER BY id LIMIT 20</code> and stays fast on any page. Downside: no jump to an arbitrary page number.</p></div></details>
+<h3>Transactions</h3>
+<details><summary>What is ACID?</summary><div><p>Atomicity (all or nothing), Consistency (rules stay valid), Isolation (transactions don’t disturb each other), Durability (committed data survives a crash).</p></div></details>
+<details><summary>Isolation levels and the problems they prevent?</summary><div><p>Read Uncommitted allows dirty reads. Read Committed prevents dirty reads. Repeatable Read also prevents non-repeatable reads. Serializable also prevents phantom reads, but is slowest. Higher level = safer but less concurrency.</p></div></details>
+<details><summary>What is a deadlock and how do you handle it?</summary><div><p>Two transactions each hold a lock the other needs. The database kills one. Prevent it by keeping transactions short, locking rows in the same order, and retrying the failed transaction.</p></div></details>
+<h3>MongoDB</h3>
+<details><summary>When would you choose MongoDB over SQL?</summary><div><p>When the data is document-shaped and changes shape often, reads fetch a whole object at once, and you need easy horizontal scaling. Choose SQL when you need many joins, strict relations and multi-row transactions (payments, accounting).</p></div></details>
+<details><summary>Embed or reference?</summary><div><p>Embed when data is read together and stays small and bounded (order + items). Reference when data is big, shared by many documents, or grows without limit (user + logs).</p></div></details>
+<details><summary>What is the aggregation pipeline?</summary><div><p>A series of stages that transform documents: <code>$match</code> (filter), <code>$group</code>, <code>$sort</code>, <code>$project</code>, <code>$lookup</code> (join), <code>$unwind</code>, <code>$limit</code>. Put <code>$match</code> and <code>$limit</code> early so indexes are used and less data flows through.</p></div></details>
+<details><summary>What is the ESR rule for compound indexes?</summary><div><p>Order index fields as <b>E</b>quality, then <b>S</b>ort, then <b>R</b>ange. This lets MongoDB use the index for filter and sort together.</p></div></details>
+<details><summary>Replica set vs sharded cluster?</summary><div><p>A replica set is copies of the <i>same</i> data for high availability and read scaling. A sharded cluster splits <i>different</i> data across shards for scaling size and writes. Production clusters usually have both (each shard is a replica set).</p></div></details>
+<details><summary>Does MongoDB support transactions?</summary><div><p>Yes, multi-document ACID transactions since version 4.0 (replica sets) and 4.2 (sharded). They cost performance, so design documents so most operations touch a single document, which is already atomic.</p></div></details>
+<details><summary>What are write concern and read concern?</summary><div><p>Write concern says how many nodes must confirm a write (<code>w: "majority"</code> is safe against failover). Read concern says what level of data a read can see (for example <code>majority</code> only returns data that won’t be rolled back).</p></div></details>
+<h3>ORM</h3>
+<details><summary>What is the N+1 problem and how do you fix it?</summary><div><p>You load 1 list of N parents, then run 1 extra query per parent to load children, giving N+1 queries. Fix with eager loading or joins: <code>select(User).options(selectinload(User.orders))</code> in SQLAlchemy.</p></div></details>
+<details><summary>Lazy vs eager loading?</summary><div><p>Lazy loads related data only when you access it (can cause N+1). Eager loads it up front with the main query. Use eager when you know you will need the related data.</p></div></details>
+<details><summary>What is a session, and flush vs commit?</summary><div><p>A session tracks objects you changed (unit of work). <code>flush</code> sends the SQL to the database inside the open transaction. <code>commit</code> makes it permanent. <code>rollback</code> cancels it.</p></div></details>
+<details><summary>When would you skip the ORM and write raw SQL?</summary><div><p>Complex reports, heavy bulk operations, window functions or database-specific features, or when the generated query is slow. Use parameters (<code>text("... :id")</code>) to stay safe from SQL injection.</p></div></details>
+<h3>Scaling &amp; production</h3>
+<details><summary>Sharding vs partitioning vs replication?</summary><div><p><b>Partitioning:</b> split one table into pieces inside one server. <b>Replication:</b> full copies on other servers (availability, read scaling). <b>Sharding:</b> split data across servers (scale size and writes).</p></div></details>
+<details><summary>How do you choose a shard key?</summary><div><p>High cardinality (many distinct values), even distribution, and present in most queries. Avoid keys that grow in order (timestamp, auto-increment) with range sharding, because all new writes hit one shard. A hashed <code>user_id</code> is a common good choice.</p></div></details>
+<details><summary>Hash vs range sharding?</summary><div><p>Hash: even spread, bad for range queries. Range: good for range queries, risk of hotspots.</p></div></details>
+<details><summary>You have 1 million records and the app is slow. What do you do?</summary><div><p>Do not shard. Check slow queries, add indexes, use keyset pagination, remove N+1, add caching, then read replicas. 1 million rows is small for one database.</p></div></details>
+<details><summary>Users don’t see their own update right after saving. Why?</summary><div><p>Probably replication lag: the write went to the primary but the read came from a replica that hasn’t caught up. Read recent or critical data from the primary, or use read-your-writes routing.</p></div></details>
+<details><summary>What is CAP theorem?</summary><div><p>During a network partition you can have only one of consistency or availability. Money data should choose consistency. Feeds and counters can choose availability and accept stale data.</p></div></details>
+<details><summary>How do you make a migration with zero downtime?</summary><div><p>Add a nullable column, backfill in small batches, deploy code that writes and reads it, then add constraints and drop the old column in a later release. Never rename or drop in the same release as the code change.</p></div></details>
+<details><summary>What is idempotency and why does it matter for writes?</summary><div><p>Doing the same request twice has the same result as doing it once. With retries and timeouts, a client may send a payment twice. An idempotency key (unique per request) lets the server detect and ignore the duplicate.</p></div></details>
+<details><summary>The connection pool is exhausted. What do you check?</summary><div><p>Connections not returned (missing close or commit), long-running transactions, pool size too small, too many app instances for the DB connection limit, or slow queries holding connections. Fix leaks first, then tune pool size and add timeouts.</p></div></details>
+<h3>Scenario questions</h3>
+<details><summary>Production database suddenly became slow. What are your steps?</summary><div>
+<ol><li>Check what changed: recent deploy, new query, traffic spike, migration.</li><li>Look at current activity: running queries, locks, blocked sessions, connection count.</li><li>Check the slow query log or profiler for the top offenders, then <code>EXPLAIN</code> them.</li><li>Check server resources: CPU, memory, disk I/O, disk space, replication lag.</li><li>Quick fixes: kill the bad query, add the missing index, roll back the deploy, enable cache.</li><li>Long-term: alerts, query review, load testing.</li></ol></div></details>
+<details><summary>Design the data model for an e-commerce app.</summary><div><p><b>SQL:</b> <code>users</code>, <code>products</code>, <code>orders</code> (user_id, status, total), <code>order_items</code> (order_id, product_id, qty, price at purchase time). Index <code>orders(user_id, created_at)</code>. Store the price in order_items so old orders don’t change when the product price changes.</p><p><b>MongoDB:</b> embed items inside the order document (<code>{user_id, items:[{product_id, qty, price}], total}</code>), reference <code>user_id</code> and <code>product_id</code>.</p></div></details>
+<h3>Practice queries</h3>
+<details><summary>Second highest salary</summary><div>
+<pre>-- SQL (handles ties)
+SELECT DISTINCT salary FROM emp
+ORDER BY salary DESC LIMIT 1 OFFSET 1;
+
+// MongoDB
+db.emp.aggregate([{$group:{_id:"$salary"}},
+  {$sort:{_id:-1}}, {$skip:1}, {$limit:1}])</pre></div></details>
+<details><summary>Find duplicate emails</summary><div>
+<pre>-- SQL
+SELECT email, COUNT(*) c FROM users
+GROUP BY email HAVING COUNT(*) &gt; 1;
+
+// MongoDB
+db.users.aggregate([{$group:{_id:"$email", c:{$sum:1}}},
+  {$match:{c:{$gt:1}}}])</pre></div></details>
+<details><summary>Top 3 orders per user</summary><div>
+<pre>-- SQL (window function)
+SELECT * FROM (
+  SELECT o.*, ROW_NUMBER() OVER (
+    PARTITION BY user_id ORDER BY amount DESC) rn
+  FROM orders o) t
+WHERE rn &lt;= 3;
+
+// MongoDB
+db.orders.aggregate([{$sort:{amount:-1}},
+  {$group:{_id:"$user_id", top:{$push:"$$ROOT"}}},
+  {$project:{top:{$slice:["$top",3]}}}])</pre></div></details>
+<details><summary>Running total of order amount by date</summary><div>
+<pre>-- SQL
+SELECT created_at, amount,
+  SUM(amount) OVER (ORDER BY created_at) AS running_total
+FROM orders;</pre></div></details>
+<details><summary>Delete duplicate rows but keep one</summary><div>
+<pre>-- SQL (keep the lowest id)
+DELETE FROM users WHERE id NOT IN (
+  SELECT MIN(id) FROM (SELECT id, email FROM users) t
+  GROUP BY email);</pre></div></details>
+</div>
+<script>
+var G=[
+["Create / Insert",[
+["Create table / collection",
+"CREATE TABLE users (\n  id INT PRIMARY KEY AUTO_INCREMENT,\n  name VARCHAR(50) NOT NULL,\n  email VARCHAR(80) UNIQUE,\n  age INT, city VARCHAR(40)\n);",
+"db.createCollection(\"users\")",
+"class User(Base):\n  __tablename__ = \"users\"\n  id = Column(Integer, primary_key=True)\n  name = Column(String(50), nullable=False)\n  email = Column(String(80), unique=True)\n  age = Column(Integer); city = Column(String(40))\nBase.metadata.create_all(engine)"],
+["Insert one",
+"INSERT INTO users (name,email,age,city)\nVALUES ('Asha','a@x.com',28,'Pune');",
+"db.users.insertOne({name:\"Asha\",email:\"a@x.com\",age:28,city:\"Pune\"})",
+"s.add(User(name=\"Asha\",email=\"a@x.com\",age=28,city=\"Pune\"))\ns.commit()"],
+["Insert many",
+"INSERT INTO users (name,age,city) VALUES\n ('Ravi',31,'Delhi'),('Meena',25,'Pune');",
+"db.users.insertMany([\n {name:\"Ravi\",age:31,city:\"Delhi\"},\n {name:\"Meena\",age:25,city:\"Pune\"}])",
+"s.add_all([User(name=\"Ravi\",age=31,city=\"Delhi\"),\n           User(name=\"Meena\",age=25,city=\"Pune\")])\ns.commit()"]]],
+["Select (Read)",[
+["Select all",
+"SELECT * FROM users;",
+"db.users.find()",
+"s.scalars(select(User)).all()"],
+["Select specific columns",
+"SELECT name, city FROM users;",
+"db.users.find({}, {name:1, city:1, _id:0})",
+"s.execute(select(User.name, User.city)).all()"],
+["Where (equals)",
+"SELECT * FROM users WHERE city='Pune';",
+"db.users.find({city:\"Pune\"})",
+"s.scalars(select(User).where(User.city==\"Pune\")).all()"],
+["Comparison (> < >= <= !=)",
+"SELECT * FROM users WHERE age > 25 AND age <= 40;",
+"db.users.find({age:{$gt:25,$lte:40}})",
+"select(User).where(User.age>25, User.age<=40)"],
+["AND / OR",
+"SELECT * FROM users\nWHERE city='Pune' OR (age>30 AND city='Delhi');",
+"db.users.find({$or:[\n {city:\"Pune\"},\n {$and:[{age:{$gt:30}},{city:\"Delhi\"}]}]})",
+"select(User).where(or_(User.city==\"Pune\",\n   and_(User.age>30, User.city==\"Delhi\")))"],
+["IN / NOT IN",
+"SELECT * FROM users WHERE city IN ('Pune','Delhi');",
+"db.users.find({city:{$in:[\"Pune\",\"Delhi\"]}})\n// not in: {$nin:[...]}",
+"select(User).where(User.city.in_([\"Pune\",\"Delhi\"]))\n# not in: User.city.not_in([...])"],
+["BETWEEN",
+"SELECT * FROM users WHERE age BETWEEN 20 AND 30;",
+"db.users.find({age:{$gte:20,$lte:30}})",
+"select(User).where(User.age.between(20,30))"],
+["LIKE / regex",
+"SELECT * FROM users WHERE name LIKE 'A%';",
+"db.users.find({name:/^A/})\n// or {name:{$regex:\"^A\",$options:\"i\"}}",
+"select(User).where(User.name.like(\"A%\"))\n# case-insens: User.name.ilike(\"a%\")"],
+["IS NULL / NOT NULL",
+"SELECT * FROM users WHERE city IS NULL;",
+"db.users.find({city:null})\n// field exists: {city:{$exists:true}}",
+"select(User).where(User.city.is_(None))\n# not null: User.city.is_not(None)"],
+["NOT",
+"SELECT * FROM users WHERE NOT city='Pune';",
+"db.users.find({city:{$ne:\"Pune\"}})",
+"select(User).where(User.city != \"Pune\")"],
+["Find one",
+"SELECT * FROM users WHERE id=1 LIMIT 1;",
+"db.users.findOne({_id:1})",
+"s.get(User, 1)"],
+["DISTINCT",
+"SELECT DISTINCT city FROM users;",
+"db.users.distinct(\"city\")",
+"s.scalars(select(User.city).distinct()).all()"],
+["ORDER BY",
+"SELECT * FROM users ORDER BY age DESC, name ASC;",
+"db.users.find().sort({age:-1, name:1})",
+"select(User).order_by(User.age.desc(), User.name.asc())"],
+["LIMIT / OFFSET (pagination)",
+"SELECT * FROM users ORDER BY id\nLIMIT 10 OFFSET 20;",
+"db.users.find().sort({_id:1}).skip(20).limit(10)",
+"select(User).order_by(User.id).limit(10).offset(20)"],
+["Top 1 (max age row)",
+"SELECT * FROM users ORDER BY age DESC LIMIT 1;",
+"db.users.find().sort({age:-1}).limit(1)",
+"s.scalars(select(User).order_by(User.age.desc()).limit(1)).first()"],
+["CASE / conditional",
+"SELECT name,\n CASE WHEN age>=30 THEN 'senior' ELSE 'junior' END AS level\nFROM users;",
+"db.users.aggregate([{$project:{name:1,\n level:{$cond:[{$gte:[\"$age\",30]},\"senior\",\"junior\"]}}}])",
+"select(User.name,\n  case((User.age>=30,\"senior\"), else_=\"junior\").label(\"level\"))"]]],
+["Aggregates & Group",[
+["COUNT",
+"SELECT COUNT(*) FROM users;",
+"db.users.countDocuments({})",
+"s.scalar(select(func.count()).select_from(User))"],
+["SUM / AVG / MIN / MAX",
+"SELECT SUM(amount), AVG(amount), MIN(amount), MAX(amount)\nFROM orders;",
+"db.orders.aggregate([{$group:{_id:null,\n sum:{$sum:\"$amount\"}, avg:{$avg:\"$amount\"},\n min:{$min:\"$amount\"}, max:{$max:\"$amount\"}}}])",
+"s.execute(select(func.sum(Order.amount), func.avg(Order.amount),\n  func.min(Order.amount), func.max(Order.amount))).one()"],
+["GROUP BY",
+"SELECT city, COUNT(*) AS total\nFROM users GROUP BY city;",
+"db.users.aggregate([\n {$group:{_id:\"$city\", total:{$sum:1}}}])",
+"s.execute(select(User.city, func.count())\n  .group_by(User.city)).all()"],
+["HAVING",
+"SELECT city, COUNT(*) c FROM users\nGROUP BY city HAVING COUNT(*) > 1;",
+"db.users.aggregate([\n {$group:{_id:\"$city\", c:{$sum:1}}},\n {$match:{c:{$gt:1}}}])",
+"select(User.city, func.count().label(\"c\"))\n  .group_by(User.city).having(func.count()>1)"],
+["WHERE + GROUP + ORDER",
+"SELECT user_id, SUM(amount) t FROM orders\nWHERE status='paid'\nGROUP BY user_id ORDER BY t DESC;",
+"db.orders.aggregate([\n {$match:{status:\"paid\"}},\n {$group:{_id:\"$user_id\", t:{$sum:\"$amount\"}}},\n {$sort:{t:-1}}])",
+"select(Order.user_id, func.sum(Order.amount).label(\"t\"))\n .where(Order.status==\"paid\")\n .group_by(Order.user_id).order_by(desc(\"t\"))"]]],
+["Joins & Subqueries",[
+["INNER JOIN",
+"SELECT u.name, o.amount\nFROM users u JOIN orders o ON o.user_id=u.id;",
+"db.users.aggregate([{$lookup:{from:\"orders\",\n localField:\"_id\", foreignField:\"user_id\", as:\"orders\"}},\n {$unwind:\"$orders\"},\n {$project:{name:1, amount:\"$orders.amount\"}}])",
+"s.execute(select(User.name, Order.amount)\n  .join(Order, Order.user_id==User.id)).all()"],
+["LEFT JOIN",
+"SELECT u.name, o.amount\nFROM users u LEFT JOIN orders o ON o.user_id=u.id;",
+"db.users.aggregate([{$lookup:{from:\"orders\",\n localField:\"_id\", foreignField:\"user_id\", as:\"orders\"}}])\n// keeps users with empty orders[]",
+"select(User.name, Order.amount)\n  .outerjoin(Order, Order.user_id==User.id)"],
+["Users with no orders",
+"SELECT u.* FROM users u\nLEFT JOIN orders o ON o.user_id=u.id\nWHERE o.id IS NULL;",
+"db.users.aggregate([{$lookup:{from:\"orders\",\n localField:\"_id\", foreignField:\"user_id\", as:\"o\"}},\n {$match:{o:{$size:0}}}])",
+"select(User).outerjoin(Order, Order.user_id==User.id)\n  .where(Order.id.is_(None))"],
+["Subquery (above average)",
+"SELECT * FROM users\nWHERE age > (SELECT AVG(age) FROM users);",
+"const avg = db.users.aggregate([{$group:{_id:null,a:{$avg:\"$age\"}}}]).next().a\ndb.users.find({age:{$gt:avg}})",
+"avg = select(func.avg(User.age)).scalar_subquery()\nselect(User).where(User.age > avg)"],
+["EXISTS",
+"SELECT * FROM users u WHERE EXISTS\n (SELECT 1 FROM orders o WHERE o.user_id=u.id);",
+"db.users.aggregate([{$lookup:{from:\"orders\",\n localField:\"_id\", foreignField:\"user_id\", as:\"o\"}},\n {$match:{\"o.0\":{$exists:true}}}])",
+"select(User).where(exists().where(Order.user_id==User.id))"],
+["UNION",
+"SELECT city FROM users\nUNION SELECT city FROM branches;",
+"db.users.aggregate([{$project:{city:1,_id:0}},\n {$unionWith:{coll:\"branches\",\n  pipeline:[{$project:{city:1,_id:0}}]}}])",
+"select(User.city).union(select(Branch.city))"]]],
+["Update",[
+["Update one",
+"UPDATE users SET city='Mumbai' WHERE id=1;",
+"db.users.updateOne({_id:1},{$set:{city:\"Mumbai\"}})",
+"s.execute(update(User).where(User.id==1).values(city=\"Mumbai\"))\ns.commit()\n# or: u=s.get(User,1); u.city=\"Mumbai\"; s.commit()"],
+["Update many",
+"UPDATE users SET city='Pune' WHERE age<25;",
+"db.users.updateMany({age:{$lt:25}},{$set:{city:\"Pune\"}})",
+"s.execute(update(User).where(User.age<25).values(city=\"Pune\"))\ns.commit()"],
+["Increment",
+"UPDATE users SET age = age + 1 WHERE id=1;",
+"db.users.updateOne({_id:1},{$inc:{age:1}})",
+"s.execute(update(User).where(User.id==1)\n  .values(age=User.age+1)); s.commit()"],
+["Add column / field",
+"ALTER TABLE users ADD COLUMN phone VARCHAR(15);",
+"db.users.updateMany({},{$set:{phone:null}})",
+"# add Column to model, then run a migration (Alembic):\nalembic revision --autogenerate -m \"add phone\"\nalembic upgrade head"],
+["Remove column / field",
+"ALTER TABLE users DROP COLUMN phone;",
+"db.users.updateMany({},{$unset:{phone:\"\"}})",
+"# remove from model, then Alembic migration"],
+["Rename column / field",
+"ALTER TABLE users RENAME COLUMN city TO town;",
+"db.users.updateMany({},{$rename:{city:\"town\"}})",
+"# Alembic: op.alter_column(\"users\",\"city\",new_column_name=\"town\")"],
+["Upsert (insert or update)",
+"INSERT INTO users (id,name) VALUES (1,'Asha')\nON DUPLICATE KEY UPDATE name='Asha';  -- MySQL\n-- Postgres: ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name",
+"db.users.updateOne({_id:1},{$set:{name:\"Asha\"}},{upsert:true})",
+"s.merge(User(id=1, name=\"Asha\"))\ns.commit()"],
+["Array push (Mongo-specific)",
+"-- needs a child table:\nINSERT INTO user_tags (user_id, tag) VALUES (1,'vip');",
+"db.users.updateOne({_id:1},{$push:{tags:\"vip\"}})\n// unique: $addToSet   remove: $pull",
+"s.add(Tag(user_id=1, tag=\"vip\"))\ns.commit()"]]],
+["Delete",[
+["Delete one / with condition",
+"DELETE FROM users WHERE id=1;",
+"db.users.deleteOne({_id:1})",
+"s.execute(delete(User).where(User.id==1))\ns.commit()\n# or: s.delete(s.get(User,1)); s.commit()"],
+["Delete many",
+"DELETE FROM users WHERE age<18;",
+"db.users.deleteMany({age:{$lt:18}})",
+"s.execute(delete(User).where(User.age<18)); s.commit()"],
+["Delete all rows (keep structure)",
+"TRUNCATE TABLE users;   -- or DELETE FROM users;",
+"db.users.deleteMany({})",
+"s.execute(delete(User)); s.commit()"],
+["Drop table / collection",
+"DROP TABLE users;",
+"db.users.drop()",
+"User.__table__.drop(engine)"]]],
+["Index, Transaction, Misc",[
+["Create index",
+"CREATE INDEX idx_city ON users(city);\nCREATE UNIQUE INDEX uq_email ON users(email);",
+"db.users.createIndex({city:1})\ndb.users.createIndex({email:1},{unique:true})",
+"Index(\"idx_city\", User.city)   # in model\n# or Column(String, index=True)"],
+["Show / drop index",
+"SHOW INDEX FROM users;\nDROP INDEX idx_city ON users;",
+"db.users.getIndexes()\ndb.users.dropIndex(\"city_1\")",
+"inspect(engine).get_indexes(\"users\")"],
+["Explain query plan",
+"EXPLAIN SELECT * FROM users WHERE city='Pune';",
+"db.users.find({city:\"Pune\"}).explain(\"executionStats\")",
+"print(select(User).where(User.city==\"Pune\"))  # SQL text\ns.execute(text(\"EXPLAIN \"+str(stmt)))"],
+["Transaction",
+"START TRANSACTION;\nUPDATE accounts SET bal=bal-100 WHERE id=1;\nUPDATE accounts SET bal=bal+100 WHERE id=2;\nCOMMIT;   -- or ROLLBACK;",
+"const ses = db.getMongo().startSession();\nses.withTransaction(() => {\n  ses.getDatabase(\"shop\").acc.updateOne({_id:1},{$inc:{bal:-100}});\n  ses.getDatabase(\"shop\").acc.updateOne({_id:2},{$inc:{bal:100}});\n});",
+"with s.begin():\n  s.execute(update(Acc).where(Acc.id==1).values(bal=Acc.bal-100))\n  s.execute(update(Acc).where(Acc.id==2).values(bal=Acc.bal+100))\n# commits on exit, rolls back on error"],
+["Raw query",
+"SELECT * FROM users;",
+"db.runCommand({find:\"users\"})",
+"s.execute(text(\"SELECT * FROM users WHERE city=:c\"), {\"c\":\"Pune\"})"],
+["Text search",
+"SELECT * FROM posts\nWHERE MATCH(body) AGAINST('python');  -- MySQL",
+"db.posts.createIndex({body:\"text\"})\ndb.posts.find({$text:{$search:\"python\"}})",
+"select(Post).where(Post.body.contains(\"python\"))"]]]
+];
+var out=document.getElementById("out"),q=document.getElementById("q");
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function render(f){
+ out.textContent="";f=(f||"").toLowerCase();
+ G.forEach(function(g){
+  var items=g[1].filter(function(i){return !f||(i.join(" ")).toLowerCase().indexOf(f)>-1});
+  if(!items.length)return;
+  out.appendChild(el("h2",0,g[0]));
+  items.forEach(function(i){
+   var d=el("div","item");d.appendChild(el("h3",0,i[0]));
+   var r=el("div","cols");
+   [["sql","SQL",i[1]],["mongo","MongoDB",i[2]],["orm","ORM",i[3]]].forEach(function(c){
+    var w=el("div","c "+c[0]);w.appendChild(el("div","tag",c[1]));w.appendChild(el("pre",0,c[2]));r.appendChild(w)});
+   d.appendChild(r);out.appendChild(d)})})
+}
+q.addEventListener("input",function(){render(q.value)});render();
+</script></main></body></html>
