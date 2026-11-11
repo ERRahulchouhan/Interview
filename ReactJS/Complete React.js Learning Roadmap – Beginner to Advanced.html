@@ -1,0 +1,2020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Complete React.js Learning Roadmap – Beginner to Advanced</title>
+<style>
+:root{--bg:#fafaf7;--card:#fff;--text:#1d1d1b;--muted:#5f5f5a;--accent:#0b7285;--chip:#e3f2f5;--border:#e2e2dc;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--card:#1e2125;--text:#ececea;--muted:#a4a7ab;--accent:#5fd0e6;--chip:#1c3a42;--border:#2f3338;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171a;--card:#1e2125;--text:#ececea;--muted:#a4a7ab;--accent:#5fd0e6;--chip:#1c3a42;--border:#2f3338;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:24px 18px 64px}
+h1{font-size:clamp(1.7rem,5vw,2.4rem);line-height:1.2;margin:.2em 0 .4em}
+h2{font-size:1.4rem;margin:0 0 .6em;color:var(--accent)}
+h3{font-size:1.05rem;margin:1.1em 0 .3em}
+p{margin:.5em 0}
+section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin:18px 0}
+ul,ol{margin:.4em 0;padding-left:1.3em}
+li{margin:.2em 0}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:4px 28px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+nav a{background:var(--chip);color:var(--accent);text-decoration:none;padding:5px 12px;border-radius:999px;font-size:.88rem}
+.muted{color:var(--muted)}
+.goal{border-left:4px solid var(--accent);padding-left:14px;font-weight:600}
+pre{background:#0f1720;color:#e6edf3;border-radius:10px;padding:14px 16px;overflow-x:auto;font:13.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:.5em 0}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.out{font-size:.88rem;color:var(--muted);margin:-.2em 0 .8em}
+.qa{border-top:1px solid var(--border);padding:10px 0}.qa h4{margin:0 0 .25em;font-size:1rem}.qa p{margin:.2em 0}.qa .tip{color:var(--muted);font-size:.9rem}
+.tn p{margin:.3em 0}.tn b{color:var(--accent)}.tn pre{margin:.4em 0}
+.say p{margin:.3em 0}.say em{color:var(--muted)}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:760px;font-size:.88rem}th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;vertical-align:top}th{background:var(--chip);color:var(--accent)}tr.lv td{background:var(--chip);font-weight:700}
+details.t{margin:2px 0}details.t>summary{cursor:pointer;font-weight:600;padding:4px 0}details.t>div{border-left:3px solid var(--accent);padding:2px 0 6px 14px;margin:4px 0 10px}details.t p{margin:.3em 0}details.t b{color:var(--accent)}.one{display:block!important}.one ul{margin:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Complete React.js Learning Roadmap – Beginner to Advanced</h1>
+<p>Act as an experienced React.js developer, senior frontend engineer, and mentor. Teach me React.js from absolute beginner to advanced and production-level developer.</p>
+<p>My goal is to understand React concepts deeply, build real-world applications, and become interview-ready.</p>
+<nav>
+<a href="#structure">1. Structure</a><a href="#beginner">2. Beginner</a><a href="#intermediate">3. Intermediate</a><a href="#advanced">4. Advanced</a><a href="#production">5. Production</a><a href="#projects">6. Projects</a><a href="#interview">7. Interview</a><a href="#teaching">8. Teaching</a><a href="#schedule">9. Schedule</a><a href="#start">10. Start</a><a href="#code">11. Code</a><a href="#qa">12. Interview Q&amp;A</a><a href="#topics">13. Topic Notes</a><a href="#say">14. Say It To The Interviewer</a><a href="#day1">15. Day 1 Lesson</a><a href="#quick">16. Quick Revision</a><a href="#problems">17. Common Problems and Fixes</a>
+</nav>
+
+<section id="structure">
+<h2>1. Learning Structure</h2>
+<p>Divide the complete React.js roadmap into the following levels:</p>
+<ul><li>Level 1: Beginner</li><li>Level 2: Intermediate</li><li>Level 3: Advanced</li><li>Level 4: Professional / Production Level</li></ul>
+<p>For every topic, explain:</p>
+<ol><li>What is it?</li><li>Why do we use it?</li><li>How does it work internally?</li><li>Syntax and important methods.</li><li>Simple example.</li><li>Real-world project example.</li><li>Common mistakes.</li><li>Interview questions and answers.</li></ol>
+</section>
+
+<section id="beginner">
+<h2>2. Beginner Topics</h2>
+<p class="muted">Tap any topic to open its full notes: what, why, when, how it works, syntax, mistakes, interview question and how to say it.</p>
+<div class="cols one"><ul>
+<li><details class="t"><summary>What is React.js?</summary><div>
+<p><b>What:</b> A JavaScript library by Meta for building user interfaces from reusable components.</p>
+<p><b>Why:</b> You describe the UI for the current data (declarative) and React updates the page. No manual DOM work.</p>
+<p><b>When:</b> Interactive apps where data changes often: dashboards, shops, chat, admin panels.</p>
+<p><b>How it works:</b> Components return element descriptions, React renders them into one root node and updates only what changes.</p>
+<p><b>Mistake:</b> Calling it a framework. It handles the view; routing and data fetching come from other libraries.</p>
+<p><b>Interview Q:</b> Library vs framework? <b>Say it:</b> “A library does one job and I pick the rest; a framework like Angular gives the whole structure. React is a UI library.”</p></div></details></li><li><details class="t"><summary>Why React instead of HTML, CSS and JavaScript?</summary><div>
+<p><b>What:</b> Comparing React with hand-written DOM code.</p>
+<p><b>Why:</b> Plain JS: find element, change text, change class, for every update. This breaks as apps grow. React: change the data and the UI follows. Components are reusable and testable.</p>
+<p><b>When:</b> Plain HTML/JS is fine for a static page or tiny script; use React when the UI has lots of state and many screens.</p>
+<pre><code>// Plain JS
+document.getElementById("count").textContent = count;
+// React
+&lt;p&gt;{count}&lt;/p&gt;</code></pre>
+<p><b>Mistake:</b> Using React for a simple static site.</p>
+<p><b>Interview Q:</b> Declarative vs imperative? <b>Say it:</b> “Imperative lists the steps; declarative says what the result should be. React is declarative.”</p></div></details></li><li><details class="t"><summary>React architecture</summary><div>
+<p><b>What:</b> A tree of components rendered into one <code>&lt;div id="root"&gt;</code>, with data flowing from parent to child.</p>
+<p><b>Why:</b> One-way data flow makes bugs easy to trace.</p>
+<p><b>When:</b> Always. It shapes how you split a page: App, then pages, then sections, then small components.</p>
+<p><b>How:</b> <code>createRoot(...).render(&lt;App /&gt;)</code> starts the tree. State lives in a component; children get it by props; children report back by calling handler props.</p>
+<p><b>Mistake:</b> Putting all code in <code>App</code>.</p>
+<p><b>Say it:</b> “React apps are component trees with one-way data flow; state lives in the nearest common parent.”</p></div></details></li><li><details class="t"><summary>SPA vs MPA</summary><div>
+<p><b>What:</b> SPA loads one HTML page and JavaScript swaps views. MPA asks the server for a new page on every link.</p>
+<p><b>Why:</b> SPA gives fast navigation and keeps state; MPA is simpler and better for SEO by default.</p>
+<p><b>When:</b> SPA for dashboards and apps behind login; MPA or SSR for blogs, news and marketing sites.</p>
+<p><b>Mistake:</b> Ignoring SEO and first-load size in an SPA.</p>
+<p><b>Interview Q:</b> How do you fix SPA SEO? <b>Say it:</b> “Use SSR or SSG, for example with Next.js.”</p></div></details></li><li><details class="t"><summary>Virtual DOM and Real DOM</summary><div>
+<p><b>What:</b> Real DOM is the browser’s page tree. Virtual DOM is a lightweight JavaScript copy of it.</p>
+<p><b>Why:</b> Touching the real DOM is costly; React compares trees in memory and applies only the differences.</p>
+<p><b>When:</b> Automatic on every state or props change.</p>
+<p><b>How:</b> Change, then new virtual tree, then diff with old (reconciliation), then minimal real DOM updates, batched.</p>
+<p><b>Mistake:</b> Saying the Virtual DOM is always faster than direct DOM code. Its value is predictable batched updates.</p>
+<p><b>Say it:</b> “React diffs old and new virtual trees and patches only what changed.”</p></div></details></li><li><details class="t"><summary>React installation using Vite</summary><div>
+<p><b>What:</b> Vite is a fast dev server and bundler for starting React projects. Create React App is deprecated.</p>
+<p><b>Why:</b> Instant start, fast updates, simple config.</p>
+<p><b>When:</b> Every new client-side React project (use Next.js for SSR).</p>
+<pre><code>node -v                                              # need Node 18+
+npm create vite@latest my-app -- --template react
+cd my-app &amp;&amp; npm install &amp;&amp; npm run dev            # http://localhost:5173</code></pre>
+<p><b>How:</b> In dev, Vite serves native ES modules; <code>npm run build</code> bundles with Rollup into <code>dist/</code>.</p>
+<p><b>Mistake:</b> Running commands outside the project folder; skipping <code>npm install</code>.</p>
+<p><b>Say it:</b> “Vite starts instantly because it does not bundle in dev.”</p></div></details></li><li><details class="t"><summary>Project structure</summary><div>
+<p><b>What:</b> The files Vite creates: <code>index.html</code> (has <code>#root</code>), <code>src/main.jsx</code> (entry), <code>src/App.jsx</code> (root component), <code>public/</code> (static files), <code>package.json</code> (scripts, dependencies), <code>vite.config.js</code>.</p>
+<p><b>Why:</b> Knowing the entry point tells you where the app starts and where to add code.</p>
+<p><b>When:</b> As the app grows, add <code>components/</code>, <code>pages/</code>, <code>hooks/</code>, <code>services/</code>, grouped by feature.</p>
+<p><b>Mistake:</b> JSX in <code>.js</code> files (use <code>.jsx</code>); committing <code>node_modules</code>.</p>
+<p><b>Say it:</b> “main.jsx mounts App into the root div; I organise by feature as the project grows.”</p></div></details></li><li><details class="t"><summary>JSX</summary><div>
+<p><b>What:</b> HTML-like syntax written inside JavaScript.</p>
+<p><b>Why:</b> Markup and logic that belong together stay together.</p>
+<p><b>When:</b> In every component’s return.</p>
+<p><b>How:</b> Compiled to function calls that return plain objects describing elements. Rules: one root (or <code>&lt;&gt;&lt;/&gt;</code>), <code>className</code>, <code>htmlFor</code>, camelCase attributes, close every tag, expressions only inside <code>{}</code>.</p>
+<pre><code>const el = &lt;h1 className="t"&gt;Total: {price * 2}&lt;/h1&gt;;</code></pre>
+<p><b>Mistake:</b> Using <code>class</code>; two root elements; <code>if</code> statements inside <code>{}</code>.</p>
+<p><b>Say it:</b> “JSX is syntax sugar for createElement-style function calls.”</p></div></details></li><li><details class="t"><summary>Components</summary><div>
+<p><b>What:</b> A reusable, independent piece of UI.</p>
+<p><b>Why:</b> Build once, reuse everywhere, test and maintain in small parts.</p>
+<p><b>When:</b> Any UI block that repeats or has its own logic: Navbar, Card, Modal, Table.</p>
+<p><b>How:</b> React calls the component each render and uses the returned JSX as the new UI.</p>
+<p><b>Mistake:</b> Lowercase names (treated as HTML tags); defining a component inside another component (state resets every render); one giant component.</p>
+<p><b>Say it:</b> “I split the screen into small single-purpose components with clear props.”</p></div></details></li><li><details class="t"><summary>Functional components</summary><div>
+<p><b>What:</b> A plain JavaScript function that returns JSX. They replaced class components.</p>
+<p><b>Why:</b> Less code, hooks for state and effects, easier to read and test.</p>
+<p><b>When:</b> Always in new code. Only error boundaries still need a class.</p>
+<pre><code>function Greeting({ name }) {
+  return &lt;h1&gt;Hello, {name}&lt;/h1&gt;;
+}</code></pre>
+<p><b>Mistake:</b> Calling hooks inside loops or conditions.</p>
+<p><b>Say it:</b> “Functional components with hooks are the standard; classes are legacy.”</p></div></details></li></ul><ul>
+<li><details class="t"><summary>Class components vs functional components (with code)</summary><div>
+<p><b>What:</b> Two ways to write components. Class components extend <code>React.Component</code> and use <code>this.state</code>, <code>this.setState</code> and lifecycle methods. Function components are plain functions that use hooks (React 16.8+).</p>
+<p><b>Why it matters:</b> New code uses functions; classes appear in old codebases and are still required for error boundaries.</p>
+<pre><code>// CLASS component
+import React from "react";
+class Counter extends React.Component {
+  constructor(props) {
+    super(props);                         // must call super(props)
+    this.state = { count: 0 };
+    this.increment = this.increment.bind(this);   // bind, or use an arrow function property
+  }
+  componentDidMount() { document.title = "Counter"; }                 // after first render
+  componentDidUpdate(prevProps, prevState) {                            // after every update
+    if (prevState.count !== this.state.count) document.title = `Count ${this.state.count}`;
+  }
+  componentWillUnmount() { /* cleanup timers, listeners */ }          // before removal
+  increment() { this.setState(prev =&gt; ({ count: prev.count + 1 })); }  // merges into state
+  render() {
+    return &lt;button onClick={this.increment}&gt;{this.props.label}: {this.state.count}&lt;/button&gt;;
+  }
+}
+
+// FUNCTION component (same behaviour)
+function Counter({ label }) {
+  const [count, setCount] = useState(0);
+  useEffect(() =&gt; { document.title = `Count ${count}`; }, [count]);   // mount + update
+  return &lt;button onClick={() =&gt; setCount(c =&gt; c + 1)}&gt;{label}: {count}&lt;/button&gt;;
+}</code></pre>
+<p><b>Lifecycle mapping:</b></p>
+<pre><code>componentDidMount          -&gt; useEffect(() =&gt; {...}, [])
+componentDidUpdate         -&gt; useEffect(() =&gt; {...}, [dep])
+componentWillUnmount       -&gt; useEffect(() =&gt; () =&gt; {...cleanup}, [])
+shouldComponentUpdate/PureComponent -&gt; React.memo
+this.state / setState      -&gt; useState / useReducer
+static contextType         -&gt; useContext
+createRef                  -&gt; useRef
+getDerivedStateFromError   -&gt; (no hook yet; keep a class error boundary)</code></pre>
+<p><b>Differences:</b> classes have <code>this</code> and bind problems, logic is split across lifecycle methods, and logic reuse needs HOCs or render props. Functions are shorter, group related logic in effects, and reuse logic with custom hooks. Class <code>setState</code> merges objects; <code>useState</code> replaces the value, so spread objects yourself.</p>
+<p><b>Problems with classes and fixes:</b></p>
+<pre><code>// 1) this is undefined in the handler
+class A extends React.Component {
+  state = { n: 0 };
+  bad() { this.setState({ n: 1 }); }          // onClick={this.bad} -&gt; TypeError
+  good = () =&gt; this.setState({ n: 1 });       // arrow property keeps this
+}
+// 2) setState is async: this.state is old right after calling it
+this.setState({ n: this.state.n + 1 });
+this.setState({ n: this.state.n + 1 });        // still +1 only
+this.setState(p =&gt; ({ n: p.n + 1 }));          // use the updater form, or the callback: setState(x, cb)
+// 3) forgetting cleanup leaks memory
+componentDidMount() { this.id = setInterval(this.tick, 1000); }
+componentWillUnmount() { clearInterval(this.id); }
+// 4) infinite loop in componentDidUpdate
+componentDidUpdate() { this.setState({ x: 1 }); }                    // BAD: updates forever
+componentDidUpdate(pp) { if (pp.id !== this.props.id) this.load(); }  // GOOD: guard with a condition</code></pre>
+<p><b>Error boundary (only possible with a class):</b> see the Error boundaries topic in Advanced.</p>
+<p><b>Say it:</b> “I write function components with hooks. I can read and maintain class components and map their lifecycle methods to useEffect. The only thing I still need a class for is an error boundary.”</p></div></details></li>
+<li><details class="t"><summary>Props</summary><div>
+<p><b>What:</b> Read-only inputs a parent passes to a child, like HTML attributes.</p>
+<p><b>Why:</b> Makes components configurable and reusable.</p>
+<p><b>When:</b> To pass data (strings, objects, arrays) and handler functions down.</p>
+<pre><code>function Button({ label, onClick }) {
+  return &lt;button onClick={onClick}&gt;{label}&lt;/button&gt;;
+}
+&lt;Button label="Save" onClick={save} /&gt;</code></pre>
+<p><b>How:</b> All attributes are collected into one object, the first argument.</p>
+<p><b>Mistake:</b> Mutating props; <code>onClick={save()}</code> (calls immediately) instead of <code>onClick={save}</code>.</p>
+<p><b>Say it:</b> “Props are read-only; data flows parent to child.”</p></div></details></li><li><details class="t"><summary>State</summary><div>
+<p><b>What:</b> Data a component owns and remembers between renders.</p>
+<p><b>Why:</b> Normal variables reset each render and never update the screen; changing state does.</p>
+<p><b>When:</b> For data that changes: input text, open/closed, counters, fetched data.</p>
+<p><b>Props vs state:</b> props come from outside and are read-only; state is owned inside and changeable.</p>
+<p><b>Mistake:</b> Mutating state directly; storing values that can be calculated from other state.</p>
+<p><b>Say it:</b> “State changes trigger a re-render; derived values I compute instead of storing.”</p></div></details></li><li><details class="t"><summary>useState</summary><div>
+<p><b>What:</b> Hook that adds state to a function component. Returns <code>[value, setter]</code>.</p>
+<p><b>Why:</b> The setter tells React to re-render with the new value.</p>
+<p><b>When:</b> Simple independent values. Use <code>useReducer</code> for complex related state.</p>
+<pre><code>const [count, setCount] = useState(0);
+setCount(c =&gt; c + 1);                       // safe when based on old value
+setUser(prev =&gt; ({ ...prev, name: "A" }));  // copy objects, never mutate</code></pre>
+<p><b>How:</b> React stores state per component in call order, so hooks must run in the same order every render. Updates are batched.</p>
+<p><b>Mistake:</b> <code>items.push(x); setItems(items)</code> (same reference, no re-render); expecting the new value right after calling the setter.</p>
+<p><b>Say it:</b> “I use the functional form when the new value depends on the old one.”</p></div></details></li><li><details class="t"><summary>Event handling</summary><div>
+<p><b>What:</b> Responding to user actions: <code>onClick</code>, <code>onChange</code>, <code>onSubmit</code>.</p>
+<p><b>Why:</b> It is how the user changes state.</p>
+<p><b>When:</b> Any interaction. Handlers get a synthetic event <code>e</code>.</p>
+<pre><code>&lt;form onSubmit={(e) =&gt; { e.preventDefault(); save(); }}&gt;
+  &lt;input onChange={(e) =&gt; setName(e.target.value)} /&gt;
+&lt;/form&gt;</code></pre>
+<p><b>Mistake:</b> Forgetting <code>preventDefault()</code> (page reloads); calling the handler during render.</p>
+<p><b>Say it:</b> “I pass a function reference, and use an arrow function when I need arguments.”</p></div></details></li><li><details class="t"><summary>Conditional rendering</summary><div>
+<p><b>What:</b> Showing different UI depending on a condition.</p>
+<p><b>Why:</b> Handle loading, error, empty and logged-in states.</p>
+<p><b>When:</b> Whenever the screen depends on data or user status.</p>
+<pre><code>if (loading) return &lt;p&gt;Loading...&lt;/p&gt;;           // early return
+{isLoggedIn ? &lt;Dashboard /&gt; : &lt;Login /&gt;}         // either/or
+{error &amp;&amp; &lt;p&gt;{error}&lt;/p&gt;}                       // show or nothing</code></pre>
+<p><b>Mistake:</b> <code>{count &amp;&amp; &lt;List /&gt;}</code> prints 0 when count is 0; use <code>count &gt; 0 &amp;&amp; ...</code>.</p>
+<p><b>Say it:</b> “Early returns for states like loading, ternary for either/or, &amp;&amp; for optional.”</p></div></details></li><li><details class="t"><summary>Lists and keys</summary><div>
+<p><b>What:</b> Render arrays using <code>map</code>; each item gets a <code>key</code>.</p>
+<p><b>Why:</b> Keys give each item a stable identity so React updates, reorders and keeps state correctly.</p>
+<p><b>When:</b> Product grids, todo lists, tables, menus.</p>
+<pre><code>&lt;ul&gt;{products.map(p =&gt; &lt;li key={p.id}&gt;{p.name}&lt;/li&gt;)}&lt;/ul&gt;</code></pre>
+<p><b>Mistake:</b> Index as key in a list that can change; no key at all; random keys (remount every render).</p>
+<p><b>Say it:</b> “Stable unique IDs from the data, not array indexes.”</p></div></details></li><li><details class="t"><summary>Forms and controlled components</summary><div>
+<p><b>What:</b> A controlled input has its value stored in React state.</p>
+<p><b>Why:</b> One source of truth: easy validation, resetting and live feedback.</p>
+<p><b>When:</b> Small and medium forms. For big forms use React Hook Form.</p>
+<pre><code>const [form, setForm] = useState({ email: "", password: "" });
+const handle = (e) =&gt; setForm({ ...form, [e.target.name]: e.target.value });
+&lt;input name="email" value={form.email} onChange={handle} /&gt;</code></pre>
+<p><b>Mistake:</b> <code>value</code> without <code>onChange</code> (input frozen); starting with <code>undefined</code> then a string (controlled/uncontrolled warning).</p>
+<p><b>Say it:</b> “Controlled: React state drives the input. Uncontrolled: the DOM holds it and I read it with a ref.”</p></div></details></li><li><details class="t"><summary>CSS styling</summary><div>
+<p><b>What:</b> Ways to style components: plain CSS, CSS Modules, Tailwind, CSS-in-JS, inline styles.</p>
+<p><b>Why:</b> Plain global CSS clashes as apps grow; scoped styles stay maintainable.</p>
+<p><b>When:</b> CSS Modules or Tailwind for most apps; inline <code>style={{ color: "red" }}</code> only for dynamic values.</p>
+<pre><code>import s from "./Card.module.css";
+&lt;div className={s.card}&gt;...&lt;/div&gt;</code></pre>
+<p><b>Mistake:</b> <code>class</code> instead of <code>className</code>; inline style as a string instead of an object.</p>
+<p><b>Say it:</b> “I scope styles with CSS Modules or Tailwind to avoid global clashes.”</p></div></details></li><li><details class="t"><summary>Component composition</summary><div>
+<p><b>What:</b> Building complex UI by nesting components and passing JSX as <code>children</code>.</p>
+<p><b>Why:</b> More flexible than inheritance and avoids long prop chains.</p>
+<p><b>When:</b> Layouts, cards, modals, wrappers.</p>
+<pre><code>function Card({ title, children }) {
+  return &lt;div className="card"&gt;&lt;h3&gt;{title}&lt;/h3&gt;{children}&lt;/div&gt;;
+}
+&lt;Card title="Profile"&gt;&lt;Avatar /&gt;&lt;Bio /&gt;&lt;/Card&gt;</code></pre>
+<p><b>Mistake:</b> Passing many config props when <code>children</code> would be simpler.</p>
+<p><b>Say it:</b> “React prefers composition over inheritance.”</p></div></details></li></ul></div>
+</section>
+
+<section id="intermediate">
+<h2>3. Intermediate Topics</h2>
+<p class="muted">Tap any topic to open its notes with code.</p>
+<div class="cols one"><ul>
+<li><details class="t"><summary>useEffect (all use cases)</summary><div>
+<p><b>What:</b> Hook that runs side effects after render.</p>
+<p><b>Why:</b> Render must stay pure; fetching, timers, listeners and document title belong in effects.</p>
+<p><b>When / dependency array:</b> no array = every render; <code>[]</code> = once on mount; <code>[a]</code> = when a changes. Return a function for cleanup.</p>
+<pre><code>useEffect(() =&gt; { document.title = `Cart (${n})`; }, [n]);      // sync on change
+useEffect(() =&gt; { loadUsers(); }, []);                           // once on mount
+useEffect(() =&gt; {                                               // listener + cleanup
+  const onResize = () =&gt; setW(window.innerWidth);
+  window.addEventListener("resize", onResize);
+  return () =&gt; window.removeEventListener("resize", onResize);
+}, []);
+useEffect(() =&gt; {                                               // fetch with abort
+  const c = new AbortController();
+  fetch(url, { signal: c.signal }).then(r =&gt; r.json()).then(setData).catch(() =&gt; {});
+  return () =&gt; c.abort();
+}, [url]);</code></pre>
+<p><b>Mistake:</b> Missing dependencies (stale values); no cleanup (leaks); using an effect to compute state that can be derived during render; passing an <code>async</code> function directly.</p>
+<p><b>Say it:</b> “Effects sync my component with outside systems; the dependency array says when, and cleanup undoes the previous run.”</p></div></details></li><li><details class="t"><summary>useRef</summary><div>
+<p><b>What:</b> A box <code>{ current }</code> that persists across renders without causing one.</p>
+<p><b>Why / when:</b> Access DOM nodes (focus, scroll), store timer IDs, keep the previous value.</p>
+<pre><code>const inputRef = useRef(null);
+&lt;input ref={inputRef} /&gt;
+&lt;button onClick={() =&gt; inputRef.current.focus()}&gt;Focus&lt;/button&gt;
+
+const prev = useRef();                       // previous value
+useEffect(() =&gt; { prev.current = value; });</code></pre>
+<p><b>Mistake:</b> Expecting a re-render when <code>ref.current</code> changes; reading DOM refs during render (null on first render).</p>
+<p><b>Say it:</b> “useRef is for values that must survive renders but should not trigger one.”</p></div></details></li><li><details class="t"><summary>useContext</summary><div>
+<p><b>What:</b> Hook that reads the nearest Context value.</p>
+<p><b>Why / when:</b> Read shared data (theme, user, language) anywhere without passing props.</p>
+<pre><code>const ThemeContext = createContext("light");
+function Button() {
+  const theme = useContext(ThemeContext);
+  return &lt;button className={theme}&gt;OK&lt;/button&gt;;
+}
+&lt;ThemeContext.Provider value="dark"&gt;&lt;Button /&gt;&lt;/ThemeContext.Provider&gt;</code></pre>
+<p><b>Mistake:</b> Calling it outside a Provider (gets the default value); one big context for everything.</p>
+<p><b>Say it:</b> “Every consumer re-renders when the value changes, so I keep contexts small.”</p></div></details></li><li><details class="t"><summary>useReducer</summary><div>
+<p><b>What:</b> State handled by a pure reducer <code>(state, action) =&gt; newState</code>.</p>
+<p><b>Why / when:</b> Complex or related state with many transitions: cart, multi-step form, undo.</p>
+<pre><code>function reducer(state, action) {
+  switch (action.type) {
+    case "add": return [...state, action.item];
+    case "remove": return state.filter(i =&gt; i.id !== action.id);
+    default: return state;
+  }
+}
+const [cart, dispatch] = useReducer(reducer, []);
+dispatch({ type: "add", item: { id: 1, name: "Pen" } });</code></pre>
+<p><b>Mistake:</b> Mutating state in the reducer; API calls inside it; missing <code>default</code>.</p>
+<p><b>Say it:</b> “useState for simple values, useReducer when updates are related and I want testable logic.”</p></div></details></li><li><details class="t"><summary>React Router DOM</summary><div>
+<p><b>What:</b> Library for client-side routing; the URL decides which component shows.</p>
+<p><b>Why / when:</b> Any multi-page SPA needing real, shareable URLs without reloads.</p>
+<pre><code>// npm i react-router-dom
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+&lt;BrowserRouter&gt;
+  &lt;nav&gt;&lt;Link to="/"&gt;Home&lt;/Link&gt; &lt;Link to="/about"&gt;About&lt;/Link&gt;&lt;/nav&gt;
+  &lt;Routes&gt;
+    &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+    &lt;Route path="/about" element={&lt;About /&gt;} /&gt;
+    &lt;Route path="*" element={&lt;NotFound /&gt;} /&gt;
+  &lt;/Routes&gt;
+&lt;/BrowserRouter&gt;</code></pre>
+<p><b>Mistake:</b> Using <code>&lt;a href&gt;</code> (full reload); server not rewriting unknown paths to <code>index.html</code>.</p>
+<p><b>Say it:</b> “It listens to the History API and renders the matching route without reloading.”</p></div></details></li><li><details class="t"><summary>Dynamic routing</summary><div>
+<p><b>What:</b> Routes with parameters such as <code>/users/:id</code>.</p>
+<p><b>Why / when:</b> Detail pages (product, user, order) from one route.</p>
+<pre><code>&lt;Route path="/users/:id" element={&lt;User /&gt;} /&gt;
+function User() {
+  const { id } = useParams();                    // "42" (always a string)
+  const [sp] = useSearchParams();                // ?tab=info
+  return &lt;h2&gt;User {id}, tab {sp.get("tab")}&lt;/h2&gt;;
+}
+// link: &lt;Link to={`/users/${u.id}`}&gt;{u.name}&lt;/Link&gt;</code></pre>
+<p><b>Mistake:</b> Treating <code>id</code> as a number; not refetching when <code>id</code> changes (put it in the effect dependency array).</p>
+<p><b>Say it:</b> “Params come from <code>useParams</code>, query strings from <code>useSearchParams</code>.”</p></div></details></li><li><details class="t"><summary>Nested routes</summary><div>
+<p><b>What:</b> Child routes rendered inside a parent layout through <code>&lt;Outlet /&gt;</code>.</p>
+<p><b>Why / when:</b> Shared layout (sidebar, header) around many pages.</p>
+<pre><code>&lt;Route path="/dashboard" element={&lt;Layout /&gt;}&gt;
+  &lt;Route index element={&lt;Overview /&gt;} /&gt;
+  &lt;Route path="settings" element={&lt;Settings /&gt;} /&gt;   {/* /dashboard/settings */}
+&lt;/Route&gt;
+function Layout() {
+  return &lt;div&gt;&lt;Sidebar /&gt;&lt;Outlet /&gt;&lt;/div&gt;;
+}</code></pre>
+<p><b>Mistake:</b> Forgetting <code>&lt;Outlet /&gt;</code> (children never show); starting child paths with <code>/</code>.</p>
+<p><b>Say it:</b> “The parent renders the layout and Outlet is where the matched child appears.”</p></div></details></li><li><details class="t"><summary>Protected routes</summary><div>
+<p><b>What:</b> Routes that redirect unauthenticated users to login.</p>
+<p><b>Why / when:</b> Dashboards, profile, admin pages.</p>
+<pre><code>function ProtectedRoute({ allow = [] }) {
+  const { user } = useAuth();
+  if (!user) return &lt;Navigate to="/login" replace /&gt;;
+  if (allow.length &amp;&amp; !allow.includes(user.role)) return &lt;Navigate to="/403" replace /&gt;;
+  return &lt;Outlet /&gt;;
+}
+&lt;Route element={&lt;ProtectedRoute allow={["admin"]} /&gt;}&gt;
+  &lt;Route path="/admin" element={&lt;Admin /&gt;} /&gt;
+&lt;/Route&gt;</code></pre>
+<p><b>Mistake:</b> Treating this as real security. It is only UX, and the API must enforce access. Also redirecting before the auth check finishes loading.</p>
+<p><b>Say it:</b> “A wrapper route checks auth and either renders Outlet or redirects.”</p></div></details></li><li><details class="t"><summary>API integration using Fetch and Axios</summary><div>
+<p><b>What:</b> Calling a backend over HTTP.</p>
+<p><b>Why:</b> Real apps use server data. Fetch is built in; Axios adds auto JSON, error throwing, interceptors and timeouts.</p>
+<pre><code>// Fetch: does not throw on 404/500
+const res = await fetch("/api/users");
+if (!res.ok) throw new Error(res.status);
+const users = await res.json();
+
+// Axios (npm i axios)
+const api = axios.create({ baseURL: import.meta.env.VITE_API_URL });
+const { data } = await api.get("/users");</code></pre>
+<p><b>When:</b> Always call APIs from effects or event handlers, through a service file, never in the render body.</p>
+<p><b>Mistake:</b> Not checking <code>res.ok</code>; hard-coding URLs; no cleanup, causing race conditions.</p>
+<p><b>Say it:</b> “I centralise HTTP in an Axios instance with interceptors for tokens and errors.”</p></div></details></li><li><details class="t"><summary>CRUD operations</summary><div>
+<p><b>What:</b> Create, Read, Update, Delete mapped to POST, GET, PUT/PATCH, DELETE.</p>
+<p><b>Why / when:</b> Every admin or data-driven screen (Employee Management, products).</p>
+<pre><code>const getAll = () =&gt; api.get("/employees");
+const create = (e) =&gt; api.post("/employees", e);
+const update = (id, e) =&gt; api.put(`/employees/${id}`, e);
+const remove = (id) =&gt; api.delete(`/employees/${id}`);
+
+// after delete, update local state
+await remove(id);
+setList(list.filter(e =&gt; e.id !== id));</code></pre>
+<p><b>Mistake:</b> Not updating the UI after the call; no confirmation before delete; no error handling.</p>
+<p><b>Say it:</b> “After each mutation I update state or refetch so the UI matches the server.”</p></div></details></li></ul><ul>
+<li><details class="t"><summary>Loading and error handling</summary><div>
+<p><b>What:</b> Showing UI for the waiting and failed states of async work.</p>
+<p><b>Why / when:</b> Every request can be slow or fail; users need feedback.</p>
+<pre><code>const [data, setData] = useState(null);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState(null);
+
+try { setData((await api.get("/users")).data); }
+catch (e) { setError(e.message); }
+finally { setLoading(false); }
+
+if (loading) return &lt;Spinner /&gt;;
+if (error) return &lt;p&gt;Error: {error}&lt;/p&gt;;
+return &lt;List items={data} /&gt;;</code></pre>
+<p><b>Mistake:</b> Forgetting <code>finally</code> (spinner never stops); showing raw error objects to users.</p>
+<p><b>Say it:</b> “Every request has three states: loading, error and data.”</p></div></details></li><li><details class="t"><summary>Form validation</summary><div>
+<p><b>What:</b> Checking user input before submitting.</p>
+<p><b>Why / when:</b> Better UX and clean data. Always validate again on the server.</p>
+<pre><code>const validate = (f) =&gt; {
+  const e = {};
+  if (!/^\S+@\S+\.\S+$/.test(f.email)) e.email = "Invalid email";
+  if (f.password.length &lt; 6) e.password = "Min 6 characters";
+  return e;
+};
+const onSubmit = (ev) =&gt; {
+  ev.preventDefault();
+  const e = validate(form);
+  setErrors(e);
+  if (Object.keys(e).length === 0) save(form);
+};</code></pre>
+<p><b>Mistake:</b> Client-only validation; unclear error messages; validating before the user touched the field.</p>
+<p><b>Say it:</b> “Client validation is for UX, server validation is for safety.”</p></div></details></li><li><details class="t"><summary>Custom hooks</summary><div>
+<p><b>What:</b> A function named <code>useXxx</code> that calls other hooks to reuse logic.</p>
+<p><b>Why / when:</b> Same logic in several components: fetching, debounce, localStorage, window size.</p>
+<pre><code>function useDebounce(value, delay = 500) {
+  const [v, setV] = useState(value);
+  useEffect(() =&gt; {
+    const id = setTimeout(() =&gt; setV(value), delay);
+    return () =&gt; clearTimeout(id);
+  }, [value, delay]);
+  return v;
+}
+const debouncedSearch = useDebounce(search);   // use in an effect to call the API</code></pre>
+<p><b>Mistake:</b> Expecting two components to share state through a hook (each call has its own); calling hooks conditionally.</p>
+<p><b>Say it:</b> “Hooks share logic, not state.”</p></div></details></li><li><details class="t"><summary>Prop drilling</summary><div>
+<p><b>What:</b> Passing props through many levels of components that do not use them.</p>
+<p><b>Why it matters:</b> It makes code hard to change and read.</p>
+<p><b>Fixes:</b> composition (pass JSX as <code>children</code>), Context for shared values, or a state library for large apps.</p>
+<pre><code>// drilling: App -&gt; Layout -&gt; Sidebar -&gt; Avatar(user)
+&lt;Layout user={user} /&gt;   // Layout only forwards it
+// fix: Context
+const { user } = useContext(AuthContext);   // read directly in Avatar</code></pre>
+<p><b>Mistake:</b> Jumping to Redux for one or two levels of passing; that is fine.</p>
+<p><b>Say it:</b> “I lift state up first, then use composition or Context if drilling gets deep.”</p></div></details></li><li><details class="t"><summary>Context API</summary><div>
+<p><b>What:</b> Built-in way to provide data to a whole subtree: <code>createContext</code>, Provider, <code>useContext</code>.</p>
+<p><b>Why / when:</b> Theme, logged-in user, language. Not for fast-changing data.</p>
+<pre><code>const AuthContext = createContext(null);
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const value = useMemo(() =&gt; ({ user, login: setUser, logout: () =&gt; setUser(null) }), [user]);
+  return &lt;AuthContext.Provider value={value}&gt;{children}&lt;/AuthContext.Provider&gt;;
+}
+export const useAuth = () =&gt; useContext(AuthContext);</code></pre>
+<p><b>Mistake:</b> Passing a new object as <code>value</code> every render without memoising; putting everything in one context.</p>
+<p><b>Say it:</b> “I wrap the provider in a small custom hook so consumers stay clean.”</p></div></details></li><li><details class="t"><summary>State management</summary><div>
+<p><b>What:</b> Deciding where each piece of state lives.</p>
+<p><b>Why:</b> Wrong placement causes drilling, bugs and re-renders.</p>
+<p><b>Guide:</b> 1) local <code>useState</code>; 2) lift up to common parent; 3) Context for low-frequency globals; 4) Redux Toolkit or Zustand for large shared client state; 5) TanStack Query or RTK Query for server data; 6) URL for filters and pagination.</p>
+<p><b>Mistake:</b> Putting everything in global state; duplicating server data in Redux.</p>
+<p><b>Say it:</b> “I keep state as local as possible and separate server state from client state.”</p></div></details></li><li><details class="t"><summary>Redux Toolkit</summary><div>
+<p><b>What:</b> Official, simplified way to use Redux for global state.</p>
+<p><b>Why / when:</b> Large apps where many screens share state; DevTools and predictable updates.</p>
+<pre><code>// npm i @reduxjs/toolkit react-redux
+const cartSlice = createSlice({
+  name: "cart", initialState: [],
+  reducers: { add: (s, a) =&gt; { s.push(a.payload); } },   // Immer: safe to "mutate"
+});
+export const { add } = cartSlice.actions;
+export const store = configureStore({ reducer: { cart: cartSlice.reducer } });
+
+&lt;Provider store={store}&gt;&lt;App /&gt;&lt;/Provider&gt;
+const items = useSelector(s =&gt; s.cart);
+const dispatch = useDispatch();  dispatch(add(product));
+
+// async
+export const fetchUsers = createAsyncThunk("users/fetch", async () =&gt; (await api.get("/users")).data);</code></pre>
+<p><b>Mistake:</b> Mutating state outside slices; selecting the whole store (extra re-renders); using Redux for tiny apps.</p>
+<p><b>Say it:</b> “Action, reducer, new state, UI: one-way flow, easy to debug.”</p></div></details></li><li><details class="t"><summary>React Hook Form</summary><div>
+<p><b>What:</b> Form library using uncontrolled inputs registered by refs.</p>
+<p><b>Why / when:</b> Fewer re-renders, less code, easy validation. Use for medium and large forms.</p>
+<pre><code>// npm i react-hook-form
+const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
+&lt;form onSubmit={handleSubmit(async (d) =&gt; { await api.post("/login", d); reset(); })}&gt;
+  &lt;input {...register("email", { required: "Required", pattern: { value: /^\S+@\S+$/, message: "Invalid" } })} /&gt;
+  {errors.email &amp;&amp; &lt;p&gt;{errors.email.message}&lt;/p&gt;}
+  &lt;button disabled={isSubmitting}&gt;Login&lt;/button&gt;
+&lt;/form&gt;
+// with schema: useForm({ resolver: zodResolver(schema) })</code></pre>
+<p><b>Mistake:</b> Mixing controlled <code>value</code> with <code>register</code>; trusting client validation only.</p>
+<p><b>Say it:</b> “It avoids re-rendering on every keystroke and pairs well with Zod.”</p></div></details></li><li><details class="t"><summary>Authentication and authorization</summary><div>
+<p><b>What:</b> Authentication = who you are (login). Authorization = what you may do (roles, permissions).</p>
+<p><b>Why / when:</b> Any app with private data or different user types.</p>
+<pre><code>// AuthContext flow
+const login = async (creds) =&gt; {
+  const { data } = await api.post("/auth/login", creds);
+  localStorage.setItem("token", data.token);
+  setUser(data.user);               // { name, role: "admin" }
+};
+const canEdit = user?.role === "admin";   // UI only; server must enforce</code></pre>
+<p><b>Mistake:</b> Trusting the client for permissions; not clearing user state on logout; not handling 401 responses.</p>
+<p><b>Say it:</b> “The UI hides what you cannot do; the backend refuses it.”</p></div></details></li><li><details class="t"><summary>JWT authentication</summary><div>
+<p><b>What:</b> JSON Web Token: signed string <code>header.payload.signature</code> issued after login.</p>
+<p><b>Why:</b> Stateless: the server verifies the signature and expiry without storing sessions.</p>
+<p><b>Flow:</b> login, receive token, send <code>Authorization: Bearer &lt;token&gt;</code> on each request, server verifies. Best practice: short-lived access token plus a refresh token in an HttpOnly cookie.</p>
+<pre><code>api.interceptors.request.use((cfg) =&gt; {
+  const t = localStorage.getItem("token");
+  if (t) cfg.headers.Authorization = `Bearer ${t}`;
+  return cfg;
+});
+api.interceptors.response.use(r =&gt; r, (err) =&gt; {
+  if (err.response?.status === 401) { localStorage.removeItem("token"); window.location = "/login"; }
+  return Promise.reject(err);
+});</code></pre>
+<p><b>Mistake:</b> Putting secrets in the payload (it is only encoded, not encrypted); localStorage is exposed to XSS; ignoring expiry.</p>
+<p><b>Say it:</b> “JWT proves identity statelessly; I keep access tokens short-lived and refresh securely.”</p></div></details></li></ul></div>
+</section>
+
+<section id="advanced">
+<h2>4. Advanced Topics</h2>
+<p class="muted">Tap any topic to open its notes with code.</p>
+<div class="cols one"><ul>
+<li><details class="t"><summary>React Fiber architecture</summary><div>
+<p><b>What:</b> The rewritten React engine (v16+) that splits rendering into small units of work (fibers), one per component.</p>
+<p><b>Why:</b> Work can be paused, resumed, prioritised or dropped, which keeps the UI responsive and enables concurrent features.</p>
+<p><b>How:</b> Each fiber holds type, props, state and links to parent, child and sibling. React keeps a current tree and a work-in-progress tree and swaps them on commit.</p>
+<p><b>Mistake:</b> Thinking you use Fiber directly; it is internal.</p>
+<p><b>Say it:</b> “Fiber makes rendering incremental and interruptible.”</p></div></details></li><li><details class="t"><summary>Reconciliation</summary><div>
+<p><b>What:</b> The diffing process that decides what changed between two trees.</p>
+<p><b>Why:</b> Avoids rebuilding the DOM. Rules: different element type means rebuild the subtree; same type means update props; keys identify list items.</p>
+<pre><code>// Changing key remounts the component and resets its state
+&lt;Profile key={userId} id={userId} /&gt;</code></pre>
+<p><b>Mistake:</b> Index keys on reordering lists; defining components inside components (new type each render, so full remount).</p>
+<p><b>Say it:</b> “Same type and position keeps state; a different type or key resets it.”</p></div></details></li><li><details class="t"><summary>React rendering lifecycle</summary><div>
+<p><b>What:</b> Trigger (state or props change), render phase (call components, pure, may be paused), commit phase (update DOM, then layout effects, then effects).</p>
+<p><b>Why:</b> Tells you where side effects belong: never in the render body.</p>
+<pre><code>useEffect(() =&gt; {            // mount / update
+  const id = setInterval(tick, 1000);
+  return () =&gt; clearInterval(id);   // before next run and on unmount
+}, []);</code></pre>
+<p><b>Mistake:</b> Side effects in render; confusing render with a DOM update (render can happen without one); forgetting StrictMode runs effects twice in development.</p>
+<p><b>Say it:</b> “Render is pure calculation; effects run after commit.”</p></div></details></li><li><details class="t"><summary>useMemo</summary><div>
+<p><b>What:</b> Caches a computed value until its dependencies change.</p>
+<p><b>When:</b> Expensive calculations, or keeping an object or array reference stable for a memoised child.</p>
+<pre><code>const visible = useMemo(
+  () =&gt; products.filter(p =&gt; p.name.includes(q)),
+  [products, q]
+);</code></pre>
+<p><b>Mistake:</b> Memoising cheap work (the hook has its own cost); wrong dependencies.</p>
+<p><b>Say it:</b> “useMemo caches a value; I profile before using it.”</p></div></details></li><li><details class="t"><summary>useCallback</summary><div>
+<p><b>What:</b> Caches a function reference between renders.</p>
+<p><b>When:</b> Passing a callback to a <code>React.memo</code> child or using it in an effect dependency.</p>
+<pre><code>const onSelect = useCallback((id) =&gt; setSelected(id), []);
+&lt;Row onSelect={onSelect} /&gt;     // Row is wrapped in React.memo</code></pre>
+<p><b>useMemo vs useCallback:</b> <code>useCallback(fn, deps)</code> equals <code>useMemo(() =&gt; fn, deps)</code>. One caches a value, the other a function.</p>
+<p><b>Mistake:</b> Using it without a memoised child (no benefit).</p></div></details></li><li><details class="t"><summary>React.memo</summary><div>
+<p><b>What:</b> Higher-order component that skips re-rendering when props are shallow-equal.</p>
+<p><b>When:</b> Expensive components that re-render often with the same props (rows in a big list).</p>
+<pre><code>const Row = React.memo(function Row({ item, onSelect }) {
+  return &lt;li onClick={() =&gt; onSelect(item.id)}&gt;{item.name}&lt;/li&gt;;
+});</code></pre>
+<p><b>Mistake:</b> Passing new objects, arrays or inline functions each render, which defeats it; wrapping everything.</p>
+<p><b>Say it:</b> “Shallow prop comparison, so I keep props stable.”</p></div></details></li><li><details class="t"><summary>Performance optimization</summary><div>
+<p><b>What:</b> Reducing wasted work so the app stays fast.</p>
+<p><b>Order:</b> 1) measure with React DevTools Profiler and Lighthouse; 2) colocate state; 3) memo, useMemo, useCallback where proven; 4) virtualise long lists (react-window); 5) code split; 6) debounce inputs; 7) <code>useTransition</code> for heavy updates; 8) optimise images and bundle size.</p>
+<pre><code>const [isPending, startTransition] = useTransition();
+startTransition(() =&gt; setFilter(value));   // non-urgent update</code></pre>
+<p><b>Mistake:</b> Optimising by guess; memoising everything.</p>
+<p><b>Say it:</b> “Measure, find the bottleneck, then fix that one thing.”</p></div></details></li><li><details class="t"><summary>Code splitting</summary><div>
+<p><b>What:</b> Breaking the bundle into chunks loaded on demand.</p>
+<p><b>Why:</b> Smaller first load, faster start.</p>
+<p><b>How:</b> Dynamic <code>import()</code>; the bundler creates separate chunks. Split by route first, then heavy components (charts, editors).</p>
+<pre><code>const Chart = lazy(() =&gt; import("./Chart"));</code></pre>
+<p><b>Mistake:</b> Splitting tiny components; no fallback UI.</p></div></details></li><li><details class="t"><summary>Lazy loading</summary><div>
+<p><b>What:</b> Loading code, images or data only when needed.</p>
+<pre><code>const Dashboard = lazy(() =&gt; import("./pages/Dashboard"));   // component
+&lt;img src={url} loading="lazy" alt="product" /&gt;                // image</code></pre>
+<p><b>When:</b> Routes, modals, below-the-fold images.</p>
+<p><b>Mistake:</b> Lazy-loading above-the-fold content (slows first paint); using lazy without <code>Suspense</code>.</p></div></details></li><li><details class="t"><summary>Suspense</summary><div>
+<p><b>What:</b> Component that shows a fallback while children are loading (lazy code or Suspense-enabled data).</p>
+<pre><code>&lt;Suspense fallback={&lt;Spinner /&gt;}&gt;
+  &lt;Dashboard /&gt;
+&lt;/Suspense&gt;</code></pre>
+<p><b>When:</b> Around lazy routes; with frameworks and libraries that support Suspense for data (Next.js, TanStack Query).</p>
+<p><b>Mistake:</b> Missing boundary (error); one boundary for the whole app (everything flashes).</p></div></details></li></ul><ul>
+<li><details class="t"><summary>Error boundaries</summary><div>
+<p><b>What:</b> Class component that catches errors in its child tree and shows a fallback.</p>
+<pre><code>class ErrorBoundary extends React.Component {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(error, info) { logToSentry(error, info); }
+  render() { return this.state.hasError ? &lt;h2&gt;Something went wrong&lt;/h2&gt; : this.props.children; }
+}</code></pre>
+<p><b>Mistake:</b> Expecting it to catch event-handler, async or SSR errors (use try/catch); a single root-level boundary only. The <code>react-error-boundary</code> package is a common shortcut.</p></div></details></li><li><details class="t"><summary>Concurrent rendering</summary><div>
+<p><b>What:</b> React can interrupt low-priority renders to handle urgent updates.</p>
+<p><b>Why:</b> Typing and clicking stay responsive while heavy UI updates in the background.</p>
+<pre><code>const deferred = useDeferredValue(query);               // lagging copy of a value
+const [isPending, startTransition] = useTransition();   // mark updates as non-urgent</code></pre>
+<p><b>Mistake:</b> Using transitions for urgent updates such as controlled input value.</p>
+<p><b>Say it:</b> “Urgent updates win; transitions can be paused or dropped.”</p></div></details></li><li><details class="t"><summary>Server-side rendering</summary><div>
+<p><b>What:</b> Rendering components to HTML on the server for each request.</p>
+<p><b>Why:</b> Fast first paint and SEO. Trade-offs: server cost and more complexity.</p>
+<p><b>When:</b> Public, content or SEO pages. Alternatives: SSG (build time) and ISR (revalidate periodically). Use Next.js or Remix rather than building it yourself.</p>
+<p><b>Mistake:</b> Using <code>window</code> or <code>localStorage</code> during render (undefined on the server).</p></div></details></li><li><details class="t"><summary>Hydration</summary><div>
+<p><b>What:</b> The browser attaches event handlers and state to server-rendered HTML.</p>
+<pre><code>hydrateRoot(document.getElementById("root"), &lt;App /&gt;);</code></pre>
+<p><b>Mistake:</b> Hydration mismatch: server and client output differ (<code>Date.now()</code>, <code>Math.random()</code>, <code>window</code> checks). Fix by rendering the same first output and updating in an effect.</p>
+<p><b>Say it:</b> “HTML arrives first; hydration makes it interactive.”</p></div></details></li><li><details class="t"><summary>React Server Components</summary><div>
+<p><b>What:</b> Components that run only on the server and send no JavaScript to the browser.</p>
+<p><b>Why:</b> Smaller bundles and direct database or file access.</p>
+<pre><code>// Server Component (default in Next.js App Router)
+async function Products() {
+  const items = await db.product.findMany();
+  return &lt;ul&gt;{items.map(i =&gt; &lt;li key={i.id}&gt;{i.name}&lt;/li&gt;)}&lt;/ul&gt;;
+}
+// Client Component
+"use client";
+export function AddButton() { const [n, setN] = useState(0); return &lt;button onClick={() =&gt; setN(n + 1)}&gt;{n}&lt;/button&gt;; }</code></pre>
+<p><b>Mistake:</b> Using hooks or event handlers in a Server Component; marking everything <code>"use client"</code>.</p></div></details></li><li><details class="t"><summary>Next.js fundamentals</summary><div>
+<p><b>What:</b> React framework with routing, rendering strategies and API routes.</p>
+<p><b>Why:</b> SEO, performance and full-stack features out of the box.</p>
+<pre><code>app/
+  layout.jsx          # shared layout
+  page.jsx            # /
+  products/[id]/page.jsx   # dynamic route /products/42
+  api/users/route.js  # API endpoint
+
+export default async function Page({ params }) {
+  const { id } = await params;
+  return &lt;h1&gt;Product {id}&lt;/h1&gt;;
+}</code></pre>
+<p><b>Concepts:</b> file-based routing, Server vs Client Components, SSR/SSG/ISR, <code>next/image</code>, metadata API. <b>Mistake:</b> Making everything a client component.</p></div></details></li><li><details class="t"><summary>TypeScript with React</summary><div>
+<p><b>What:</b> Typed JavaScript for props, state and events.</p>
+<p><b>Why:</b> Catches errors at compile time, gives autocomplete, documents components.</p>
+<pre><code>type User = { id: number; name: string; email?: string };
+type Props = { user: User; onSelect: (id: number) =&gt; void };
+function Card({ user, onSelect }: Props) {
+  const [open, setOpen] = useState&lt;boolean&gt;(false);
+  const onChange = (e: React.ChangeEvent&lt;HTMLInputElement&gt;) =&gt; setName(e.target.value);
+  return &lt;div onClick={() =&gt; onSelect(user.id)}&gt;{user.name}&lt;/div&gt;;
+}</code></pre>
+<p><b>Mistake:</b> Using <code>any</code>; not typing API responses; <code>useState(null)</code> without a union type.</p></div></details></li><li><details class="t"><summary>Testing using Jest and React Testing Library</summary><div>
+<p><b>What:</b> Jest (or Vitest) runs tests; Testing Library renders components and queries them like a user.</p>
+<p><b>Why:</b> Prevents regressions and documents behaviour.</p>
+<pre><code>test("adds a todo", async () =&gt; {
+  render(&lt;Todo /&gt;);
+  await userEvent.type(screen.getByRole("textbox"), "Buy milk");
+  await userEvent.click(screen.getByRole("button", { name: /add/i }));
+  expect(screen.getByText("Buy milk")).toBeInTheDocument();
+});</code></pre>
+<p><b>Mistake:</b> Testing implementation details (state values); querying by class or test ID when a role works; not mocking network calls (use MSW).</p></div></details></li><li><details class="t"><summary>Accessibility</summary><div>
+<p><b>What:</b> Making the app usable with keyboard, screen readers and low vision.</p>
+<p><b>Why:</b> Inclusion, legal requirements, better SEO and UX.</p>
+<pre><code>&lt;button aria-label="Close dialog" onClick={close}&gt;X&lt;/button&gt;
+&lt;label htmlFor="email"&gt;Email&lt;/label&gt;&lt;input id="email" /&gt;
+&lt;img src={u} alt="Red running shoe" /&gt;</code></pre>
+<p><b>Checklist:</b> semantic HTML (<code>button</code>, <code>nav</code>, <code>main</code>), labels, alt text, visible focus, keyboard support, colour contrast, ARIA only when native HTML is not enough.</p>
+<p><b>Mistake:</b> <code>div onClick</code> instead of <code>button</code>.</p></div></details></li><li><details class="t"><summary>Security best practices</summary><div>
+<p><b>What:</b> Protecting users and data in a React app.</p>
+<p><b>Practices:</b> React escapes output by default, so avoid <code>dangerouslySetInnerHTML</code> (or sanitise with DOMPurify); never put secrets in client env variables; avoid long-lived tokens in localStorage (use HttpOnly cookies); validate on the server; use HTTPS and CSP headers; audit dependencies (<code>npm audit</code>); validate URLs before redirecting or linking (<code>javascript:</code> links).</p>
+<pre><code>import DOMPurify from "dompurify";
+&lt;div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }} /&gt;</code></pre>
+<p><b>Mistake:</b> Trusting client checks; hiding admin buttons and thinking that is security.</p></div></details></li></ul></div>
+</section>
+
+<section id="production">
+<h2>5. Production-Level React</h2>
+<p>Explain how React is used in real companies and production applications.</p>
+<p>Cover (tap any topic to open its notes):</p>
+<div class="cols one"><ul>
+<li><details class="t"><summary>Scalable folder structure</summary><div>
+<p><b>What:</b> Feature-based layout so each feature owns its files.</p>
+<pre><code>src/
+  features/orders/{components,hooks,api,tests,index.js}
+  components/ (shared UI)  hooks/  services/  pages/  routes/  utils/</code></pre>
+<p><b>Why:</b> Changes stay local; teams avoid conflicts. <b>Mistake:</b> Grouping only by file type in a huge app.</p></div></details></li><li><details class="t"><summary>Reusable component architecture</summary><div>
+<p><b>What:</b> A shared UI library of small components with clear props (Button, Input, Modal, Table).</p>
+<p><b>How:</b> Keep them presentational, accept <code>children</code> and <code>className</code>, forward refs, document variants, add tests or Storybook.</p>
+<p><b>Mistake:</b> Components with 20 boolean props; business logic inside shared UI.</p></div></details></li><li><details class="t"><summary>Design patterns</summary><div>
+<p><b>Patterns:</b> custom hooks (logic reuse), container/presentational, compound components (<code>&lt;Tabs&gt;&lt;Tabs.Tab /&gt;&lt;/Tabs&gt;</code>), render props, HOCs, provider pattern, controlled/uncontrolled.</p>
+<pre><code>function Tabs({ children }) { const [i, setI] = useState(0); return &lt;TabsCtx.Provider value={{ i, setI }}&gt;{children}&lt;/TabsCtx.Provider&gt;; }</code></pre>
+<p><b>Say it:</b> “I prefer hooks and composition; HOCs and render props are legacy.”</p></div></details></li><li><details class="t"><summary>API service layer</summary><div>
+<p><b>What:</b> One place for HTTP: an Axios instance plus functions per resource.</p>
+<pre><code>// services/api.js
+export const api = axios.create({ baseURL: import.meta.env.VITE_API_URL, timeout: 10000 });
+// services/employeeService.js
+export const employeeService = { list: () =&gt; api.get("/employees"), get: (id) =&gt; api.get(`/employees/${id}`) };</code></pre>
+<p><b>Why:</b> Tokens, error handling and base URLs are in one place; components stay clean.</p></div></details></li><li><details class="t"><summary>Environment variables</summary><div>
+<p><b>What:</b> Config per environment, in <code>.env.development</code> and <code>.env.production</code>.</p>
+<pre><code>VITE_API_URL=https://api.example.com
+const url = import.meta.env.VITE_API_URL;   // only VITE_ prefixed vars are exposed</code></pre>
+<p><b>Mistake:</b> Putting secrets in them: they are bundled into the client and visible to everyone. Commit <code>.env.example</code>, not real values.</p></div></details></li><li><details class="t"><summary>Authentication and role-based access</summary><div>
+<p><b>What:</b> Login plus roles (admin, manager, user) controlling pages and actions.</p>
+<pre><code>const can = (user, perm) =&gt; user?.permissions.includes(perm);
+{can(user, "employee:delete") &amp;&amp; &lt;button onClick={del}&gt;Delete&lt;/button&gt;}</code></pre>
+<p><b>How:</b> Roles come from the verified token or <code>/me</code> endpoint; use protected routes and permission checks in UI; backend enforces on every request.</p>
+<p><b>Mistake:</b> UI-only protection.</p></div></details></li><li><details class="t"><summary>Error handling</summary><div>
+<p><b>Layers:</b> try/catch around async calls; Axios response interceptor for 401 and 500; error boundaries for render errors; friendly toasts or error pages; retries for transient failures.</p>
+<pre><code>api.interceptors.response.use(r =&gt; r, (e) =&gt; {
+  toast.error(e.response?.data?.message ?? "Something went wrong");
+  return Promise.reject(e);
+});</code></pre>
+<p><b>Mistake:</b> Swallowing errors silently; showing stack traces to users.</p></div></details></li><li><details class="t"><summary>Logging</summary><div>
+<p><b>What:</b> Sending client errors and key events to a service (Sentry, Datadog, LogRocket).</p>
+<pre><code>Sentry.init({ dsn: import.meta.env.VITE_SENTRY_DSN, environment: import.meta.env.MODE });
+Sentry.captureException(error);</code></pre>
+<p><b>Why:</b> You cannot see users’ consoles. Upload source maps for readable stack traces. <b>Mistake:</b> Logging passwords, tokens or personal data; leaving <code>console.log</code> everywhere.</p></div></details></li></ul><ul>
+<li><details class="t"><summary>Performance monitoring</summary><div>
+<p><b>What:</b> Tracking real-user speed: Core Web Vitals (LCP, INP, CLS), bundle size, API latency.</p>
+<pre><code>import { onLCP, onINP, onCLS } from "web-vitals";
+onLCP(send); onINP(send); onCLS(send);</code></pre>
+<p><b>Tools:</b> Lighthouse, React Profiler, Sentry Performance, bundle analyser. Set budgets and alert on regressions.</p></div></details></li><li><details class="t"><summary>SEO</summary><div>
+<p><b>What:</b> Making pages discoverable by search engines.</p>
+<p><b>How:</b> Use SSR or SSG (Next.js) for public pages, unique <code>title</code> and meta description per page, semantic HTML, sitemap and robots.txt, fast load times.</p>
+<pre><code>export const metadata = { title: "Product 42", description: "Buy product 42" };   // Next.js</code></pre>
+<p><b>Mistake:</b> Pure client rendering for content pages; same title everywhere.</p></div></details></li><li><details class="t"><summary>Responsive UI</summary><div>
+<p><b>What:</b> Layout that adapts to phone, tablet and desktop.</p>
+<pre><code>.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+@media (min-width: 768px) { .sidebar { display: block; } }</code></pre>
+<p><b>How:</b> Mobile-first CSS, flexbox and grid, relative units, viewport meta tag, test on real devices. <b>Mistake:</b> Fixed pixel widths; tiny tap targets.</p></div></details></li><li><details class="t"><summary>Docker deployment</summary><div>
+<pre><code># Dockerfile (multi-stage)
+FROM node:20-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf   # try_files $uri /index.html;
+EXPOSE 80</code></pre>
+<p><b>Run:</b> <code>docker build -t my-app .</code> then <code>docker run -p 8080:80 my-app</code>.</p>
+<p><b>Why:</b> Same environment everywhere; small final image. <b>Mistake:</b> Forgetting the Nginx fallback to <code>index.html</code> (routes give 404 on refresh).</p></div></details></li><li><details class="t"><summary>CI/CD pipeline</summary><div>
+<pre><code># .github/workflows/ci.yml
+on: { push: { branches: [main] }, pull_request: {} }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test -- --run
+      - run: npm run build</code></pre>
+<p><b>Flow:</b> every push runs lint, tests, build; merge to main deploys. Use environment secrets for keys and require passing checks before merge.</p></div></details></li><li><details class="t"><summary>AWS / Azure deployment</summary><div>
+<p><b>AWS (static):</b> build, upload <code>dist/</code> to S3, serve through CloudFront with a rule sending 403/404 to <code>/index.html</code>.</p>
+<pre><code>aws s3 sync dist/ s3://my-bucket --delete
+aws cloudfront create-invalidation --distribution-id ABC123 --paths "/*"</code></pre>
+<p><b>AWS (container):</b> push the Docker image to ECR, run on ECS/Fargate.</p>
+<p><b>Azure:</b> Static Web Apps (connects to GitHub, auto-deploys) or App Service for containers.</p>
+<p><b>Mistake:</b> No cache invalidation after deploy; no SPA fallback rule.</p></div></details></li><li><details class="t"><summary>Production debugging</summary><div>
+<p><b>Steps:</b> 1) Check impact and roll back if users are hurt. 2) Reproduce with the production build (<code>npm run build &amp;&amp; npm run preview</code>). 3) Read console and network tab. 4) Use Sentry stack traces with source maps. 5) Compare env variables and the last deploy. 6) Fix, add a test, add monitoring.</p>
+<p><b>Typical causes:</b> wrong base path or API URL, missing SPA fallback, stale cache, CORS, hydration mismatch, undefined data from the API, memory leaks from missing cleanup.</p>
+<p><b>Say it:</b> “Stabilise first, then find the root cause, then prevent a repeat.”</p></div></details></li></ul></div>
+</section>
+
+<section id="projects">
+<h2>6. Practical Projects</h2>
+<p>Build these projects step by step (tap any project for folder structure, code, API endpoints and deployment):</p>
+<ol>
+<li><details class="t"><summary>Counter Application</summary><div>
+<p><b>Skills:</b> useState, events, props.</p>
+<pre><code>counter-app/ src/{main.jsx, App.jsx, components/Counter.jsx, index.css}</code></pre>
+<pre><code>// components/Counter.jsx
+import { useState } from "react";
+export default function Counter({ step = 1, min = 0 }) {
+  const [count, setCount] = useState(0);
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;{count}&lt;/h2&gt;
+      &lt;button onClick={() =&gt; setCount(c =&gt; c + step)}&gt;+&lt;/button&gt;
+      &lt;button onClick={() =&gt; setCount(c =&gt; Math.max(min, c - step))} disabled={count &lt;= min}&gt;-&lt;/button&gt;
+      &lt;button onClick={() =&gt; setCount(0)}&gt;Reset&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+// App.jsx: &lt;Counter step={5} /&gt;</code></pre>
+<p><b>Backend:</b> none. <b>Deploy:</b> <code>npm run build</code>, upload <code>dist/</code> to Netlify or Vercel.</p>
+<p><b>Extend:</b> add useReducer, persist count in localStorage.</p></div></details></li><li><details class="t"><summary>Todo Application</summary><div>
+<p><b>Skills:</b> lists and keys, forms, useEffect, localStorage.</p>
+<pre><code>todo-app/ src/{App.jsx, components/{TodoForm,TodoList,TodoItem}.jsx, hooks/useLocalStorage.js}</code></pre>
+<pre><code>// hooks/useLocalStorage.js
+export function useLocalStorage(key, initial) {
+  const [v, setV] = useState(() =&gt; JSON.parse(localStorage.getItem(key)) ?? initial);
+  useEffect(() =&gt; { localStorage.setItem(key, JSON.stringify(v)); }, [key, v]);
+  return [v, setV];
+}
+// App.jsx
+const [todos, setTodos] = useLocalStorage("todos", []);
+const add = (text) =&gt; setTodos([...todos, { id: crypto.randomUUID(), text, done: false }]);
+const toggle = (id) =&gt; setTodos(todos.map(t =&gt; t.id === id ? { ...t, done: !t.done } : t));
+const remove = (id) =&gt; setTodos(todos.filter(t =&gt; t.id !== id));
+// TodoList: todos.map(t =&gt; &lt;TodoItem key={t.id} todo={t} onToggle={toggle} onDelete={remove} /&gt;)</code></pre>
+<p><b>Backend:</b> optional: <code>GET/POST /todos</code>, <code>PATCH/DELETE /todos/:id</code>. <b>Deploy:</b> Netlify or Vercel.</p></div></details></li><li><details class="t"><summary>Weather Application using API</summary><div>
+<p><b>Skills:</b> fetch, useEffect, loading and error states, env variables.</p>
+<pre><code>weather-app/ .env  src/{App.jsx, services/weatherApi.js, components/{SearchBar,WeatherCard}.jsx}
+# .env
+VITE_WEATHER_KEY=your_openweathermap_key</code></pre>
+<pre><code>// services/weatherApi.js
+export async function getWeather(city) {
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&amp;units=metric&amp;appid=${import.meta.env.VITE_WEATHER_KEY}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(res.status === 404 ? "City not found" : "Request failed");
+  return res.json();
+}
+// App.jsx
+const [city, setCity] = useState("Bengaluru");
+const [data, setData] = useState(null), [error, setError] = useState(""), [loading, setLoading] = useState(false);
+useEffect(() =&gt; {
+  let ignore = false;
+  setLoading(true); setError("");
+  getWeather(city).then(d =&gt; !ignore &amp;&amp; setData(d)).catch(e =&gt; !ignore &amp;&amp; setError(e.message)).finally(() =&gt; !ignore &amp;&amp; setLoading(false));
+  return () =&gt; { ignore = true; };   // avoids race conditions
+}, [city]);
+// show data.main.temp, data.weather[0].description</code></pre>
+<p><b>API:</b> OpenWeatherMap <code>GET /data/2.5/weather</code>. <b>Deploy:</b> Vercel, add <code>VITE_WEATHER_KEY</code> in project settings. Note: the key is visible in the client; for real products proxy through your backend.</p></div></details></li><li><details class="t"><summary>Employee Management System</summary><div>
+<p><b>Skills:</b> CRUD, Router, forms, Axios, search and pagination.</p>
+<pre><code>src/ services/{api.js, employeeService.js}  pages/{EmployeeList,EmployeeForm}.jsx  components/{Table,ConfirmDialog}.jsx  App.jsx</code></pre>
+<p><b>Endpoints:</b> <code>GET /employees?search=&amp;page=</code>, <code>GET /employees/:id</code>, <code>POST /employees</code>, <code>PUT /employees/:id</code>, <code>DELETE /employees/:id</code></p>
+<pre><code>// routes
+&lt;Route path="/employees" element={&lt;EmployeeList /&gt;} /&gt;
+&lt;Route path="/employees/new" element={&lt;EmployeeForm /&gt;} /&gt;
+&lt;Route path="/employees/:id/edit" element={&lt;EmployeeForm /&gt;} /&gt;
+// EmployeeList
+const load = useCallback(() =&gt; employeeService.list({ search, page }).then(r =&gt; setRows(r.data)), [search, page]);
+useEffect(() =&gt; { load(); }, [load]);
+const onDelete = async (id) =&gt; { if (confirm("Delete?")) { await employeeService.remove(id); load(); } };
+// EmployeeForm: if useParams().id exists, fetch and reset(form) for edit; submit calls update or create, then navigate("/employees")</code></pre>
+<p><b>Deploy:</b> frontend on Netlify/Vercel, API URL via env var, CORS enabled on backend.</p></div></details></li><li><details class="t"><summary>Authentication System</summary><div>
+<p><b>Skills:</b> Context, protected routes, JWT, Axios interceptors.</p>
+<pre><code>src/ context/AuthContext.jsx  routes/ProtectedRoute.jsx  pages/{Login,Register,Profile}.jsx  services/api.js</code></pre>
+<p><b>Endpoints:</b> <code>POST /auth/register</code>, <code>POST /auth/login</code> (returns token), <code>GET /auth/me</code>, <code>POST /auth/logout</code>.</p>
+<pre><code>// AuthContext.jsx
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() =&gt; {                                  // restore session on refresh
+    api.get("/auth/me").then(r =&gt; setUser(r.data)).catch(() =&gt; {}).finally(() =&gt; setLoading(false));
+  }, []);
+  const login = async (creds) =&gt; { const { data } = await api.post("/auth/login", creds); localStorage.setItem("token", data.token); setUser(data.user); };
+  const logout = () =&gt; { localStorage.removeItem("token"); setUser(null); };
+  return &lt;AuthContext.Provider value={{ user, loading, login, logout }}&gt;{children}&lt;/AuthContext.Provider&gt;;
+}
+// ProtectedRoute: if (loading) return &lt;Spinner /&gt;; return user ? &lt;Outlet /&gt; : &lt;Navigate to="/login" replace /&gt;;</code></pre>
+<p><b>Deploy:</b> HTTPS only; prefer HttpOnly cookie for the token in production.</p></div></details></li><li><details class="t"><summary>E-commerce Application</summary><div>
+<p><b>Skills:</b> Redux Toolkit, routing, API, cart logic.</p>
+<pre><code>src/ features/{products,cart,orders}/  pages/{Home,ProductDetail,Cart,Checkout}.jsx  store/index.js</code></pre>
+<p><b>Endpoints:</b> <code>GET /products?category=&amp;q=</code>, <code>GET /products/:id</code>, <code>POST /orders</code>, <code>GET /orders/me</code>, <code>POST /payments/intent</code></p>
+<pre><code>// features/cart/cartSlice.js
+const cartSlice = createSlice({
+  name: "cart", initialState: { items: [] },
+  reducers: {
+    addItem(s, { payload }) { const i = s.items.find(x =&gt; x.id === payload.id); i ? i.qty++ : s.items.push({ ...payload, qty: 1 }); },
+    removeItem(s, { payload }) { s.items = s.items.filter(x =&gt; x.id !== payload); },
+  },
+});
+export const selectTotal = (s) =&gt; s.cart.items.reduce((sum, i) =&gt; sum + i.price * i.qty, 0);</code></pre>
+<p><b>Notes:</b> Always compute price and total on the server; use a payment provider (Stripe, Razorpay) for payments. <b>Deploy:</b> Vercel or Next.js for SEO on product pages.</p></div></details></li><li><details class="t"><summary>Admin Dashboard</summary><div>
+<p><b>Skills:</b> nested routes, charts, tables, role-based access.</p>
+<pre><code>src/ layouts/DashboardLayout.jsx  pages/{Overview,Users,Reports}.jsx  components/{StatCard,DataTable,SalesChart}.jsx</code></pre>
+<p><b>Endpoints:</b> <code>GET /stats/summary</code>, <code>GET /stats/sales?range=30d</code>, <code>GET /users</code>, <code>PATCH /users/:id/role</code></p>
+<pre><code>// npm i recharts
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+function SalesChart({ data }) {
+  return (
+    &lt;ResponsiveContainer width="100%" height={300}&gt;
+      &lt;LineChart data={data}&gt;&lt;XAxis dataKey="date" /&gt;&lt;YAxis /&gt;&lt;Tooltip /&gt;&lt;Line dataKey="total" /&gt;&lt;/LineChart&gt;
+    &lt;/ResponsiveContainer&gt;
+  );
+}
+// routes: &lt;Route path="/admin" element={&lt;ProtectedRoute allow={["admin"]} /&gt;}&gt;&lt;Route element={&lt;DashboardLayout /&gt;}&gt; ... &lt;/Route&gt;&lt;/Route&gt;</code></pre>
+<p><b>Tips:</b> lazy-load the Reports page; paginate tables on the server. <b>Deploy:</b> Docker + Nginx or Azure Static Web Apps.</p></div></details></li><li><details class="t"><summary>Full-stack application with React + Django/FastAPI + PostgreSQL</summary><div>
+<pre><code>fullstack/
+  frontend/ (Vite React)
+  backend/ app/{main.py, models.py, schemas.py, db.py, routers/employees.py}
+  docker-compose.yml</code></pre>
+<p><b>Endpoints:</b> <code>GET/POST /api/employees</code>, <code>GET/PUT/DELETE /api/employees/{id}</code>, <code>POST /api/auth/login</code></p>
+<pre><code># backend/app/db.py
+engine = create_engine(os.environ["DATABASE_URL"])
+SessionLocal = sessionmaker(bind=engine)
+def get_db():
+    db = SessionLocal()
+    try: yield db
+    finally: db.close()
+# models.py
+class Employee(Base):
+    __tablename__ = "employees"
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    email = Column(String, unique=True)
+# main.py
+app = FastAPI()
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"], allow_methods=["*"], allow_headers=["*"])
+@app.get("/api/employees")
+def list_employees(db: Session = Depends(get_db)):
+    return db.query(Employee).all()</code></pre>
+<pre><code># docker-compose.yml
+services:
+  db: { image: postgres:16, environment: { POSTGRES_PASSWORD: pass, POSTGRES_DB: app }, volumes: [pgdata:/var/lib/postgresql/data] }
+  backend: { build: ./backend, environment: { DATABASE_URL: postgresql://postgres:pass@db/app }, ports: ["8000:8000"], depends_on: [db] }
+  frontend: { build: ./frontend, ports: ["80:80"] }
+volumes: { pgdata: {} }</code></pre>
+<p><b>Frontend call:</b> <code>axios.get(`${import.meta.env.VITE_API_URL}/api/employees`)</code>. <b>Deploy:</b> Frontend to S3 + CloudFront or Static Web Apps; backend container to ECS or App Service; managed Postgres (RDS or Azure Database). Add migrations with Alembic, secrets in the cloud secret store.</p></div></details></li></ol>
+<p>For every project provide complete folder structure, frontend code, backend integration where applicable, API endpoints, and deployment instructions.</p>
+</section>
+
+<section id="interview">
+<h2>7. Interview Preparation</h2>
+<p>Prepare questions for:</p>
+<ul><li><details class="t"><summary>0–2 years experience</summary><div>
+<p><b>Focus:</b> fundamentals. <b>Q:</b> Props vs state? Why keys? What does useEffect with <code>[]</code> do? Controlled vs uncontrolled? Virtual DOM?</p>
+<p><b>Coding:</b> Build a counter, a todo list, and a search filter over an array.</p>
+<pre><code>function Search({ items }) {
+  const [q, setQ] = useState("");
+  const shown = items.filter(i =&gt; i.toLowerCase().includes(q.toLowerCase()));   // derived, not stored
+  return &lt;&gt;&lt;input value={q} onChange={e =&gt; setQ(e.target.value)} /&gt;&lt;ul&gt;{shown.map(i =&gt; &lt;li key={i}&gt;{i}&lt;/li&gt;)}&lt;/ul&gt;&lt;/&gt;;
+}</code></pre>
+<p><b>Say it:</b> Keep answers short and give a tiny example.</p></div></details></li><li><details class="t"><summary>3–5 years experience</summary><div>
+<p><b>Focus:</b> design and trade-offs. <b>Q:</b> When Context vs Redux? How do you structure a large app? useMemo vs useCallback? How do you handle auth and token refresh? How do you test components?</p>
+<p><b>Coding:</b> a custom hook with cleanup:</p>
+<pre><code>function useFetch(url) {
+  const [s, setS] = useState({ data: null, loading: true, error: null });
+  useEffect(() =&gt; {
+    const c = new AbortController();
+    setS({ data: null, loading: true, error: null });
+    fetch(url, { signal: c.signal }).then(r =&gt; r.json())
+      .then(data =&gt; setS({ data, loading: false, error: null }))
+      .catch(e =&gt; e.name !== "AbortError" &amp;&amp; setS({ data: null, loading: false, error: e }));
+    return () =&gt; c.abort();
+  }, [url]);
+  return s;
+}</code></pre></div></details></li><li><details class="t"><summary>5+ years experience</summary><div>
+<p><b>Focus:</b> architecture, leadership, performance, reliability. <b>Q:</b> How do you scale a codebase for 20 developers? SSR vs CSR vs RSC trade-offs? Design a design system. Micro-frontends? How do you set performance budgets and monitor them? How do you migrate a legacy app?</p>
+<p><b>Whiteboard:</b> design a data table with server pagination, sorting, caching and optimistic updates (TanStack Query):</p>
+<pre><code>const { data } = useQuery({ queryKey: ["users", page, sort], queryFn: () =&gt; api.get("/users", { params: { page, sort } }).then(r =&gt; r.data), placeholderData: keepPreviousData });
+const mutation = useMutation({ mutationFn: updateUser, onSuccess: () =&gt; queryClient.invalidateQueries({ queryKey: ["users"] }) });</code></pre></div></details></li></ul>
+<p>Include:</p>
+<ul><li><details class="t"><summary>Basic conceptual questions</summary><div>
+<p><b>Examples with short answers:</b></p>
+<p>Why are keys needed? Stable identity for reconciliation.</p>
+<p>Why can’t hooks be in conditions? React matches state by call order.</p>
+<p>Is setState synchronous? No, updates are batched; use the functional form.</p>
+<p>What is lifting state up? Moving state to the nearest common parent so siblings share it.</p></div></details></li><li><details class="t"><summary>Scenario-based questions</summary><div>
+<p><b>1. The list re-renders slowly while typing in a search box.</b> Debounce the input, memoise rows with <code>React.memo</code>, virtualise the list, or use <code>useDeferredValue</code>.</p>
+<p><b>2. Two siblings need the same data.</b> Lift state to the parent; if many levels, use Context or a store.</p>
+<p><b>3. A user’s token expires mid-session.</b> Axios response interceptor catches 401, calls the refresh endpoint, retries the request once, else logs out.</p>
+<p><b>4. Fast route changes show old data.</b> Race condition: abort the previous request in effect cleanup.</p></div></details></li><li><details class="t"><summary>Output-based questions</summary><div>
+<pre><code>// Q1
+const [n, setN] = useState(0);
+const add3 = () =&gt; { setN(n + 1); setN(n + 1); setN(n + 1); };   // click once
+// Answer: n becomes 1 (all calls see the same n). Use setN(p =&gt; p + 1) to get 3.
+
+// Q2
+for (var i = 0; i &lt; 3; i++) setTimeout(() =&gt; console.log(i), 0);
+// Answer: 3 3 3 (var is function-scoped). With let: 0 1 2.
+
+// Q3
+useEffect(() =&gt; { console.log("A"); return () =&gt; console.log("B"); }, []);
+// Answer (StrictMode dev): A B A on mount; in production only A.
+
+// Q4
+console.log([1, 2, 3].map(x =&gt; x * 2), [] + [], 0 == "0");
+// Answer: [2, 4, 6]  ""  true</code></pre></div></details></li><li><details class="t"><summary>Coding problems</summary><div>
+<p><b>Debounced search, toggle, and a timer hook:</b></p>
+<pre><code>// Toggle
+function useToggle(init = false) { const [v, setV] = useState(init); return [v, () =&gt; setV(x =&gt; !x)]; }
+
+// Countdown
+function Countdown({ from }) {
+  const [s, setS] = useState(from);
+  useEffect(() =&gt; {
+    if (s === 0) return;
+    const id = setTimeout(() =&gt; setS(s - 1), 1000);
+    return () =&gt; clearTimeout(id);
+  }, [s]);
+  return &lt;p&gt;{s}&lt;/p&gt;;
+}
+
+// Accordion: only one open
+const [open, setOpen] = useState(null);
+items.map(i =&gt; &lt;div key={i.id}&gt;&lt;button onClick={() =&gt; setOpen(open === i.id ? null : i.id)}&gt;{i.title}&lt;/button&gt;{open === i.id &amp;&amp; &lt;p&gt;{i.body}&lt;/p&gt;}&lt;/div&gt;)</code></pre>
+<p>Other common tasks: infinite scroll with IntersectionObserver, pagination, star rating, tabs, form with validation.</p></div></details></li><li><details class="t"><summary>React performance questions</summary><div>
+<p><b>Q: Why does my child re-render?</b> Parent re-rendered or new object/function props were passed. Fix: <code>React.memo</code> plus stable props (<code>useCallback</code>, <code>useMemo</code>).</p>
+<pre><code>const Child = React.memo(({ onSave }) =&gt; &lt;button onClick={onSave}&gt;Save&lt;/button&gt;);
+const onSave = useCallback(() =&gt; save(id), [id]);</code></pre>
+<p><b>Q: Large list is slow?</b> Virtualise with react-window. <b>Q: Huge bundle?</b> Analyse it, code split routes, drop heavy libraries. <b>Q: Expensive calculation?</b> <code>useMemo</code>, or move it to the server or a web worker. <b>Q: How do you find the problem?</b> React Profiler, then Lighthouse and Web Vitals.</p></div></details></li><li><details class="t"><summary>Real production debugging scenarios</summary><div>
+<p><b>1. Blank screen after deploy:</b> console shows 404 for JS chunks: wrong <code>base</code> path or stale cache; set the correct base, invalidate CDN, keep old assets briefly.</p>
+<p><b>2. 404 on refresh at <code>/dashboard</code>:</b> server lacks SPA fallback: Nginx <code>try_files $uri /index.html;</code></p>
+<p><b>3. Works locally, API fails in production:</b> CORS or wrong <code>VITE_API_URL</code> (env values are fixed at build time; rebuild).</p>
+<p><b>4. Memory grows over time:</b> missing cleanup in effects (timers, listeners, subscriptions).</p>
+<p><b>5. “Cannot read properties of undefined” only for some users:</b> API returns null for edge cases; use optional chaining and loading guards, find it with Sentry stack trace and breadcrumbs.</p>
+<p><b>6. Hydration mismatch in Next.js:</b> server and client render different output (dates, <code>window</code>); render the same first, update in an effect.</p>
+<pre><code>const name = user?.profile?.name ?? "Guest";</code></pre></div></details></li></ul>
+</section>
+
+<section id="teaching">
+<h2>8. Teaching Instructions</h2>
+<ul>
+<li>Teach in simple English and Hinglish wherever useful.</li>
+<li>Assume I am starting from zero.</li>
+<li>Explain every concept with practical examples.</li>
+<li>Do not skip important topics.</li>
+<li>Explain code line by line.</li>
+<li>Show expected output.</li>
+<li>Explain when, why, and where to use each concept.</li>
+<li>Compare similar concepts, such as useMemo vs useCallback.</li>
+<li>Give coding exercises after each topic.</li>
+<li>Provide solutions after I attempt the exercises.</li>
+<li>Include best practices used in production.</li>
+</ul>
+</section>
+
+<section id="schedule">
+<h2>9. Learning Schedule</h2>
+<p>Create a structured 60-day learning plan.</p>
+<p>For each day include:</p>
+<ul><li>Topics to study</li><li>Practical coding tasks</li><li>Exercises</li><li>Interview questions</li><li>Mini-projects</li></ul>
+</section>
+
+<section id="start">
+<h2>10. Start Teaching</h2>
+<p>First, show me the complete React.js roadmap from beginner to advanced.</p>
+<p>Then start Day 1: JavaScript prerequisites for React, React introduction, installation, and first application.</p>
+<p>Do not teach all topics in one response. Teach one topic at a time, check my understanding, and move to the next topic only after I am ready.</p>
+<p class="goal">Final Goal: Make me capable of developing scalable, maintainable, production-ready React applications independently and clearing React.js developer interviews.</p>
+</section>
+<section id="code">
+<h2>11. Code Examples</h2>
+<p class="muted">Core code for each level, starting with Day 1. Each block is short so you can type it yourself and run it.</p>
+
+<h3>Day 1 – JavaScript prerequisites</h3>
+<pre><code>// const/let, arrow functions, template strings, destructuring, spread
+const user = { name: "Aman", skills: ["JS", "React"] };
+const { name, skills } = user;            // destructuring
+const more = [...skills, "Redux"];        // spread
+const greet = (n) =&gt; `Hello, ${n}!`;     // arrow fn + template string
+console.log(greet(name), more.map(s =&gt; s.toUpperCase()));</code></pre>
+<p class="out">Output: Hello, Aman! [ 'JS', 'REACT', 'REDUX' ]</p>
+
+<h3>Install with Vite and run</h3>
+<pre><code>npm create vite@latest my-app -- --template react
+cd my-app
+npm install
+npm run dev      # opens http://localhost:5173</code></pre>
+
+<h3>First app: JSX, component, props</h3>
+<pre><code>// src/App.jsx
+function Greeting({ name }) {            // props are passed as an object
+  return &lt;h1&gt;Namaste, {name}!&lt;/h1&gt;;     // JSX: JavaScript inside {}
+}
+
+export default function App() {
+  return (
+    &lt;div&gt;
+      &lt;Greeting name="Riya" /&gt;
+      &lt;Greeting name="Aman" /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<p class="out">Output: two headings, “Namaste, Riya!” and “Namaste, Aman!”</p>
+
+<h3>Project 1: Counter with useState</h3>
+<pre><code>import { useState } from "react";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);  // [value, setter]
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Count: {count}&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(c =&gt; c + 1)}&gt;+&lt;/button&gt;
+      &lt;button onClick={() =&gt; setCount(0)}&gt;Reset&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+<h3>Project 2: Todo – lists, keys, controlled form, conditional rendering</h3>
+<pre><code>import { useState } from "react";
+
+export default function Todo() {
+  const [text, setText] = useState("");
+  const [todos, setTodos] = useState([]);
+
+  const add = (e) =&gt; {
+    e.preventDefault();
+    if (!text.trim()) return;
+    setTodos([...todos, { id: Date.now(), text, done: false }]);
+    setText("");
+  };
+  const toggle = (id) =&gt;
+    setTodos(todos.map(t =&gt; t.id === id ? { ...t, done: !t.done } : t));
+  const remove = (id) =&gt; setTodos(todos.filter(t =&gt; t.id !== id));
+
+  return (
+    &lt;form onSubmit={add}&gt;
+      &lt;input value={text} onChange={e =&gt; setText(e.target.value)} /&gt;
+      &lt;button&gt;Add&lt;/button&gt;
+      {todos.length === 0 &amp;&amp; &lt;p&gt;No tasks yet&lt;/p&gt;}
+      &lt;ul&gt;
+        {todos.map(t =&gt; (
+          &lt;li key={t.id}&gt;
+            &lt;span onClick={() =&gt; toggle(t.id)}
+              style={{ textDecoration: t.done ? "line-through" : "none" }}&gt;
+              {t.text}
+            &lt;/span&gt;
+            &lt;button type="button" onClick={() =&gt; remove(t.id)}&gt;x&lt;/button&gt;
+          &lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+<h3>useEffect: API call with loading and error handling (Weather / CRUD base)</h3>
+<pre><code>import { useEffect, useState } from "react";
+
+export default function Users() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() =&gt; {
+    const controller = new AbortController();   // cleanup avoids stale updates
+    fetch("https://jsonplaceholder.typicode.com/users", { signal: controller.signal })
+      .then(r =&gt; { if (!r.ok) throw new Error("Request failed"); return r.json(); })
+      .then(setUsers)
+      .catch(e =&gt; e.name !== "AbortError" &amp;&amp; setError(e.message))
+      .finally(() =&gt; setLoading(false));
+    return () =&gt; controller.abort();
+  }, []);                                       // [] = run once on mount
+
+  if (loading) return &lt;p&gt;Loading...&lt;/p&gt;;
+  if (error) return &lt;p&gt;Error: {error}&lt;/p&gt;;
+  return &lt;ul&gt;{users.map(u =&gt; &lt;li key={u.id}&gt;{u.name}&lt;/li&gt;)}&lt;/ul&gt;;
+}</code></pre>
+
+<h3>useRef</h3>
+<pre><code>import { useRef } from "react";
+
+function FocusInput() {
+  const inputRef = useRef(null);
+  return (
+    &lt;&gt;
+      &lt;input ref={inputRef} /&gt;
+      &lt;button onClick={() =&gt; inputRef.current.focus()}&gt;Focus&lt;/button&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+
+<h3>useContext (theme) – fixes prop drilling</h3>
+<pre><code>import { createContext, useContext, useState } from "react";
+
+const ThemeContext = createContext(null);
+
+export function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState("light");
+  return (
+    &lt;ThemeContext.Provider value={{ theme, setTheme }}&gt;
+      {children}
+    &lt;/ThemeContext.Provider&gt;
+  );
+}
+export const useTheme = () =&gt; useContext(ThemeContext);
+
+function Toggle() {
+  const { theme, setTheme } = useTheme();
+  return &lt;button onClick={() =&gt; setTheme(theme === "light" ? "dark" : "light")}&gt;{theme}&lt;/button&gt;;
+}</code></pre>
+
+<h3>useReducer</h3>
+<pre><code>import { useReducer } from "react";
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "inc": return { count: state.count + 1 };
+    case "dec": return { count: state.count - 1 };
+    default: return state;
+  }
+}
+function Counter() {
+  const [state, dispatch] = useReducer(reducer, { count: 0 });
+  return (
+    &lt;&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: "dec" })}&gt;-&lt;/button&gt;
+      {state.count}
+      &lt;button onClick={() =&gt; dispatch({ type: "inc" })}&gt;+&lt;/button&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+
+<h3>React Router: dynamic, nested and protected routes</h3>
+<pre><code>// npm i react-router-dom
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useParams } from "react-router-dom";
+
+const isLoggedIn = () =&gt; !!localStorage.getItem("token");
+function Protected() { return isLoggedIn() ? &lt;Outlet /&gt; : &lt;Navigate to="/login" replace /&gt;; }
+function User() { const { id } = useParams(); return &lt;h2&gt;User {id}&lt;/h2&gt;; }
+
+export default function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/login" element={&lt;h2&gt;Login&lt;/h2&gt;} /&gt;
+        &lt;Route element={&lt;Protected /&gt;}&gt;
+          &lt;Route path="/dashboard" element={&lt;h2&gt;Dashboard&lt;/h2&gt;} /&gt;
+          &lt;Route path="/users/:id" element={&lt;User /&gt;} /&gt;
+        &lt;/Route&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}</code></pre>
+
+<h3>Custom hook</h3>
+<pre><code>import { useEffect, useState } from "react";
+
+export function useFetch(url) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  useEffect(() =&gt; {
+    setLoading(true);
+    fetch(url).then(r =&gt; r.json()).then(setData).catch(setError)
+      .finally(() =&gt; setLoading(false));
+  }, [url]);
+  return { data, loading, error };
+}</code></pre>
+
+<h3>Axios service layer and JWT interceptor</h3>
+<pre><code>// src/services/api.js  (npm i axios)
+import axios from "axios";
+
+const api = axios.create({ baseURL: import.meta.env.VITE_API_URL });
+api.interceptors.request.use((config) =&gt; {
+  const token = localStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+export const login = (data) =&gt; api.post("/auth/login", data);
+export const getEmployees = () =&gt; api.get("/employees");
+export default api;</code></pre>
+
+<h3>Redux Toolkit</h3>
+<pre><code>// npm i @reduxjs/toolkit react-redux
+import { configureStore, createSlice } from "@reduxjs/toolkit";
+
+const counterSlice = createSlice({
+  name: "counter",
+  initialState: { value: 0 },
+  reducers: { increment: (s) =&gt; { s.value += 1; } },   // Immer allows this
+});
+export const { increment } = counterSlice.actions;
+export const store = configureStore({ reducer: { counter: counterSlice.reducer } });
+
+// main.jsx: &lt;Provider store={store}&gt;&lt;App /&gt;&lt;/Provider&gt;
+// component: const v = useSelector(s =&gt; s.counter.value); const dispatch = useDispatch();</code></pre>
+
+<h3>React Hook Form</h3>
+<pre><code>// npm i react-hook-form
+import { useForm } from "react-hook-form";
+
+export default function LoginForm() {
+  const { register, handleSubmit, formState: { errors } } = useForm();
+  return (
+    &lt;form onSubmit={handleSubmit(d =&gt; console.log(d))}&gt;
+      &lt;input {...register("email", { required: "Email is required" })} /&gt;
+      {errors.email &amp;&amp; &lt;p&gt;{errors.email.message}&lt;/p&gt;}
+      &lt;input type="password" {...register("password", { minLength: { value: 6, message: "Min 6 chars" } })} /&gt;
+      {errors.password &amp;&amp; &lt;p&gt;{errors.password.message}&lt;/p&gt;}
+      &lt;button&gt;Login&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+<h3>Performance: React.memo, useMemo, useCallback</h3>
+<pre><code>import { memo, useMemo, useCallback, useState } from "react";
+
+const Item = memo(function Item({ label, onSelect }) {   // skips re-render if props are same
+  console.log("render", label);
+  return &lt;li onClick={() =&gt; onSelect(label)}&gt;{label}&lt;/li&gt;;
+});
+
+export default function List({ items }) {
+  const [q, setQ] = useState("");
+  const filtered = useMemo(                              // caches a VALUE
+    () =&gt; items.filter(i =&gt; i.includes(q)), [items, q]);
+  const onSelect = useCallback((l) =&gt; alert(l), []);     // caches a FUNCTION
+  return (
+    &lt;&gt;
+      &lt;input value={q} onChange={e =&gt; setQ(e.target.value)} /&gt;
+      &lt;ul&gt;{filtered.map(i =&gt; &lt;Item key={i} label={i} onSelect={onSelect} /&gt;)}&lt;/ul&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+
+<h3>Code splitting, lazy loading, Suspense, error boundary</h3>
+<pre><code>import { lazy, Suspense, Component } from "react";
+const Dashboard = lazy(() =&gt; import("./Dashboard"));
+
+class ErrorBoundary extends Component {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(err, info) { console.error(err, info); }   // send to logging service
+  render() { return this.state.hasError ? &lt;h2&gt;Something went wrong&lt;/h2&gt; : this.props.children; }
+}
+
+export default function App() {
+  return (
+    &lt;ErrorBoundary&gt;
+      &lt;Suspense fallback={&lt;p&gt;Loading...&lt;/p&gt;}&gt;&lt;Dashboard /&gt;&lt;/Suspense&gt;
+    &lt;/ErrorBoundary&gt;
+  );
+}</code></pre>
+
+<h3>TypeScript with React</h3>
+<pre><code>type ButtonProps = { label: string; onClick: () =&gt; void; disabled?: boolean };
+
+export function Button({ label, onClick, disabled = false }: ButtonProps) {
+  return &lt;button onClick={onClick} disabled={disabled}&gt;{label}&lt;/button&gt;;
+}
+const [count, setCount] = useState&lt;number&gt;(0);</code></pre>
+
+<h3>Testing with Jest/Vitest and React Testing Library</h3>
+<pre><code>import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import Counter from "./Counter";
+
+test("increments count", async () =&gt; {
+  render(&lt;Counter /&gt;);
+  await userEvent.click(screen.getByRole("button", { name: "+" }));
+  expect(screen.getByText("Count: 1")).toBeInTheDocument();
+});</code></pre>
+
+<h3>Production: folder structure, Dockerfile, FastAPI endpoint</h3>
+<pre><code>src/
+  api/ components/ features/ hooks/ pages/ routes/ services/ store/ utils/
+  App.jsx  main.jsx
+
+# Dockerfile (multi-stage)
+FROM node:20-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80
+
+# FastAPI (backend for full-stack project)
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+app = FastAPI()
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"],
+                   allow_methods=["*"], allow_headers=["*"])
+@app.get("/employees")
+def list_employees():
+    return [{"id": 1, "name": "Aman"}]</code></pre>
+
+<h3>Exercise (Day 1)</h3>
+<p>Build a <code>ProfileCard</code> component that takes <code>name</code>, <code>role</code> and <code>skills</code> (array) as props and renders the skills as a list with keys. Attempt it, then share your code and I will review it and give the solution.</p>
+</section>
+<section id="qa">
+<h2>12. Topics Explained Like an Interview</h2>
+<p class="muted">Each topic is a question an interviewer would ask, with a crisp answer you can say out loud, plus a follow-up trap to watch for.</p>
+
+<h3>Level 1: Beginner</h3>
+<div class="qa"><h4>Q. What is React and why use it instead of plain HTML, CSS and JavaScript?</h4><p>React is a JavaScript library for building UIs from reusable components. With plain JS you manually find DOM nodes and update them; with React you describe what the UI should look like for a given state, and React updates the DOM for you. That gives less bug-prone code, reusable components and an easy-to-scale structure.</p><p class="tip">Trap: React is a library, not a framework. It handles the view layer; routing and data fetching come from other libraries.</p></div>
+<div class="qa"><h4>Q. SPA vs MPA?</h4><p>An SPA loads one HTML page and swaps content with JavaScript, so navigation feels instant but the first load and SEO need care. An MPA requests a new page from the server on every navigation, which is simpler for SEO but slower to navigate.</p></div>
+<div class="qa"><h4>Q. Virtual DOM vs Real DOM?</h4><p>The Real DOM is the browser’s tree, and updating it is expensive. The Virtual DOM is a lightweight JavaScript copy. On a state change React builds a new virtual tree, diffs it against the old one, and applies only the minimal changes to the real DOM.</p><p class="tip">Trap: the Virtual DOM is not “always faster”. Its value is predictable, batched updates.</p></div>
+<div class="qa"><h4>Q. What is JSX?</h4><p>JSX is a syntax extension that looks like HTML but compiles to <code>React.createElement</code> calls (or the modern JSX runtime). Rules: one root element (or a fragment), <code>className</code> instead of <code>class</code>, camelCase attributes, and JavaScript expressions inside <code>{}</code>.</p></div>
+<div class="qa"><h4>Q. What are components? Functional vs class?</h4><p>Components are reusable functions that return UI. Functional components with hooks are the standard today. Class components still exist (error boundaries still require one), but they are rarely written in new code.</p></div>
+<div class="qa"><h4>Q. Props vs state?</h4><p>Props are read-only inputs passed from parent to child. State is data owned and changed by the component itself, and changing it triggers a re-render. Never mutate props. Never mutate state directly; use the setter.</p></div>
+<div class="qa"><h4>Q. How does useState work?</h4><p>It returns <code>[value, setter]</code>. Calling the setter schedules a re-render with the new value. Updates are batched and asynchronous, so use the functional form <code>setCount(c =&gt; c + 1)</code> when the new value depends on the old one.</p><p class="tip">Trap: <code>setCount(count + 1)</code> three times in a row only adds 1, because every call sees the same stale <code>count</code>.</p></div>
+<div class="qa"><h4>Q. Why do lists need keys?</h4><p>Keys give React a stable identity for each item so reconciliation can match, reorder and preserve state correctly. Use a unique ID from your data. Using the array index breaks things when items are inserted, removed or reordered.</p></div>
+<div class="qa"><h4>Q. What is a controlled component?</h4><p>A form input whose value is held in React state (<code>value</code> plus <code>onChange</code>), so React is the single source of truth. An uncontrolled input keeps its own value in the DOM and you read it through a ref.</p></div>
+<div class="qa"><h4>Q. Ways to style React apps? Event handling? Conditional rendering? Composition?</h4><p>Styling: plain CSS, CSS Modules, Tailwind, styled-components, inline styles. Events use camelCase handlers (<code>onClick={handler}</code>), and you pass the function, not its call. Conditional rendering uses ternaries, <code>&amp;&amp;</code>, or early returns. Composition means building complex UI from small components and passing <code>children</code>, which is preferred over inheritance.</p><p class="tip">Trap: <code>{count &amp;&amp; &lt;List /&gt;}</code> renders a literal 0 when count is 0.</p></div>
+
+<h3>Level 2: Intermediate</h3>
+<div class="qa"><h4>Q. Explain useEffect and its dependency array.</h4><p>useEffect runs side effects (fetching, subscriptions, timers, DOM work) after render. No array: runs after every render. <code>[]</code>: runs once on mount. <code>[a, b]</code>: runs when a or b changes. The returned function is cleanup, which runs before the next effect and on unmount.</p><p class="tip">Trap: missing dependencies cause stale closures; an object created in the component body as a dependency causes an infinite loop.</p></div>
+<div class="qa"><h4>Q. When do you use useRef?</h4><p>For direct DOM access (focus, scroll) and for mutable values that must survive renders without causing a re-render (timer IDs, previous value). Changing <code>ref.current</code> does not re-render.</p></div>
+<div class="qa"><h4>Q. What is prop drilling and how does Context solve it?</h4><p>Prop drilling is passing props through many intermediate components that do not use them. Context lets a provider expose a value to any descendant through <code>useContext</code>. Caveat: every consumer re-renders when the value changes, so keep contexts small, and use Redux or Zustand for frequently changing global state.</p></div>
+<div class="qa"><h4>Q. useState vs useReducer?</h4><p>useState suits simple, independent values. useReducer suits complex state with several related fields or many transitions, since logic lives in one pure reducer <code>(state, action) =&gt; newState</code> that is easy to test.</p></div>
+<div class="qa"><h4>Q. How does React Router work? Dynamic, nested and protected routes?</h4><p>It matches the URL against route definitions and renders the matching element without a page reload. Dynamic routes use params (<code>/users/:id</code> with <code>useParams</code>). Nested routes render children through <code>&lt;Outlet /&gt;</code>. Protected routes wrap pages in a component that redirects with <code>&lt;Navigate&gt;</code> if the user is not authenticated.</p><p class="tip">Trap: client-side route protection is only UX. The server must enforce authorization.</p></div>
+<div class="qa"><h4>Q. Fetch vs Axios? How do you structure API calls?</h4><p>Fetch is built in but needs manual JSON parsing and does not reject on HTTP errors like 404 or 500. Axios auto-parses JSON, throws on error statuses, and supports interceptors and timeouts. In production, keep calls in a service layer (<code>services/api.js</code>), not inside components, and track loading, error and data states for each request.</p></div>
+<div class="qa"><h4>Q. What is a custom hook?</h4><p>A function starting with <code>use</code> that calls other hooks to reuse stateful logic (for example <code>useFetch</code>, <code>useDebounce</code>, <code>useLocalStorage</code>). Each call gets its own state; hooks share logic, not state.</p></div>
+<div class="qa"><h4>Q. Why Redux Toolkit? How does it work?</h4><p>Redux Toolkit removes Redux boilerplate. <code>createSlice</code> defines state and reducers (Immer lets you write “mutating” code safely), <code>configureStore</code> builds the store, and <code>useSelector</code> and <code>useDispatch</code> connect components. RTK Query handles server data caching. Use Redux for large shared client state, not for everything.</p></div>
+<div class="qa"><h4>Q. Form validation and React Hook Form?</h4><p>React Hook Form registers inputs as uncontrolled and reads them via refs, so typing does not re-render the whole form, which is faster. It supports built-in rules or schema validation with Zod or Yup.</p></div>
+<div class="qa"><h4>Q. How does JWT authentication work in a React app?</h4><p>The user logs in, the server returns a signed token, and the client sends it as <code>Authorization: Bearer ...</code> on each request. The server verifies the signature and expiry. Better practice: short-lived access token plus a refresh token in an HttpOnly cookie. Storing JWTs in localStorage is exposed to XSS.</p><p class="tip">Authentication = who are you. Authorization = what are you allowed to do (roles and permissions).</p></div>
+
+<h3>Level 3: Advanced</h3>
+<div class="qa"><h4>Q. What is React Fiber and reconciliation?</h4><p>Reconciliation is the diffing process: React compares the old and new element trees, assuming different types produce different trees and that keys identify items in lists. Fiber is the engine (since React 16) that breaks rendering into small units of work that can be paused, resumed and prioritised, which makes concurrent features possible.</p></div>
+<div class="qa"><h4>Q. Explain the render lifecycle.</h4><p>Render phase (pure, can be paused): call components and compute the new tree. Commit phase (synchronous): update the DOM, then run layout effects and then effects. In functional components this maps to mount, update and unmount through useEffect and its cleanup. In Strict Mode development, effects run twice to expose bugs.</p></div>
+<div class="qa"><h4>Q. useMemo vs useCallback vs React.memo?</h4><p>useMemo caches a computed value. useCallback caches a function reference. React.memo wraps a component and skips re-rendering if its props are shallow-equal. useCallback is mostly useful when passing a function to a memoized child. Do not use them everywhere: measure first, because they have their own cost.</p></div>
+<div class="qa"><h4>Q. How do you optimise a slow React app?</h4><p>Profile first (React DevTools Profiler). Then: avoid unnecessary re-renders (memo, state colocation), virtualise long lists, code-split routes, lazy-load images and components, debounce inputs, and keep expensive work out of render.</p></div>
+<div class="qa"><h4>Q. Code splitting, lazy loading, Suspense?</h4><p><code>React.lazy(() =&gt; import(...))</code> loads a component’s bundle only when it is first rendered. <code>Suspense</code> shows a fallback while it loads. Split by route first.</p></div>
+<div class="qa"><h4>Q. What are error boundaries?</h4><p>Class components using <code>getDerivedStateFromError</code> and <code>componentDidCatch</code> to catch errors in the render tree and show a fallback. They do <em>not</em> catch errors in event handlers, async code, or SSR.</p></div>
+<div class="qa"><h4>Q. What is concurrent rendering?</h4><p>React can interrupt low-priority work to keep urgent updates (typing) responsive. APIs: <code>useTransition</code> and <code>useDeferredValue</code> mark updates as non-urgent.</p></div>
+<div class="qa"><h4>Q. CSR vs SSR, hydration, and Server Components?</h4><p>CSR renders in the browser after JS loads. SSR renders HTML on the server for faster first paint and SEO, then hydration attaches event handlers to that HTML. React Server Components run only on the server, send no JS to the client, and can access databases directly; interactive parts are marked <code>"use client"</code>.</p></div>
+<div class="qa"><h4>Q. Why Next.js?</h4><p>It adds file-based routing, SSR, SSG, ISR, API routes, image optimisation and the App Router with Server Components on top of React.</p></div>
+<div class="qa"><h4>Q. Why TypeScript, how do you test, and what about accessibility and security?</h4><p>TypeScript catches prop and state errors at compile time and documents components. For testing, Jest or Vitest plus React Testing Library: test behaviour the way a user sees it (roles, text), not implementation details. Accessibility: semantic HTML, labels, keyboard navigation, ARIA only when needed. Security: React escapes by default, so avoid <code>dangerouslySetInnerHTML</code>, sanitise any HTML, avoid tokens in localStorage, validate on the server, and keep dependencies updated.</p></div>
+
+<h3>Level 4: Production</h3>
+<div class="qa"><h4>Q. How do you structure a large React project?</h4><p>Feature-based folders (<code>features/auth</code>, <code>features/orders</code>), each holding its components, hooks, services and tests, plus shared <code>components</code>, <code>hooks</code> and <code>utils</code>. Keep an API service layer, route configuration and a clear boundary between UI and data logic.</p></div>
+<div class="qa"><h4>Q. How do you design reusable components and patterns?</h4><p>Small, single-purpose components with a clear props API. Patterns: container/presentational, compound components, custom hooks, render props, and higher-order components. Prefer composition and hooks.</p></div>
+<div class="qa"><h4>Q. Environment variables and role-based access?</h4><p>In Vite use <code>VITE_</code> prefixed variables via <code>import.meta.env</code>. They are bundled into the client, so never put secrets there. For RBAC, store the role from the verified token, hide UI by role, and always enforce permissions on the backend.</p></div>
+<div class="qa"><h4>Q. Error handling, logging and monitoring?</h4><p>Error boundaries for render errors, try/catch for async, a global handler for API errors, and a service like Sentry for logging. Use Web Vitals and Lighthouse to track performance.</p></div>
+<div class="qa"><h4>Q. SEO and responsive UI in React?</h4><p>Pure CSR hurts SEO, so use SSR or SSG (Next.js), proper meta tags, and semantic HTML. For responsiveness: mobile-first CSS, flexbox and grid, media queries.</p></div>
+<div class="qa"><h4>Q. How do you deploy a React app?</h4><p><code>npm run build</code> produces static files. Docker: multi-stage build, then serve with Nginx. CI/CD (GitHub Actions): install, lint, test, build, then deploy to AWS (S3 + CloudFront, or ECS) or Azure (Static Web Apps). Use env-specific configs and cache-busted asset names.</p></div>
+<div class="qa"><h4>Q. A production page is blank after deploy. How do you debug?</h4><p>Open the console and network tab for JS errors and 404s; check the build output and base path; check environment variables; for routing issues, confirm the server rewrites all paths to <code>index.html</code>; check source maps and Sentry for the exact error; roll back if users are affected, then fix.</p></div>
+</section>
+<section id="topics" class="tn">
+<h2>13. Topic Notes: What, Why, How, Syntax, Example, Mistakes</h2>
+<p class="muted">Full notes for the beginner topics and the core hooks, following your 8-point structure. Interview questions for each are in section 12, and larger examples in section 11.</p>
+
+<div class="qa"><h4>React.js, and why not plain HTML/CSS/JS</h4>
+<p><b>What:</b> A JavaScript library by Meta for building UIs from components.</p>
+<p><b>Why:</b> Plain JS needs manual DOM updates (<code>getElementById</code>, <code>innerHTML</code>), which gets messy as apps grow. React is declarative: you write UI = f(state), and React keeps the screen in sync. (Hinglish: aap batate ho “kya dikhna chahiye”, “kaise update karna hai” React khud dekhta hai.)</p>
+<p><b>Internally:</b> React builds a tree of elements, compares it with the previous one, and patches only what changed in the browser DOM.</p>
+<p><b>Syntax:</b> <code>createRoot(document.getElementById("root")).render(&lt;App /&gt;)</code></p>
+<p><b>Real-world:</b> Dashboards, e-commerce storefronts, chat UIs: anything with lots of changing state.</p>
+<p><b>Mistakes:</b> Thinking React is a full framework; manipulating the DOM directly alongside React.</p></div>
+
+<div class="qa"><h4>React architecture, SPA vs MPA, Virtual DOM</h4>
+<p><b>What:</b> A component tree rendered into one root element. SPA = one HTML page, JavaScript swaps views. MPA = new HTML page per navigation. Virtual DOM = an in-memory copy of the UI tree.</p>
+<p><b>Why:</b> SPAs feel fast after the first load and keep state between views. The Virtual DOM makes updates batched and predictable.</p>
+<p><b>Internally:</b> State change, then re-render (new virtual tree), then diff, then commit minimal DOM changes.</p>
+<p><b>Real-world:</b> Gmail is an SPA; a content-heavy blog often works better as an MPA or SSR.</p>
+<p><b>Mistakes:</b> Ignoring SEO and first-load size in an SPA; saying the Virtual DOM is always faster than the real DOM.</p></div>
+
+<div class="qa"><h4>Installation with Vite and project structure</h4>
+<p><b>What:</b> Vite is a fast dev server and bundler. Create React App is deprecated; Vite or Next.js is the standard now.</p>
+<p><b>Syntax:</b></p>
+<pre><code>npm create vite@latest my-app -- --template react
+cd my-app &amp;&amp; npm install &amp;&amp; npm run dev</code></pre>
+<p><b>Structure:</b> <code>index.html</code> (entry page with <code>#root</code>), <code>src/main.jsx</code> (mounts the app), <code>src/App.jsx</code> (root component), <code>public/</code> (static files), <code>package.json</code> (scripts and dependencies), <code>vite.config.js</code>.</p>
+<p><b>Internally:</b> In dev, Vite serves native ES modules and only transforms files the browser asks for, so startup is near-instant. For production it bundles with Rollup.</p>
+<p><b>Mistakes:</b> Using <code>.js</code> instead of <code>.jsx</code> for JSX files (Vite expects <code>.jsx</code>); forgetting <code>npm install</code>; committing <code>node_modules</code>.</p></div>
+
+<div class="qa"><h4>JSX</h4>
+<p><b>What:</b> HTML-like syntax inside JavaScript.</p>
+<p><b>Why:</b> UI and logic that belong together live together.</p>
+<p><b>Internally:</b> Compiled to function calls, so <code>&lt;h1 className="t"&gt;Hi&lt;/h1&gt;</code> becomes <code>jsx("h1", { className: "t", children: "Hi" })</code>, which returns a plain object describing the element.</p>
+<p><b>Syntax:</b></p>
+<pre><code>const el = (
+  &lt;&gt;
+    &lt;h1 className="title"&gt;Total: {price * 2}&lt;/h1&gt;
+    &lt;img src={url} alt="product" /&gt;
+  &lt;/&gt;
+);</code></pre>
+<p><b>Mistakes:</b> Using <code>class</code> or <code>for</code> (use <code>className</code>, <code>htmlFor</code>); returning two root elements; putting statements like <code>if</code> inside <code>{}</code> (only expressions allowed); forgetting to close tags like <code>&lt;img /&gt;</code>.</p></div>
+
+<div class="qa"><h4>Components and functional components</h4>
+<p><b>What:</b> A reusable function that returns JSX. The name must start with a capital letter.</p>
+<p><b>Why:</b> Build once, reuse everywhere; each piece is testable on its own.</p>
+<p><b>Internally:</b> React calls your function on every render and uses the returned elements as the new UI description. Local variables reset each call; state and refs persist.</p>
+<p><b>Syntax:</b> <code>function Card() { return &lt;div&gt;...&lt;/div&gt;; }</code> then <code>&lt;Card /&gt;</code></p>
+<p><b>Real-world:</b> <code>Navbar</code>, <code>ProductCard</code>, <code>Modal</code>, <code>DataTable</code>.</p>
+<p><b>Mistakes:</b> Lowercase names (<code>&lt;card /&gt;</code> is treated as an HTML tag); defining components inside other components (state is lost on every render); one giant component.</p></div>
+
+<div class="qa"><h4>Props</h4>
+<p><b>What:</b> Inputs to a component, passed like HTML attributes.</p>
+<p><b>Why:</b> Make components configurable and reusable.</p>
+<p><b>Internally:</b> Collected into a single read-only object passed as the first argument.</p>
+<p><b>Syntax:</b></p>
+<pre><code>function Button({ label, onClick, variant = "primary" }) {
+  return &lt;button className={variant} onClick={onClick}&gt;{label}&lt;/button&gt;;
+}
+&lt;Button label="Save" onClick={save} /&gt;</code></pre>
+<p><b>Real-world:</b> One <code>Button</code> used across 200 screens with different labels and handlers.</p>
+<p><b>Mistakes:</b> Mutating props; passing a call (<code>onClick={save()}</code>) instead of a function (<code>onClick={save}</code>); copying props into state without a reason.</p></div>
+
+<div class="qa"><h4>State and useState</h4>
+<p><b>What:</b> Data a component remembers between renders.</p>
+<p><b>Why:</b> Normal variables reset every render and do not trigger updates.</p>
+<p><b>Internally:</b> React stores state per component instance, in call order, which is why hooks must be called in the same order every time. The setter schedules a re-render, and updates in one event are batched.</p>
+<p><b>Syntax:</b> <code>const [user, setUser] = useState(null);</code> Use <code>setUser(prev =&gt; ...)</code> when based on the previous value; create new objects/arrays instead of mutating.</p>
+<p><b>Real-world:</b> Cart items, modal open/closed, form values.</p>
+<p><b>Mistakes:</b> <code>items.push(x)</code> then <code>setItems(items)</code> (same reference, no re-render); reading state right after setting it (you still see the old value this render); hooks inside <code>if</code> or loops.</p></div>
+
+<div class="qa"><h4>Event handling</h4>
+<p><b>What:</b> Reacting to clicks, typing, submits.</p>
+<p><b>Internally:</b> React uses a synthetic event wrapper and delegates events at the root.</p>
+<p><b>Syntax:</b></p>
+<pre><code>&lt;input onChange={(e) =&gt; setName(e.target.value)} /&gt;
+&lt;form onSubmit={(e) =&gt; { e.preventDefault(); save(); }}&gt;</code></pre>
+<p><b>Mistakes:</b> Forgetting <code>preventDefault()</code> on form submit (page reloads); calling the handler during render.</p></div>
+
+<div class="qa"><h4>Conditional rendering, lists and keys</h4>
+<p><b>What:</b> Show different UI by condition; render arrays with <code>map</code>.</p>
+<p><b>Syntax:</b></p>
+<pre><code>{isLoggedIn ? &lt;Dashboard /&gt; : &lt;Login /&gt;}
+{error &amp;&amp; &lt;p&gt;{error}&lt;/p&gt;}
+&lt;ul&gt;{products.map(p =&gt; &lt;li key={p.id}&gt;{p.name}&lt;/li&gt;)}&lt;/ul&gt;</code></pre>
+<p><b>Internally:</b> Keys let reconciliation track each item across renders; the same key means the same component instance and its state.</p>
+<p><b>Real-world:</b> Loading, empty and error states; product grids.</p>
+<p><b>Mistakes:</b> Index as key in a changing list; <code>{count &amp;&amp; ...}</code> rendering 0; missing key warnings.</p></div>
+
+<div class="qa"><h4>Forms and controlled components</h4>
+<p><b>What:</b> Inputs whose value comes from state.</p>
+<p><b>Syntax:</b></p>
+<pre><code>const [form, setForm] = useState({ email: "", password: "" });
+const handle = (e) =&gt; setForm({ ...form, [e.target.name]: e.target.value });
+&lt;input name="email" value={form.email} onChange={handle} /&gt;</code></pre>
+<p><b>Why:</b> One source of truth makes validation and resets easy.</p>
+<p><b>Mistakes:</b> <code>value</code> without <code>onChange</code> (input becomes read-only); switching between <code>undefined</code> and a string (controlled/uncontrolled warning).</p></div>
+
+<div class="qa"><h4>CSS styling and component composition</h4>
+<p><b>Options:</b> Plain CSS files, CSS Modules (<code>import s from "./a.module.css"</code>, scoped class names), Tailwind utilities, CSS-in-JS, inline <code>style={{ color: "red" }}</code> (camelCase object).</p>
+<p><b>Composition:</b> Pass JSX as <code>children</code> to build flexible layouts:</p>
+<pre><code>function Card({ title, children }) {
+  return &lt;div className="card"&gt;&lt;h3&gt;{title}&lt;/h3&gt;{children}&lt;/div&gt;;
+}
+&lt;Card title="Profile"&gt;&lt;Avatar /&gt;&lt;Bio /&gt;&lt;/Card&gt;</code></pre>
+<p><b>Mistakes:</b> Global CSS class clashes; heavy inline styles; deep prop passing when composition would remove the need.</p></div>
+
+<div class="qa"><h4>useEffect</h4>
+<p><b>What:</b> Runs side effects after React updates the screen.</p>
+<p><b>Why:</b> Render must stay pure; fetching, subscriptions, timers and document title belong in effects.</p>
+<p><b>Internally:</b> After commit, React compares the dependency array with the last one and runs the effect only if something changed; cleanup runs before the next run and on unmount.</p>
+<p><b>Syntax and use cases:</b></p>
+<pre><code>useEffect(() =&gt; { document.title = `Cart (${n})`; }, [n]);       // sync on change
+useEffect(() =&gt; { fetchData(); }, []);                            // once on mount
+useEffect(() =&gt; {
+  const id = setInterval(tick, 1000);
+  return () =&gt; clearInterval(id);                                 // cleanup
+}, []);</code></pre>
+<p><b>Mistakes:</b> Missing dependencies; no cleanup (memory leaks); using an effect to derive state that can be computed during render; async function passed directly to useEffect (define it inside and call it).</p></div>
+
+<div class="qa"><h4>useRef</h4>
+<p><b>What:</b> A box <code>{ current }</code> that persists across renders.</p>
+<p><b>Why:</b> Access DOM nodes or keep values (timer IDs, previous props) without re-rendering.</p>
+<p><b>Syntax:</b> <code>const ref = useRef(null); &lt;input ref={ref} /&gt;; ref.current.focus();</code></p>
+<p><b>Mistakes:</b> Expecting a re-render when <code>ref.current</code> changes; reading <code>ref.current</code> during render for DOM nodes (it is null on first render).</p></div>
+
+<div class="qa"><h4>useContext and Context API</h4>
+<p><b>What:</b> Shared data available to any descendant without passing props.</p>
+<p><b>Why:</b> Avoids prop drilling for theme, auth user, language.</p>
+<p><b>Internally:</b> The nearest Provider above supplies the value; when it changes, all components reading that context re-render.</p>
+<p><b>Syntax:</b> <code>createContext()</code>, then <code>&lt;Ctx.Provider value={...}&gt;</code>, then <code>useContext(Ctx)</code>. See the full example in section 11.</p>
+<p><b>Mistakes:</b> One giant context for everything; creating a new object in <code>value</code> every render without memoising it; using Context as a replacement for server-state caching.</p></div>
+
+<div class="qa"><h4>useReducer</h4>
+<p><b>What:</b> State management through a pure reducer function plus dispatched actions.</p>
+<p><b>Why:</b> Cleaner than many <code>useState</code> calls when updates are related or complex (carts, multi-step forms).</p>
+<p><b>Internally:</b> <code>dispatch(action)</code> calls <code>reducer(currentState, action)</code>, and the returned value becomes the new state.</p>
+<p><b>Syntax:</b> <code>const [state, dispatch] = useReducer(reducer, initialState);</code></p>
+<p><b>Mistakes:</b> Mutating state inside the reducer; side effects (API calls) in the reducer; forgetting the <code>default</code> case.</p></div>
+
+<h3>Intermediate (continued)</h3>
+
+<div class="qa"><h4>React Router (dynamic, nested, protected routes)</h4>
+<p><b>What:</b> Client-side routing: the URL decides which component renders, with no page reload.</p>
+<p><b>Why:</b> SPAs need multiple “pages” with shareable, bookmarkable URLs.</p>
+<p><b>Internally:</b> It listens to the History API, matches the path against route definitions, and renders the matching element; <code>&lt;Link&gt;</code> changes the URL without a request.</p>
+<p><b>Syntax:</b> <code>&lt;Route path="/users/:id" element={&lt;User /&gt;} /&gt;</code>, <code>useParams()</code>, <code>useNavigate()</code>, <code>&lt;Outlet /&gt;</code> for nested layouts, <code>&lt;Navigate to="/login" /&gt;</code> for redirects. Full example in section 11.</p>
+<p><b>Real-world:</b> Public pages, a protected dashboard, <code>/products/:id</code> detail pages.</p>
+<p><b>Mistakes:</b> Using <code>&lt;a href&gt;</code> (full reload); treating client-side guards as security; forgetting the server must serve <code>index.html</code> for every path.</p></div>
+
+<div class="qa"><h4>API integration (Fetch, Axios), CRUD, loading and error handling</h4>
+<p><b>What:</b> Talking to a backend over HTTP: GET (read), POST (create), PUT/PATCH (update), DELETE.</p>
+<p><b>Why:</b> Real apps show server data, not hard-coded arrays.</p>
+<p><b>Syntax:</b></p>
+<pre><code>const res = await fetch("/api/employees", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(emp),
+});
+if (!res.ok) throw new Error("Failed");        // fetch does not throw on 404/500
+const created = await res.json();
+// Axios: const { data } = await api.post("/employees", emp);</code></pre>
+<p><b>Pattern:</b> keep three states (<code>data</code>, <code>loading</code>, <code>error</code>), call APIs from a service layer, and update the list in state after create/update/delete. For larger apps use TanStack Query or RTK Query for caching.</p>
+<p><b>Mistakes:</b> No loading or error UI; not checking <code>res.ok</code>; fetching in render instead of an effect; no cleanup, causing race conditions.</p></div>
+
+<div class="qa"><h4>Custom hooks and prop drilling</h4>
+<p><b>What:</b> A custom hook is a function named <code>useXxx</code> that reuses stateful logic. Prop drilling is passing props through components that do not need them.</p>
+<p><b>Why:</b> Remove duplicated logic (<code>useFetch</code>, <code>useDebounce</code>, <code>useLocalStorage</code>) and keep components small.</p>
+<p><b>Internally:</b> Hooks are plain functions; each component calling the hook gets its own separate state.</p>
+<p><b>Mistakes:</b> Expecting two components to share state through a hook (use Context or a store); calling hooks conditionally; not prefixing with <code>use</code>.</p></div>
+
+<div class="qa"><h4>State management and Redux Toolkit</h4>
+<p><b>What:</b> Choosing where state lives. Local state (<code>useState</code>) first, lift state up when siblings need it, Context for low-frequency globals, Redux Toolkit or Zustand for large shared state, TanStack Query for server data.</p>
+<p><b>Redux Toolkit:</b> <code>createSlice</code> (state + reducers), <code>configureStore</code>, <code>createAsyncThunk</code> for API calls, <code>useSelector</code>/<code>useDispatch</code>. Data flows one way: dispatch action, reducer, new state, UI.</p>
+<p><b>Real-world:</b> Cart, auth user, filters shared across many pages.</p>
+<p><b>Mistakes:</b> Putting all state in Redux; mutating state outside slice reducers; storing derived data instead of computing it with selectors.</p></div>
+
+<div class="qa"><h4>Form validation and React Hook Form</h4>
+<p><b>What:</b> A library that manages form state with uncontrolled inputs.</p>
+<p><b>Why:</b> Fewer re-renders, less boilerplate, easy validation (built-in rules or Zod/Yup schemas via a resolver).</p>
+<p><b>Syntax:</b> <code>const { register, handleSubmit, formState: { errors } } = useForm();</code> then <code>&lt;input {...register("email", { required: true })} /&gt;</code>. Full example in section 11.</p>
+<p><b>Mistakes:</b> Validating only on the client (the server must validate too); not showing error messages; mixing controlled <code>value</code> with <code>register</code>.</p></div>
+
+<div class="qa"><h4>Authentication, authorization and JWT</h4>
+<p><b>What:</b> Authentication proves who you are; authorization decides what you can do. A JWT is a signed token (<code>header.payload.signature</code>) the server issues after login.</p>
+<p><b>Flow:</b> POST credentials, receive token, send <code>Authorization: Bearer &lt;token&gt;</code> on each request, server verifies the signature and expiry. Use a short-lived access token plus a refresh token in an HttpOnly cookie.</p>
+<p><b>In React:</b> an <code>AuthContext</code> holding the user, a login/logout function, a protected-route component, role checks to show or hide UI, and an Axios interceptor to attach the token and handle 401 responses.</p>
+<p><b>Mistakes:</b> Storing tokens in localStorage without understanding XSS risk; trusting the role from the client; putting secrets in the JWT payload (it is only encoded, not encrypted); not handling token expiry.</p></div>
+
+<h3>Advanced</h3>
+
+<div class="qa"><h4>Fiber, reconciliation and the rendering lifecycle</h4>
+<p><b>What:</b> Reconciliation diffs the old and new element trees. Fiber is the engine that splits rendering into small, interruptible units with priorities.</p>
+<p><b>Rules of diffing:</b> different element type means rebuild the subtree; same type means update props; keys identify list items.</p>
+<p><b>Lifecycle:</b> render phase (pure, may be paused or repeated), commit phase (DOM updated, then layout effects, then effects). Mount, update and unmount map to useEffect setup and cleanup.</p>
+<p><b>Mistakes:</b> Side effects in render; changing a component’s <code>key</code> by accident (it remounts and loses state); assuming render means the DOM changed.</p></div>
+
+<div class="qa"><h4>useMemo, useCallback, React.memo and performance</h4>
+<p><b>useMemo</b> caches a calculated value; <b>useCallback</b> caches a function identity; <b>React.memo</b> skips re-rendering a component when props are shallow-equal. They work together: a memoised child only helps if the callbacks and objects passed to it are stable.</p>
+<p><b>Other tools:</b> list virtualisation (react-window), state colocation, debouncing, <code>useTransition</code>, Profiler to measure first.</p>
+<p><b>Mistakes:</b> Memoising everything (adds overhead); wrong dependency arrays; creating new objects or arrays inline as props to a memoised child.</p></div>
+
+<div class="qa"><h4>Code splitting, lazy loading, Suspense, error boundaries</h4>
+<p><b>Why:</b> Smaller first bundle, faster load, and resilience when one part crashes.</p>
+<p><b>How:</b> <code>lazy(() =&gt; import("./Page"))</code> inside <code>&lt;Suspense fallback={...}&gt;</code>; wrap sections in an error boundary class. Split per route first. See the code in section 11.</p>
+<p><b>Mistakes:</b> Expecting error boundaries to catch event-handler or async errors; one huge boundary at the root only; no Suspense fallback.</p></div>
+
+<div class="qa"><h4>Concurrent rendering, SSR, hydration, Server Components, Next.js</h4>
+<p><b>Concurrent:</b> React can pause low-priority renders; <code>useTransition</code> and <code>useDeferredValue</code> keep typing responsive while heavy lists update.</p>
+<p><b>SSR and hydration:</b> the server sends ready HTML (fast first paint, good SEO); the browser then hydrates it by attaching event handlers. Hydration mismatch errors happen when server and client output differ (for example <code>Date.now()</code> or <code>window</code> in render).</p>
+<p><b>Server Components:</b> run only on the server, ship no JS, and can read the database directly; add <code>"use client"</code> for interactivity.</p>
+<p><b>Next.js:</b> file-based routing, layouts, SSR/SSG/ISR, route handlers, image and font optimisation.</p></div>
+
+<div class="qa"><h4>TypeScript, testing, accessibility, security</h4>
+<p><b>TypeScript:</b> type props (<code>type Props = {...}</code>), state (<code>useState&lt;User | null&gt;(null)</code>) and events (<code>React.ChangeEvent&lt;HTMLInputElement&gt;</code>). Avoid <code>any</code>.</p>
+<p><b>Testing:</b> Jest or Vitest with React Testing Library; query by role and text, simulate users with <code>userEvent</code>, mock network with MSW. Test behaviour, not implementation.</p>
+<p><b>Accessibility:</b> semantic elements, <code>alt</code> text, labels for inputs, keyboard focus, colour contrast, ARIA only when native HTML is not enough.</p>
+<p><b>Security:</b> avoid <code>dangerouslySetInnerHTML</code> (or sanitise with DOMPurify), never put secrets in client env vars, validate on the server, set CSP headers, update dependencies, validate any URL you redirect to.</p></div>
+
+<h3>Production-level React</h3>
+
+<div class="qa"><h4>Architecture, patterns, services, config</h4>
+<p><b>Folders:</b> feature-based (<code>features/orders/{components,hooks,api,tests}</code>) plus shared <code>components</code>, <code>hooks</code>, <code>utils</code>.</p>
+<p><b>Patterns:</b> container/presentational, compound components, custom hooks, render props, HOCs; prefer composition and hooks.</p>
+<p><b>API layer:</b> one configured Axios instance, typed service functions, centralised error handling.</p>
+<p><b>Env variables:</b> <code>VITE_API_URL</code> per environment (<code>.env.development</code>, <code>.env.production</code>); remember they are public in the bundle.</p>
+<p><b>RBAC:</b> role in the verified token, route guards and conditional UI, with real enforcement on the backend.</p></div>
+
+<div class="qa"><h4>Errors, logging, monitoring, SEO, responsive UI</h4>
+<p>Error boundaries plus try/catch, a toast or error page for users, Sentry (or similar) for logs with source maps, Web Vitals and Lighthouse for performance monitoring. For SEO use SSR/SSG (Next.js), meta tags, semantic HTML and sitemaps. For responsive UI use mobile-first CSS, flexbox/grid and media queries.</p></div>
+
+<div class="qa"><h4>Docker, CI/CD, AWS/Azure, production debugging</h4>
+<p><b>Docker:</b> multi-stage build (Node builds, Nginx serves) as in section 11; add an Nginx rule sending all routes to <code>index.html</code>.</p>
+<p><b>CI/CD:</b> on every push run install, lint, test, build; on merge to main deploy. AWS: S3 + CloudFront for static apps, or ECS for containers. Azure: Static Web Apps or App Service.</p>
+<p><b>Debugging:</b> reproduce with the production build, check console and network, use source maps and Sentry stack traces, compare env variables, check recent deploys, and roll back first if users are affected.</p></div>
+</section>
+<section id="say" class="say">
+<h2>14. How to Explain Each Topic to the Interviewer</h2>
+<p class="muted">Spoken scripts in first person. Formula for every answer: definition, why it exists, how it works, a quick example from a project, one trade-off or mistake you avoid. Say it in 30 to 60 seconds, then wait for follow-ups.</p>
+
+<h3>Beginner</h3>
+<div class="qa"><h4>React.js</h4><p>“React is a JavaScript library for building user interfaces out of reusable components. Instead of manually updating the DOM, I describe the UI for a given state and React keeps the screen in sync. In my todo project, I just changed the todos array in state and the list updated itself.”</p></div>
+<div class="qa"><h4>SPA vs MPA</h4><p>“In an SPA the browser loads one HTML page and JavaScript swaps the views, so navigation is fast and state is preserved. An MPA asks the server for a new page each time. I’d choose an SPA for a dashboard, and SSR or an MPA when SEO and first load matter most, like a blog.”</p></div>
+<div class="qa"><h4>Virtual DOM</h4><p>“The Virtual DOM is a lightweight JavaScript representation of the UI. When state changes, React builds a new virtual tree, diffs it with the old one, and applies only the changes to the real DOM. The benefit is predictable, batched updates, not that it is magically faster than hand-written DOM code.”</p></div>
+<div class="qa"><h4>JSX and components</h4><p>“JSX is a syntax that lets me write markup inside JavaScript; it compiles to plain function calls that return element objects. A component is a function that returns JSX and starts with a capital letter. I split a page into small components like <code>Navbar</code> and <code>ProductCard</code> so they can be reused and tested separately.”</p></div>
+<div class="qa"><h4>Props vs state</h4><p>“Props are read-only inputs from the parent; state is data the component owns and can change. Changing state re-renders the component. I never mutate either. If two siblings need the same data, I lift the state up to their common parent.”</p></div>
+<div class="qa"><h4>useState</h4><p>“useState gives me a value and a setter. Calling the setter schedules a re-render. Updates are batched, so when the new value depends on the old one I use the functional form, like <code>setCount(c =&gt; c + 1)</code>. For objects and arrays I create new copies instead of mutating.”</p></div>
+<div class="qa"><h4>Events, conditional rendering, lists and keys</h4><p>“I pass a function to handlers like <code>onClick</code>, not a function call. For conditions I use ternaries, <code>&amp;&amp;</code> or early returns. For lists I use <code>map</code> and give each item a stable unique key, such as the database ID, so React can match items between renders. I avoid index keys when the list can change.”</p></div>
+<div class="qa"><h4>Forms and controlled components</h4><p>“In a controlled component the input’s value lives in React state, with <code>value</code> and <code>onChange</code>. That makes validation, resetting and conditional disabling simple. For big forms I switch to React Hook Form to avoid re-rendering on every keystroke.”</p></div>
+<div class="qa"><h4>Styling and composition</h4><p>“I use CSS Modules or Tailwind for scoped, maintainable styles. For layouts I rely on composition: components accept <code>children</code>, so a <code>Card</code> or <code>Modal</code> can wrap anything. This is more flexible than inheritance and avoids long prop chains.”</p></div>
+
+<h3>Intermediate</h3>
+<div class="qa"><h4>useEffect</h4><p>“useEffect is for side effects: things that happen outside rendering, like fetching data, subscriptions or timers. The dependency array controls when it re-runs, and the returned function is cleanup. In my weather app I fetched in an effect keyed on the city and aborted the previous request in cleanup to prevent race conditions.”</p></div>
+<div class="qa"><h4>useRef</h4><p>“useRef returns a mutable object that survives renders without triggering one. I use it to focus an input, keep a timer ID, or store the previous value.”</p></div>
+<div class="qa"><h4>Context and prop drilling</h4><p>“Prop drilling is passing props through components that do not use them. Context lets me provide a value once and read it anywhere below with <code>useContext</code>. I use it for theme and the logged-in user. Because every consumer re-renders on change, I don’t use it for rapidly changing data; that goes to Redux Toolkit or Zustand.”</p></div>
+<div class="qa"><h4>useReducer</h4><p>“useReducer centralises state transitions in a pure reducer function. I prefer it over many useState calls when updates are related, like a cart with add, remove and update-quantity actions. It’s also easy to unit test.”</p></div>
+<div class="qa"><h4>React Router</h4><p>“React Router maps URLs to components on the client without reloading. I use dynamic params like <code>/users/:id</code>, nested routes with <code>Outlet</code> for shared layouts, and a wrapper route that redirects unauthenticated users. I mention that this guard is only UX, and the API enforces real permissions.”</p></div>
+<div class="qa"><h4>API integration and CRUD</h4><p>“I keep API calls in a service layer using an Axios instance, and in components I track data, loading and error states. After create, update or delete, I update local state or refetch. With fetch I check <code>res.ok</code> since it doesn’t throw on 404 or 500. For caching and retries in larger apps I use TanStack Query.”</p></div>
+<div class="qa"><h4>Custom hooks</h4><p>“A custom hook extracts reusable stateful logic into a function starting with <code>use</code>. For example <code>useFetch(url)</code> returns data, loading and error. Each component that calls it gets its own state; it shares logic, not data.”</p></div>
+<div class="qa"><h4>Redux Toolkit and state management</h4><p>“I start with local state, lift it up when needed, and use Context for light global values. For large shared state I use Redux Toolkit: slices define reducers (Immer lets me write simple update logic), thunks handle async calls, and selectors read data. Unidirectional data flow makes it easy to debug with Redux DevTools.”</p></div>
+<div class="qa"><h4>React Hook Form</h4><p>“It registers inputs as uncontrolled, so typing doesn’t re-render the whole form. I define rules inline or with a Zod schema, show errors from <code>formState.errors</code>, and always validate again on the server.”</p></div>
+<div class="qa"><h4>Authentication, authorization, JWT</h4><p>“Authentication verifies identity; authorization decides permissions. After login the server issues a signed JWT, I send it as a Bearer token with an Axios interceptor, and the server verifies it. I prefer short-lived access tokens with a refresh token in an HttpOnly cookie, because localStorage is exposed to XSS. UI role checks are convenience; the backend enforces access.”</p></div>
+
+<h3>Advanced</h3>
+<div class="qa"><h4>Fiber and reconciliation</h4><p>“Reconciliation is how React diffs the old and new trees: different types rebuild the subtree, same type updates, and keys identify list items. Fiber is the engine that makes rendering incremental, so React can pause, resume and prioritise work, which enables concurrent features.”</p></div>
+<div class="qa"><h4>Rendering lifecycle</h4><p>“There are two phases. The render phase is pure and computes what the UI should be; it can be paused or repeated. The commit phase applies changes to the DOM and runs layout effects and effects. That’s why I never put side effects in the render body.”</p></div>
+<div class="qa"><h4>useMemo, useCallback, React.memo</h4><p>“useMemo caches a computed value, useCallback caches a function reference, and React.memo skips re-rendering when props are unchanged. They need to work together, because a memoised child still re-renders if I pass it a new function each time. I profile first and only add them where there’s a measurable problem.”</p></div>
+<div class="qa"><h4>Performance optimisation</h4><p>“I measure with the React Profiler, then fix the actual bottleneck: colocate state, memoise expensive children, virtualise long lists, code-split routes, lazy-load images, debounce search inputs, and use <code>useTransition</code> for heavy updates.”</p></div>
+<div class="qa"><h4>Code splitting, lazy loading, Suspense</h4><p>“I use <code>React.lazy</code> with dynamic <code>import()</code> so a route’s code loads only when needed, wrapped in Suspense with a fallback. This cuts the initial bundle and speeds up first load.”</p></div>
+<div class="qa"><h4>Error boundaries</h4><p>“An error boundary is a class component that catches rendering errors in its children and shows a fallback UI, and logs to a service like Sentry. It doesn’t catch event-handler or async errors, so I still use try/catch there.”</p></div>
+<div class="qa"><h4>Concurrent rendering</h4><p>“React can interrupt low-priority rendering to keep urgent updates responsive. I use <code>useTransition</code> or <code>useDeferredValue</code> so typing stays smooth while a large filtered list updates in the background.”</p></div>
+<div class="qa"><h4>SSR, hydration, Server Components, Next.js</h4><p>“With SSR the server sends rendered HTML for fast first paint and SEO, and hydration attaches event handlers in the browser. Server Components run only on the server, send no JavaScript for themselves and can access data directly; interactive parts are client components. Next.js provides routing, SSR/SSG/ISR and these features out of the box.”</p></div>
+<div class="qa"><h4>TypeScript, testing, accessibility, security</h4><p>“TypeScript catches prop and state errors early. For tests I use Jest or Vitest with Testing Library and query by role like a user would. For accessibility I use semantic HTML, labels and keyboard support. For security I avoid <code>dangerouslySetInnerHTML</code>, keep secrets off the client, validate on the server and keep dependencies updated.”</p></div>
+
+<h3>Production</h3>
+<div class="qa"><h4>Folder structure and reusable architecture</h4><p>“I organise by feature, each with its own components, hooks, API calls and tests, plus shared UI components and utilities. That keeps changes local and lets multiple developers work without conflicts. Components have small, clear prop APIs, and logic lives in hooks.”</p></div>
+<div class="qa"><h4>API layer, environment variables, role-based access</h4><p>“All HTTP goes through one configured Axios instance with interceptors for tokens and error handling. Config comes from environment variables, remembering that anything in the client bundle is public. For role-based access I use route guards and conditional UI, with the backend as the real authority.”</p></div>
+<div class="qa"><h4>Logging, monitoring, SEO, responsive UI</h4><p>“I use error boundaries plus Sentry with source maps, and track Web Vitals. For SEO on public pages I use SSR or SSG with proper meta tags. The UI is mobile-first with flexbox and grid.”</p></div>
+<div class="qa"><h4>Docker, CI/CD, cloud deployment</h4><p>“I build with a multi-stage Dockerfile and serve static files through Nginx with a fallback to <code>index.html</code>. The CI pipeline runs lint, tests and build on every push, and deploys on merge to main, for example to S3 + CloudFront on AWS or Static Web Apps on Azure.”</p></div>
+<div class="qa"><h4>Production debugging</h4><p>“First I check whether users are affected and roll back if so. Then I reproduce with the production build, read the console and network tab, check Sentry stack traces with source maps, and compare environment variables and the last deploy. After the fix I add a test or monitoring so it can’t silently happen again.”</p></div>
+
+<p class="muted">Tip: after each script, add one real example from a project you built. Interviewers remember examples more than definitions.</p>
+</section>
+<section id="day1" class="tn">
+<h2>15. Day 1 Lesson: JavaScript Prerequisites, React Intro, Installation, First App</h2>
+<p class="muted">We go one topic at a time. Finish the exercises, then tell me “ready for Topic 2” and I will add the next lesson to this file.</p>
+
+<h3>Topic 1: JavaScript you must know before React</h3>
+<p><b>1. What is it?</b> React is just JavaScript. If your JS basics are weak, React feels hard. These 7 things appear in almost every React file.</p>
+<p><b>2. Why do we use it?</b> React code uses arrow functions, destructuring, <code>map</code> and modules constantly. (Hinglish: JS strong hai to React aasaan lagta hai.)</p>
+<p><b>3. How it works internally:</b> Nothing special: React components are normal functions, and props are normal objects. Browsers run the JS; the bundler (Vite) joins your files.</p>
+<p><b>4 and 5. Syntax and examples, line by line:</b></p>
+<pre><code>// 1) let / const
+const city = "Bengaluru";      // const: cannot be reassigned (use by default)
+let age = 20;                  // let: can be reassigned
+age = 21;
+
+// 2) Arrow functions + template strings
+const greet = (name) =&gt; `Hello, ${name}!`;   // ${} puts a variable inside text
+console.log(greet("Riya"));
+
+// 3) Objects and destructuring
+const user = { name: "Aman", age: 25 };
+const { name, age: userAge } = user;           // pull values out by key
+console.log(name, userAge);
+
+// 4) Arrays and destructuring (useState uses this!)
+const [first, second] = ["a", "b"];
+console.log(first, second);
+
+// 5) Spread operator: copy and update without changing the original
+const updated = { ...user, age: 26 };
+const more = [...[1, 2], 3];
+console.log(updated, more, user.age);
+
+// 6) map and filter (rendering lists in React)
+const nums = [1, 2, 3, 4];
+console.log(nums.map(n =&gt; n * 2));            // transform every item
+console.log(nums.filter(n =&gt; n % 2 === 0));   // keep matching items
+
+// 7) Modules: split code across files
+// math.js:   export const add = (a, b) =&gt; a + b;   export default function sub(a, b) { return a - b; }
+// app.js:    import sub, { add } from "./math.js";</code></pre>
+<p class="out">Expected output: <code>Hello, Riya!</code>, then <code>Aman 25</code>, then <code>a b</code>, then <code>{ name: 'Aman', age: 26 } [ 1, 2, 3 ] 25</code>, then <code>[ 2, 4, 6, 8 ]</code>, then <code>[ 2, 4 ]</code>.</p>
+<p><b>Bonus: async/await</b> (needed for API calls):</p>
+<pre><code>async function getUser() {
+  const res = await fetch("https://jsonplaceholder.typicode.com/users/1");  // wait for response
+  const data = await res.json();                                            // wait for JSON
+  console.log(data.name);
+}
+getUser();</code></pre>
+<p class="out">Expected output: <code>Leanne Graham</code></p>
+<p><b>6. Real-world example:</b> Rendering a product list is <code>products.map(...)</code>; updating a cart item is <code>{ ...item, qty: item.qty + 1 }</code>; reading props is destructuring.</p>
+<p><b>7. Common mistakes:</b> Using <code>var</code>; mutating arrays/objects instead of copying with spread; forgetting <code>await</code> (you get a Promise, not data); confusing <code>=</code>, <code>==</code> and <code>===</code> (use <code>===</code>).</p>
+<p><b>8. Interview questions:</b></p>
+<p><em>var vs let vs const?</em> var is function-scoped and hoisted with <code>undefined</code>; let and const are block-scoped; const cannot be reassigned (but an object it holds can still be mutated).</p>
+<p><em>What does the spread operator do?</em> It expands an array or object into another, used to copy and update immutably.</p>
+<p><em>Output?</em> <code>console.log([1,2,3].map(n =&gt; n * 2))</code> prints <code>[2, 4, 6]</code> and does not change the original array.</p>
+
+<h3>Topic 2: React introduction</h3>
+<p><b>1. What:</b> A JavaScript library for building UIs using components.</p>
+<p><b>2. Why:</b> With plain JS you write “find element, change text, change class” for every update. In React you write what the screen should look like for the current data, and React updates the page.</p>
+<pre><code>// Plain JS: you manage the DOM yourself
+document.getElementById("count").textContent = count;
+
+// React: you manage data; the screen follows
+&lt;p&gt;{count}&lt;/p&gt;</code></pre>
+<p><b>3. Internally:</b> Data changes, then React re-runs the component, builds a Virtual DOM tree, diffs it against the previous tree, and updates only the changed real DOM nodes.</p>
+<p><b>6. Real-world:</b> Facebook, Instagram, Netflix, Airbnb use React for dynamic parts of their UIs.</p>
+<p><b>7. Mistakes:</b> Calling it a framework; thinking you must learn Redux or Next.js first.</p>
+<p><b>8. Interview:</b> <em>Library vs framework?</em> A library does one job (UI) and you choose the rest; a framework (like Angular) provides routing, forms, HTTP and structure. <em>Declarative vs imperative?</em> Declarative says what the result should be; imperative lists the steps.</p>
+
+<h3>Topic 3: Installation with Vite</h3>
+<p><b>Requirements:</b> Node.js 18 or newer (check with <code>node -v</code>) and a code editor like VS Code.</p>
+<pre><code>npm create vite@latest my-app -- --template react   # make the project
+cd my-app                                            # go inside
+npm install                                          # download dependencies
+npm run dev                                          # start the dev server</code></pre>
+<p class="out">Expected output: the terminal shows <code>Local: http://localhost:5173/</code>. Open it to see the Vite + React page with a counter button.</p>
+<p><b>Project structure:</b></p>
+<pre><code>my-app/
+  index.html        # the only HTML page, has &lt;div id="root"&gt;&lt;/div&gt;
+  package.json      # project name, scripts, dependencies
+  vite.config.js    # Vite settings
+  public/           # static files served as-is
+  src/
+    main.jsx        # entry: connects React to #root
+    App.jsx         # your root component
+    App.css, index.css
+    assets/         # images used inside components</code></pre>
+<p><b>Mistakes:</b> Running commands outside the project folder; Node too old; editing <code>node_modules</code>; naming files with JSX as <code>.js</code>.</p>
+<p><b>Interview:</b> <em>Why Vite over Create React App?</em> Vite starts instantly using native ES modules and builds with Rollup; CRA is deprecated and slow. <em>What does <code>npm run build</code> do?</em> Creates an optimised production bundle in <code>dist/</code>.</p>
+
+<h3>Topic 4: Your first React application</h3>
+<p>Open <code>src/main.jsx</code> and read it:</p>
+<pre><code>import { StrictMode } from "react";            // helper that finds bugs in development
+import { createRoot } from "react-dom/client"; // connects React to the browser DOM
+import App from "./App.jsx";                   // your root component
+import "./index.css";
+
+createRoot(document.getElementById("root")).render(  // find &lt;div id="root"&gt; and render inside it
+  &lt;StrictMode&gt;
+    &lt;App /&gt;
+  &lt;/StrictMode&gt;
+);</code></pre>
+<p>Now replace everything in <code>src/App.jsx</code> with:</p>
+<pre><code>import { useState } from "react";
+
+function Welcome({ name }) {                 // component: capital letter, receives props
+  return &lt;h2&gt;Welcome, {name}!&lt;/h2&gt;;        // {name} inserts the prop value
+}
+
+export default function App() {            // root component
+  const [count, setCount] = useState(0);   // state: starts at 0
+
+  return (
+    &lt;div&gt;                                   {/* one parent element */}
+      &lt;h1&gt;My First React App&lt;/h1&gt;
+      &lt;Welcome name="Riya" /&gt;                {/* reuse with different props */}
+      &lt;Welcome name="Aman" /&gt;
+      &lt;p&gt;You clicked {count} times&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;Click me&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<p class="out">Expected output: a heading “My First React App”, “Welcome, Riya!”, “Welcome, Aman!”, the text “You clicked 0 times”, and a button. Each click raises the number by 1 without a page reload.</p>
+<p><b>What happened when you clicked:</b> <code>setCount</code> told React the state changed, then React called <code>App()</code> again with <code>count = 1</code>, built a new virtual tree, saw only the paragraph text differed, and updated just that text in the DOM.</p>
+<p><b>Mistakes:</b> Lowercase component name; two root elements without a wrapper or <code>&lt;&gt;&lt;/&gt;</code>; <code>onClick={setCount(count + 1)}</code> (runs immediately and loops); forgetting to import <code>useState</code>.</p>
+
+<h3>Day 1 exercises</h3>
+<p>1. In the console, take <code>[5, 10, 15, 20]</code>, use <code>map</code> to double each number and <code>filter</code> to keep numbers above 20.</p>
+<p>2. Given <code>const p = { title: "Phone", price: 500 }</code>, create a new object with price 450 without changing <code>p</code>.</p>
+<p>3. Create the Vite app and add a <code>ProfileCard</code> component with props <code>name</code>, <code>role</code>, <code>skills</code> (array). Render skills as a list with keys.</p>
+<p>4. Add a Reset button to the counter that sets it back to 0.</p>
+<p><b>Check your understanding:</b> (a) Why must a component name start with a capital letter? (b) What is the difference between props and state? (c) Why does <code>onClick={() =&gt; setCount(count + 1)}</code> need the arrow function? Answer these three in your own words and send me your exercise code. I will review it, share the solutions, and then we move to <b>Topic 5: JSX in depth</b>, which I will add to this file.</p>
+</section>
+<section id="quick">
+<h2>16. Quick Revision: What, Why, When, and How to Say It</h2>
+<p class="muted">One row per topic. Scroll sideways on a phone.</p>
+<div class="tw"><table>
+<tr><th>Topic</th><th>What is it</th><th>Why use it</th><th>When to use it</th><th>Say this in the interview</th></tr>
+<tr class="lv"><td colspan="5">Beginner</td></tr>
+<tr><td>React</td><td>JS library for building UIs from components</td><td>Declarative, reusable, easy to scale</td><td>Interactive apps with changing data</td><td>“I describe the UI for a given state and React keeps the screen in sync.”</td></tr>
+<tr><td>SPA vs MPA</td><td>SPA: one page, JS swaps views. MPA: new page per link</td><td>SPA is fast and keeps state</td><td>SPA for dashboards; MPA or SSR for SEO-heavy sites</td><td>“SPA for app-like UX, SSR or MPA when SEO and first load matter.”</td></tr>
+<tr><td>Virtual DOM</td><td>In-memory copy of the UI tree</td><td>Diffing gives minimal, batched DOM updates</td><td>Automatic on every state change</td><td>“React diffs old and new trees and patches only what changed.”</td></tr>
+<tr><td>JSX</td><td>HTML-like syntax in JavaScript</td><td>UI and logic stay together</td><td>Every component</td><td>“It compiles to function calls that return element objects.”</td></tr>
+<tr><td>Components</td><td>Reusable functions that return UI</td><td>Reuse, testing, separation</td><td>Any repeated or logical UI block</td><td>“I split screens into small single-purpose components.”</td></tr>
+<tr><td>Props</td><td>Read-only inputs from parent</td><td>Configure and reuse components</td><td>Passing data or handlers down</td><td>“Data flows one way, parent to child, and props are never mutated.”</td></tr>
+<tr><td>State / useState</td><td>Data a component remembers between renders</td><td>Changing it updates the UI</td><td>Data that changes over time (inputs, toggles, counters)</td><td>“The setter triggers a re-render; I use the functional form when the new value depends on the old.”</td></tr>
+<tr><td>Events</td><td>Handlers like onClick, onChange</td><td>Respond to the user</td><td>Any interaction</td><td>“I pass a function, not a function call.”</td></tr>
+<tr><td>Conditional rendering</td><td>Show UI based on a condition</td><td>Handle loading, error, empty, auth states</td><td>When UI depends on data</td><td>“Ternary, &amp;&amp;, or an early return; I watch out for 0 with &amp;&amp;.”</td></tr>
+<tr><td>Lists and keys</td><td>Render arrays with map; keys give identity</td><td>Correct, efficient updates</td><td>Any dynamic list</td><td>“Stable unique IDs as keys, not indexes, for changing lists.”</td></tr>
+<tr><td>Controlled forms</td><td>Input value held in state</td><td>Single source of truth, easy validation</td><td>Small and medium forms</td><td>“value plus onChange; for large forms I use React Hook Form.”</td></tr>
+<tr><td>Styling</td><td>CSS, CSS Modules, Tailwind, CSS-in-JS</td><td>Scoped, maintainable styles</td><td>Every UI</td><td>“CSS Modules or Tailwind to avoid global clashes.”</td></tr>
+<tr><td>Composition</td><td>Building UI by nesting components and children</td><td>Flexible, avoids prop chains and inheritance</td><td>Layouts, cards, modals</td><td>“React prefers composition over inheritance.”</td></tr>
+<tr class="lv"><td colspan="5">Intermediate</td></tr>
+<tr><td>useEffect</td><td>Hook for side effects after render</td><td>Fetching, subscriptions, timers need to be outside render</td><td>API calls, listeners, syncing with outside systems</td><td>“Dependency array controls when it runs, and cleanup prevents leaks.”</td></tr>
+<tr><td>useRef</td><td>Mutable box that persists without re-rendering</td><td>DOM access, stored values</td><td>Focus, timers, previous value</td><td>“Changing a ref does not re-render.”</td></tr>
+<tr><td>Context / useContext</td><td>Share a value with all descendants</td><td>Avoids prop drilling</td><td>Theme, current user, language</td><td>“Good for low-frequency global data, not fast-changing state.”</td></tr>
+<tr><td>useReducer</td><td>State via reducer and actions</td><td>Organised complex updates, testable</td><td>Related fields, many transitions (cart, wizard)</td><td>“Pure reducer, dispatch actions, predictable transitions.”</td></tr>
+<tr><td>React Router</td><td>Client-side routing</td><td>Multiple pages with real URLs, no reload</td><td>Any multi-view app</td><td>“Dynamic params, nested routes with Outlet, guarded routes. The backend enforces real security.”</td></tr>
+<tr><td>API integration, CRUD</td><td>Fetch or Axios calls to a backend</td><td>Show and change server data</td><td>Any real app</td><td>“Service layer, loading and error states, check res.ok with fetch.”</td></tr>
+<tr><td>Custom hooks</td><td>useXxx functions that reuse stateful logic</td><td>Remove duplicate logic</td><td>Repeated fetch, debounce, storage logic</td><td>“They share logic, not state.”</td></tr>
+<tr><td>Redux Toolkit</td><td>Official Redux toolset with slices</td><td>Predictable global state, DevTools</td><td>Large shared client state</td><td>“slice, store, selectors, thunks for async; not for every piece of state.”</td></tr>
+<tr><td>React Hook Form</td><td>Form library with uncontrolled inputs</td><td>Fewer re-renders, simple validation</td><td>Large or validated forms</td><td>“register inputs, handleSubmit, plus Zod; always validate on the server too.”</td></tr>
+<tr><td>Auth and JWT</td><td>Identity check plus signed token</td><td>Stateless API authentication</td><td>Login, protected APIs</td><td>“Short-lived access token, refresh token in an HttpOnly cookie, backend enforces roles.”</td></tr>
+<tr class="lv"><td colspan="5">Advanced</td></tr>
+<tr><td>Fiber and reconciliation</td><td>Diffing algorithm and the incremental render engine</td><td>Fast updates, interruptible rendering</td><td>Automatic; understand it for debugging and keys</td><td>“Fiber splits work into units React can pause and prioritise.”</td></tr>
+<tr><td>Render lifecycle</td><td>Render phase (pure) then commit phase (DOM, effects)</td><td>Know where side effects belong</td><td>Reasoning about bugs and effects</td><td>“No side effects in render; they go in effects.”</td></tr>
+<tr><td>useMemo</td><td>Caches a computed value</td><td>Skip expensive recalculation</td><td>Heavy computation with stable inputs</td><td>“I measure first; it has its own cost.”</td></tr>
+<tr><td>useCallback</td><td>Caches a function reference</td><td>Stable props for memoised children</td><td>Passing callbacks to React.memo children</td><td>“Useful only together with React.memo.”</td></tr>
+<tr><td>React.memo</td><td>Skips re-render if props are equal</td><td>Avoid wasted renders</td><td>Expensive components with stable props</td><td>“Shallow comparison, so unstable object or function props defeat it.”</td></tr>
+<tr><td>Code splitting, lazy, Suspense</td><td>Load code on demand; show a fallback while loading</td><td>Smaller first bundle, faster load</td><td>Routes and heavy components</td><td>“React.lazy plus Suspense, split per route first.”</td></tr>
+<tr><td>Error boundaries</td><td>Class components catching render errors</td><td>One crash does not blank the whole app</td><td>Around routes and widgets</td><td>“They do not catch event or async errors.”</td></tr>
+<tr><td>Concurrent rendering</td><td>Interruptible, prioritised rendering</td><td>Keep the UI responsive</td><td>Heavy list updates while typing</td><td>“useTransition marks updates as non-urgent.”</td></tr>
+<tr><td>SSR, hydration, RSC</td><td>Server-rendered HTML, then JS attaches; server-only components</td><td>SEO, fast first paint, less client JS</td><td>Public, content-heavy pages</td><td>“Hydration mismatches come from server and client output differing.”</td></tr>
+<tr><td>Next.js</td><td>React framework (routing, SSR, SSG, RSC)</td><td>Production features out of the box</td><td>SEO sites, full-stack React</td><td>“File-based routing plus rendering strategies per page.”</td></tr>
+<tr><td>TypeScript</td><td>Typed JavaScript</td><td>Catch errors early, self-documenting props</td><td>Medium and large codebases</td><td>“Typed props, state and events; no <code>any</code>.”</td></tr>
+<tr><td>Testing</td><td>Jest/Vitest plus Testing Library</td><td>Prevent regressions</td><td>Critical flows and shared components</td><td>“Test behaviour like a user, query by role.”</td></tr>
+<tr><td>Accessibility and security</td><td>Usable by everyone; protected from attacks</td><td>Legal, ethical, safe</td><td>Always</td><td>“Semantic HTML, keyboard support; avoid dangerouslySetInnerHTML; server-side validation.”</td></tr>
+<tr class="lv"><td colspan="5">Production</td></tr>
+<tr><td>Folder structure and patterns</td><td>Feature-based layout, reusable components</td><td>Scales with team size</td><td>Any real project</td><td>“Each feature owns its components, hooks, API and tests.”</td></tr>
+<tr><td>API layer and env variables</td><td>One Axios instance; per-environment config</td><td>Central error and token handling</td><td>Always</td><td>“Client env variables are public, so no secrets.”</td></tr>
+<tr><td>Role-based access</td><td>UI and routes limited by user role</td><td>Correct experience per user</td><td>Admin and user apps</td><td>“UI guards are convenience; the backend is the authority.”</td></tr>
+<tr><td>Logging and monitoring</td><td>Sentry, Web Vitals</td><td>Find issues before users report them</td><td>Production apps</td><td>“Source maps plus Sentry give exact stack traces.”</td></tr>
+<tr><td>SEO and responsive UI</td><td>Meta tags, SSR; mobile-first CSS</td><td>Discoverability, every device</td><td>Public sites</td><td>“SSR or SSG for SEO; flexbox and grid for layout.”</td></tr>
+<tr><td>Docker and CI/CD</td><td>Containerised build; automated pipeline</td><td>Repeatable, safe releases</td><td>Team and production deployments</td><td>“Lint, test, build on push; deploy on merge; Nginx falls back to index.html.”</td></tr>
+<tr><td>AWS / Azure deployment</td><td>Cloud hosting (S3 + CloudFront, Static Web Apps)</td><td>Scalable, fast, global delivery</td><td>Production hosting</td><td>“Static hosting plus CDN for the build output.”</td></tr>
+<tr><td>Production debugging</td><td>Diagnosing live issues</td><td>Restore service quickly</td><td>Incidents</td><td>“Roll back first, reproduce with the prod build, check logs, add a test.”</td></tr>
+</table></div>
+</section>
+<section id="problems">
+<h2>17. Common Problems and Fixes, With Code</h2>
+<p class="muted">Each item shows the bug, the fix and the reason. Tap to open. Class-component problems are in section 2, under “Class components vs functional components”.</p>
+<div class="cols one"><ul>
+<li><details class="t"><summary>Too many re-renders (infinite loop)</summary><div>
+<pre><code>// BAD: setState during render
+function A() { const [n, setN] = useState(0); setN(n + 1); return n; }
+// BAD: calling the handler instead of passing it
+&lt;button onClick={setN(n + 1)}&gt;+&lt;/button&gt;
+// GOOD
+&lt;button onClick={() =&gt; setN(n + 1)}&gt;+&lt;/button&gt;</code></pre>
+<p><b>Why:</b> setting state in render triggers another render forever.</p></div></details></li>
+<li><details class="t"><summary>State not updating (mutation)</summary><div>
+<pre><code>// BAD: same reference, React sees no change
+items.push(x); setItems(items);
+user.name = "A"; setUser(user);
+// GOOD
+setItems([...items, x]);
+setUser({ ...user, name: "A" });</code></pre></div></details></li>
+<li><details class="t"><summary>New state not visible right after setState</summary><div>
+<pre><code>setCount(count + 1);
+console.log(count);        // old value: state updates on the next render
+// GOOD
+useEffect(() =&gt; { console.log(count); }, [count]);
+setCount(c =&gt; c + 1);      // when depending on the previous value</code></pre></div></details></li>
+<li><details class="t"><summary>Stale closure (old value inside setInterval or handler)</summary><div>
+<pre><code>// BAD: count is always 0 inside the interval
+useEffect(() =&gt; { const id = setInterval(() =&gt; setCount(count + 1), 1000); return () =&gt; clearInterval(id); }, []);
+// GOOD: functional update, no dependency needed
+useEffect(() =&gt; { const id = setInterval(() =&gt; setCount(c =&gt; c + 1), 1000); return () =&gt; clearInterval(id); }, []);</code></pre></div></details></li>
+<li><details class="t"><summary>useEffect infinite loop or running too often</summary><div>
+<pre><code>// BAD: new object each render, effect runs every time
+const opts = { page };
+useEffect(() =&gt; { load(opts); }, [opts]);
+// BAD: setting the same state the effect depends on, without a guard
+useEffect(() =&gt; { setData(fetchData()); }, [data]);
+// GOOD: depend on primitives, or memoise
+useEffect(() =&gt; { load({ page }); }, [page]);</code></pre></div></details></li>
+<li><details class="t"><summary>async function passed to useEffect</summary><div>
+<pre><code>// BAD: effect must return a cleanup function or nothing, not a Promise
+useEffect(async () =&gt; { await load(); }, []);
+// GOOD
+useEffect(() =&gt; { const run = async () =&gt; { await load(); }; run(); }, []);</code></pre></div></details></li>
+<li><details class="t"><summary>Race condition and memory leak in fetch</summary><div>
+<pre><code>// GOOD: abort the previous request on change or unmount
+useEffect(() =&gt; {
+  const c = new AbortController();
+  fetch(`/api/items?q=${q}`, { signal: c.signal }).then(r =&gt; r.json()).then(setItems).catch(e =&gt; { if (e.name !== "AbortError") setError(e); });
+  return () =&gt; c.abort();
+}, [q]);</code></pre></div></details></li>
+<li><details class="t"><summary>Hooks called conditionally</summary><div>
+<pre><code>// BAD: "Rendered fewer hooks than expected"
+if (!user) return null;
+const [open, setOpen] = useState(false);
+// GOOD: hooks first, conditions after
+const [open, setOpen] = useState(false);
+if (!user) return null;</code></pre></div></details></li>
+<li><details class="t"><summary>Missing key warning and wrong index keys</summary><div>
+<pre><code>// BAD: index keys break when items are removed or reordered (inputs keep wrong values)
+items.map((it, i) =&gt; &lt;Row key={i} item={it} /&gt;)
+// GOOD
+items.map(it =&gt; &lt;Row key={it.id} item={it} /&gt;)</code></pre></div></details></li>
+<li><details class="t"><summary>Controlled vs uncontrolled input warning</summary><div>
+<pre><code>// BAD: starts undefined, later a string
+const [name, setName] = useState();
+&lt;input value={name} onChange={e =&gt; setName(e.target.value)} /&gt;
+// BAD: value without onChange makes the input read-only
+// GOOD
+const [name, setName] = useState("");</code></pre></div></details></li>
+<li><details class="t"><summary>Page reloads on form submit</summary><div>
+<pre><code>const submit = (e) =&gt; { e.preventDefault(); save(form); };
+&lt;form onSubmit={submit}&gt;...&lt;/form&gt;</code></pre></div></details></li>
+<li><details class="t"><summary>0 appears on screen with &amp;&amp;</summary><div>
+<pre><code>{items.length &amp;&amp; &lt;List items={items} /&gt;}        // BAD: renders 0
+{items.length &gt; 0 &amp;&amp; &lt;List items={items} /&gt;}    // GOOD</code></pre></div></details></li>
+<li><details class="t"><summary>Component defined inside another component (state resets)</summary><div>
+<pre><code>// BAD: Inner is a new component type every render, so it remounts and loses state
+function Outer() { const Inner = () =&gt; &lt;input /&gt;; return &lt;Inner /&gt;; }
+// GOOD: define at module level
+const Inner = () =&gt; &lt;input /&gt;;
+function Outer() { return &lt;Inner /&gt;; }</code></pre></div></details></li>
+<li><details class="t"><summary>React.memo not preventing re-renders</summary><div>
+<pre><code>// BAD: new object and function each render
+&lt;Child style={{ color: "red" }} onSave={() =&gt; save()} /&gt;
+// GOOD
+const style = useMemo(() =&gt; ({ color: "red" }), []);
+const onSave = useCallback(() =&gt; save(), []);
+&lt;Child style={style} onSave={onSave} /&gt;</code></pre></div></details></li>
+<li><details class="t"><summary>useRef change does not update the screen</summary><div>
+<pre><code>const r = useRef(0); r.current++;        // no re-render, UI stays the same
+// If the UI must change, use state
+const [n, setN] = useState(0);</code></pre></div></details></li>
+<li><details class="t"><summary>Context makes everything re-render</summary><div>
+<pre><code>// BAD: new value object every render
+&lt;Ctx.Provider value={{ user, setUser }}&gt;
+// GOOD: memoise, and split rarely-changing and often-changing contexts
+const value = useMemo(() =&gt; ({ user, setUser }), [user]);</code></pre></div></details></li>
+<li><details class="t"><summary>Router: 404 on refresh, useNavigate in render</summary><div>
+<pre><code>// Nginx: send all routes to index.html
+location / { try_files $uri /index.html; }
+// BAD: navigating during render
+if (!user) navigate("/login");
+// GOOD
+if (!user) return &lt;Navigate to="/login" replace /&gt;;
+// or inside useEffect / an event handler</code></pre></div></details></li>
+<li><details class="t"><summary>CORS error when calling the API</summary><div>
+<pre><code># FastAPI
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"], allow_methods=["*"], allow_headers=["*"])
+// Vite dev proxy (vite.config.js)
+server: { proxy: { "/api": "http://localhost:8000" } }</code></pre>
+<p><b>Why:</b> CORS is enforced by the browser; fix it on the server or use a proxy in development.</p></div></details></li>
+<li><details class="t"><summary>Redux: mutating state or selecting too much</summary><div>
+<pre><code>// Inside createSlice, mutation is fine (Immer). Outside, it is not.
+const state = store.getState(); state.cart.items.push(x);   // BAD
+// BAD: re-renders on any store change
+const all = useSelector(s =&gt; s);
+// GOOD
+const items = useSelector(s =&gt; s.cart.items);</code></pre></div></details></li>
+<li><details class="t"><summary>JWT: 401 loop or expired token</summary><div>
+<pre><code>api.interceptors.response.use(r =&gt; r, async (err) =&gt; {
+  const original = err.config;
+  if (err.response?.status === 401 &amp;&amp; !original._retry) {
+    original._retry = true;                         // retry only once
+    const { data } = await api.post("/auth/refresh");
+    localStorage.setItem("token", data.token);
+    original.headers.Authorization = `Bearer ${data.token}`;
+    return api(original);
+  }
+  return Promise.reject(err);
+});</code></pre></div></details></li>
+<li><details class="t"><summary>Hydration mismatch (Next.js / SSR)</summary><div>
+<pre><code>// BAD: differs between server and client
+return &lt;p&gt;{new Date().toLocaleTimeString()}&lt;/p&gt;;
+// GOOD: render the same first, then update on the client
+const [time, setTime] = useState(null);
+useEffect(() =&gt; setTime(new Date().toLocaleTimeString()), []);
+return &lt;p&gt;{time ?? ""}&lt;/p&gt;;</code></pre></div></details></li>
+<li><details class="t"><summary>Env variable is undefined in Vite</summary><div>
+<pre><code># must start with VITE_ and the dev server must be restarted
+VITE_API_URL=http://localhost:8000
+const url = import.meta.env.VITE_API_URL;   // not process.env in Vite</code></pre></div></details></li>
+</ul></div>
+</section>
+</div>
+</body>
+</html>
