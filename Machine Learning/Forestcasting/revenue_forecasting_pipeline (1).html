@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quarterly Revenue Forecasting – Production Time-Series ML Pipeline</title>
+<style>
+:root{--bg:#f4f1ea;--card:#fbf9f4;--ink:#2b2a27;--mut:#6b675e;--acc:#2f6f5e;--acc2:#b5651d;--line:#d9d3c5;--code:#ecE7da;--codeink:#2b2a27}
+@media (prefers-color-scheme:dark){:root{--bg:#1d1f1e;--card:#252827;--ink:#e6e2d8;--mut:#9a968b;--acc:#6cc2a8;--acc2:#e0a063;--line:#3a3d3b;--code:#171918;--codeink:#dcd8cc}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:1.9rem;margin:.2em 0}h2{margin-top:2em;border-bottom:2px solid var(--line);padding-bottom:.25em;color:var(--acc)}
+h3{color:var(--acc2);margin-bottom:.3em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:14px 0}
+.warn{border-left:5px solid var(--acc2)}
+pre{background:var(--code);color:var(--codeink);padding:14px;border-radius:8px;overflow-x:auto;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line)}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}
+table{border-collapse:collapse;width:100%;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}th{background:var(--code)}
+.mut{color:var(--mut)}
+svg{width:100%;height:auto;background:var(--card);border:1px solid var(--line);border-radius:10px}
+svg text{fill:var(--ink);font:13px system-ui,sans-serif}
+.b{fill:var(--bg);stroke:var(--acc);stroke-width:1.6}.b2{fill:var(--bg);stroke:var(--acc2);stroke-width:1.6}
+.ar{stroke:var(--mut);stroke-width:1.6;fill:none;marker-end:url(#h)}
+</style>
+</head>
+<body><div class="wrap">
+
+<h1>Quarterly Revenue Forecasting<br><span class="mut" style="font-size:1.1rem">End-to-end production time-series ML pipeline</span></h1>
+
+<div class="card warn">
+<b>Important reality check – only 4 quarters of history.</b> Four data points cannot support a trained ML model (LightGBM, LSTM, Prophet). Any fit will overfit. The pipeline below is built so that it <b>works safely today</b> (baselines + simple statistical models, with wide prediction intervals) and <b>upgrades automatically</b> as data grows. To get real accuracy, do these in parallel:
+<ul>
+<li>Pull <b>monthly</b> (or weekly) revenue from the ERP/billing system and aggregate to quarters afterwards – 4 quarters becomes 12+ points.</li>
+<li>Forecast at <b>product / region / customer-segment</b> level and reconcile upward (hierarchical forecasting) – gives many series.</li>
+<li>Add <b>drivers</b>: pipeline bookings, headcount, pricing, marketing spend, macro indicators, seasonality of your industry.</li>
+<li>Blend with business judgement (sales leadership overrides) – the pipeline records both.</li>
+</ul>
+</div>
+
+<h2>1. Workflow Diagram</h2>
+<svg viewBox="0 0 960 470" role="img" aria-label="Pipeline workflow">
+<defs><marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8a867b"/></marker></defs>
+<!-- row 1 -->
+<rect class="b" x="20" y="30" width="165" height="64" rx="8"/><text x="102" y="58" text-anchor="middle">1. Data Sources</text><text x="102" y="78" text-anchor="middle" font-size="11">ERP · Billing · CRM · CSV</text>
+<rect class="b" x="215" y="30" width="165" height="64" rx="8"/><text x="297" y="58" text-anchor="middle">2. Ingestion</text><text x="297" y="78" text-anchor="middle" font-size="11">Airflow · raw → bronze</text>
+<rect class="b" x="410" y="30" width="165" height="64" rx="8"/><text x="492" y="58" text-anchor="middle">3. Validation</text><text x="492" y="78" text-anchor="middle" font-size="11">schema · gaps · outliers</text>
+<rect class="b" x="605" y="30" width="165" height="64" rx="8"/><text x="687" y="58" text-anchor="middle">4. Feature Build</text><text x="687" y="78" text-anchor="middle" font-size="11">lags · calendar · drivers</text>
+<rect class="b" x="800" y="30" width="145" height="64" rx="8"/><text x="872" y="58" text-anchor="middle">5. Feature Store</text><text x="872" y="78" text-anchor="middle" font-size="11">parquet / versioned</text>
+<path class="ar" d="M185 62H213"/><path class="ar" d="M380 62H408"/><path class="ar" d="M575 62H603"/><path class="ar" d="M770 62H798"/>
+<!-- row 2 -->
+<rect class="b2" x="800" y="170" width="145" height="64" rx="8"/><text x="872" y="198" text-anchor="middle">6. Backtesting</text><text x="872" y="218" text-anchor="middle" font-size="11">rolling-origin CV</text>
+<rect class="b2" x="605" y="170" width="165" height="64" rx="8"/><text x="687" y="198" text-anchor="middle">7. Model Zoo</text><text x="687" y="218" text-anchor="middle" font-size="11">Naive · ETS · SARIMAX · GBM</text>
+<rect class="b2" x="410" y="170" width="165" height="64" rx="8"/><text x="492" y="198" text-anchor="middle">8. Champion Select</text><text x="492" y="218" text-anchor="middle" font-size="11">lowest MASE / WAPE</text>
+<rect class="b2" x="215" y="170" width="165" height="64" rx="8"/><text x="297" y="198" text-anchor="middle">9. Model Registry</text><text x="297" y="218" text-anchor="middle" font-size="11">MLflow · stage/alias</text>
+<rect class="b2" x="20" y="170" width="165" height="64" rx="8"/><text x="102" y="198" text-anchor="middle">10. Forecast + CI</text><text x="102" y="218" text-anchor="middle" font-size="11">next 4 quarters, 80/95%</text>
+<path class="ar" d="M872 94V168"/><path class="ar" d="M800 202H772"/><path class="ar" d="M605 202H577"/><path class="ar" d="M410 202H382"/><path class="ar" d="M215 202H187"/>
+<!-- row 3 -->
+<rect class="b" x="20" y="310" width="165" height="64" rx="8"/><text x="102" y="338" text-anchor="middle">11. Serving</text><text x="102" y="358" text-anchor="middle" font-size="11">FastAPI · batch table</text>
+<rect class="b" x="215" y="310" width="165" height="64" rx="8"/><text x="297" y="338" text-anchor="middle">12. BI Dashboard</text><text x="297" y="358" text-anchor="middle" font-size="11">Power BI · Metabase</text>
+<rect class="b" x="410" y="310" width="165" height="64" rx="8"/><text x="492" y="338" text-anchor="middle">13. Actuals Arrive</text><text x="492" y="358" text-anchor="middle" font-size="11">quarter closes</text>
+<rect class="b" x="605" y="310" width="165" height="64" rx="8"/><text x="687" y="338" text-anchor="middle">14. Monitoring</text><text x="687" y="358" text-anchor="middle" font-size="11">error · drift · data quality</text>
+<rect class="b2" x="800" y="310" width="145" height="64" rx="8"/><text x="872" y="338" text-anchor="middle">15. Retrain Trigger</text><text x="872" y="358" text-anchor="middle" font-size="11">schedule or alert</text>
+<path class="ar" d="M102 234V308"/><path class="ar" d="M185 342H213"/><path class="ar" d="M380 342H408"/><path class="ar" d="M575 342H603"/><path class="ar" d="M770 342H798"/>
+<path class="ar" d="M872 374V420H872"/>
+<path d="M872 420H60V94" class="ar" style="stroke-dasharray:6 5"/>
+<text x="470" y="440" text-anchor="middle" font-size="12">feedback loop: retrain → re-ingest → re-validate → re-evaluate</text>
+<text x="20" y="460" font-size="11" fill="#888">Blue = data / serving stages · Orange = modelling stages</text>
+</svg>
+
+<h2>1A. Each Stage Explained Simply</h2>
+<p class="mut">Everyday example: a shop owner planning next quarter's stock from the sales book.</p>
+<table>
+<tr><th>#</th><th>Stage</th><th>What we do</th><th>Why we do it</th></tr>
+<tr><td>1</td><td>Data Sources</td><td>Find where revenue numbers live: ERP, billing, CRM, Excel.</td><td>The model can only learn from real company data. Like opening the shop's sales book.</td></tr>
+<tr><td>2</td><td>Ingestion</td><td>A scheduled job copies the data into one safe storage area without changing it.</td><td>You keep an untouched copy, so you can always check the original numbers.</td></tr>
+<tr><td>3</td><td>Validation</td><td>Automatic checks for missing quarters, negative revenue, duplicates, strange spikes.</td><td>Bad data gives bad forecasts (garbage in, garbage out). Like checking the sales book for mistakes first.</td></tr>
+<tr><td>4</td><td>Feature Build</td><td>Turn raw numbers into clues: last quarter, same quarter last year, growth rate, quarter number.</td><td>Models learn patterns from clues. Example clue: "Q4 is always big".</td></tr>
+<tr><td>5</td><td>Feature Store</td><td>Save those clues in a versioned file or table.</td><td>Training and forecasting use exactly the same clues, and any past result can be reproduced.</td></tr>
+<tr><td>6</td><td>Backtesting</td><td>Pretend it is the past: train on early quarters, predict the next, compare with the real value, repeat with more data each time.</td><td>Shows real accuracy before you trust the model. Never uses future data (no cheating).</td></tr>
+<tr><td>7</td><td>Model Zoo</td><td>Several models compete: Naive, Seasonal-Naive, ETS, SARIMAX, LightGBM.</td><td>No model is best for every dataset. Simple models are a safety check; a complex model must beat them.</td></tr>
+<tr><td>8</td><td>Champion Select</td><td>Pick the model with the lowest backtest error (MASE or WAPE).</td><td>The choice is based on evidence, not opinion or fashion.</td></tr>
+<tr><td>9</td><td>Model Registry (MLflow)</td><td>Save the chosen model with settings, scores and version. The best one gets the label "champion".</td><td>You know which model made which forecast, and you can roll back if a new one is worse.</td></tr>
+<tr><td>10</td><td>Forecast + Confidence Range</td><td>Predict the next 4 quarters with a low and high range (80% and 95%).</td><td>Nobody predicts revenue exactly. The range lets finance plan for best, normal and worst cases.</td></tr>
+<tr><td>11</td><td>Serving</td><td>Expose the forecast through an API or write it to a database table.</td><td>Other systems and people use it automatically without running Python.</td></tr>
+<tr><td>12</td><td>BI Dashboard</td><td>Show forecast and actuals as charts in Power BI or Metabase.</td><td>Managers read charts easily, not code.</td></tr>
+<tr><td>13</td><td>Actuals Arrive</td><td>The quarter ends and real revenue is recorded.</td><td>Now you can compare "what we predicted" with "what happened". This is the only true test.</td></tr>
+<tr><td>14</td><td>Monitoring</td><td>Measure forecast error and bias, check how often actuals fall inside the range, watch for sudden revenue shifts.</td><td>Models get worse as the business changes (new product, price change, acquisition). Monitoring catches it early.</td></tr>
+<tr><td>15</td><td>Retrain Trigger</td><td>Retrain every quarter, or at once if monitoring raises an alert.</td><td>The model keeps learning from fresh data. The loop returns to stage 2 and repeats.</td></tr>
+</table>
+<div class="card"><b>In one sentence:</b> get clean data → make clues → test models fairly → pick the best → forecast with a range → share → compare with reality → improve and repeat.</div>
+
+<h2>2. Architecture &amp; Tech Stack</h2>
+<table>
+<tr><th>Layer</th><th>Tool</th><th>Why</th></tr>
+<tr><td>Orchestration</td><td>Apache Airflow (or Prefect)</td><td>Quarterly + monthly schedule, retries, alerting</td></tr>
+<tr><td>Storage</td><td>Postgres / Snowflake + Parquet</td><td>Raw, clean, features, forecasts tables</td></tr>
+<tr><td>Validation</td><td>pandera</td><td>Schema and business-rule checks as code</td></tr>
+<tr><td>Models</td><td>statsmodels, scikit-learn, LightGBM</td><td>Baselines → statistical → ML</td></tr>
+<tr><td>Tracking / Registry</td><td>MLflow</td><td>Params, metrics, artifacts, champion alias</td></tr>
+<tr><td>Serving</td><td>FastAPI + Docker</td><td>On-demand API; batch results to DB</td></tr>
+<tr><td>Monitoring</td><td>Custom metrics + Grafana / Evidently</td><td>Forecast error, drift, data freshness</td></tr>
+<tr><td>CI/CD</td><td>GitHub Actions</td><td>Tests, lint, build image, deploy</td></tr>
+</table>
+
+<h2>3. Project Structure</h2>
+<pre><code>revenue-forecast/
+├── config/config.yaml
+├── src/
+│   ├── data.py          # load + validate
+│   ├── features.py      # feature engineering
+│   ├── models.py        # model zoo
+│   ├── backtest.py      # rolling-origin CV + metrics
+│   ├── train.py         # select champion, log to MLflow
+│   ├── predict.py       # forecast + intervals
+│   ├── monitor.py       # error + drift checks
+│   └── api.py           # FastAPI service
+├── dags/forecast_dag.py
+├── tests/test_pipeline.py
+├── Dockerfile
+├── requirements.txt
+└── .github/workflows/ci.yml</code></pre>
+
+<h2>4. Configuration</h2>
+<pre><code># config/config.yaml
+data:
+  table: finance.revenue_quarterly      # or monthly – preferred
+  date_col: period_end
+  target_col: revenue
+  freq: Q                               # Q (quarterly) or M (monthly)
+  season_length: 4                      # 4 for quarters, 12 for months
+forecast:
+  horizon: 4                            # next 4 quarters
+  intervals: [80, 95]
+backtest:
+  min_train: 3                          # lower bound; raise as data grows
+  step: 1
+  metric: mase                          # mase | wape | rmse
+mlflow:
+  tracking_uri: http://mlflow:5000
+  experiment: revenue-forecast
+  model_name: revenue_forecaster
+monitoring:
+  max_wape_alert: 0.15                  # alert if live WAPE &gt; 15%
+  drift_z_alert: 3.0</code></pre>
+
+<h2>5. Data Ingestion &amp; Validation</h2>
+<pre><code># src/data.py
+import pandas as pd, pandera as pa, yaml
+from sqlalchemy import create_engine
+
+def load_config(path="config/config.yaml"):
+    return yaml.safe_load(open(path))
+
+def load_raw(cfg, conn_str):
+    d = cfg["data"]
+    df = pd.read_sql(f"SELECT {d['date_col']}, {d['target_col']} FROM {d['table']}",
+                     create_engine(conn_str), parse_dates=[d["date_col"]])
+    return df.rename(columns={d["date_col"]: "ds", d["target_col"]: "y"}).sort_values("ds")
+
+schema = pa.DataFrameSchema({
+    "ds": pa.Column(pa.DateTime, unique=True, nullable=False),
+    "y":  pa.Column(float, pa.Check.ge(0), nullable=False, coerce=True),
+})
+
+def validate(df, cfg):
+    df = schema.validate(df)
+    # gap check: no missing periods
+    full = pd.date_range(df.ds.min(), df.ds.max(), freq=cfg["data"]["freq"] + "E"
+                         if cfg["data"]["freq"] == "Q" else "ME")
+    missing = set(full) - set(df.ds)
+    if missing:
+        raise ValueError(f"Missing periods: {sorted(missing)}")
+    # outlier flag (robust z-score) – flag, do not silently drop
+    med, mad = df.y.median(), (df.y - df.y.median()).abs().median() or 1
+    df["outlier"] = ((df.y - med).abs() / (1.4826 * mad)) &gt; 4
+    return df.set_index("ds").asfreq(cfg["data"]["freq"] + "E" if cfg["data"]["freq"] == "Q" else "ME")</code></pre>
+
+<h2>6. Feature Engineering</h2>
+<pre><code># src/features.py
+import numpy as np, pandas as pd
+
+def build_features(s: pd.Series, season=4, exog: pd.DataFrame | None = None):
+    df = s.to_frame("y")
+    for k in (1, 2, season):                       # lags (only useful once history grows)
+        df[f"lag_{k}"] = s.shift(k)
+    df["roll_mean_2"] = s.shift(1).rolling(2).mean()
+    df["yoy_growth"] = s.pct_change(season).shift(1)
+    df["quarter"] = df.index.quarter
+    df["t"] = np.arange(len(df))                   # linear trend index
+    if exog is not None:                           # known-in-advance drivers only!
+        df = df.join(exog)
+    return df</code></pre>
+<p class="mut">Rule: every feature must be available <i>at forecast time</i>. Lagged actuals and planned drivers (budget, pricing) are fine; future actual drivers cause leakage.</p>
+
+<h2>7. Model Zoo</h2>
+<pre><code># src/models.py
+import numpy as np, pandas as pd
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+
+class Naive:
+    name = "naive"
+    def fit(self, y): self.last = y.iloc[-1]; return self
+    def predict(self, h): return np.repeat(self.last, h)
+
+class SeasonalNaive:
+    name = "seasonal_naive"
+    def __init__(self, m=4): self.m = m
+    def fit(self, y): self.tail = y.iloc[-self.m:].values; return self
+    def predict(self, h): return np.resize(self.tail, h)
+
+class Drift:                                       # linear extrapolation – safe with tiny data
+    name = "drift"
+    def fit(self, y):
+        self.last, self.slope = y.iloc[-1], (y.iloc[-1] - y.iloc[0]) / max(len(y) - 1, 1); return self
+    def predict(self, h): return self.last + self.slope * np.arange(1, h + 1)
+
+class ETS:
+    name = "ets"
+    def __init__(self, m=4): self.m = m
+    def fit(self, y):
+        seasonal = "add" if len(y) &gt;= 2 * self.m else None   # need 2 full cycles
+        self.res = ExponentialSmoothing(y, trend="add", damped_trend=True,
+                                        seasonal=seasonal, seasonal_periods=self.m if seasonal else None
+                                        ).fit(); return self
+    def predict(self, h): return self.res.forecast(h).values
+
+class Sarimax:
+    name = "sarimax"
+    def __init__(self, m=4): self.m = m
+    def fit(self, y):
+        order, sorder = (1, 1, 0), ((1, 0, 0, self.m) if len(y) &gt;= 3 * self.m else (0, 0, 0, 0))
+        self.res = SARIMAX(y, order=order, seasonal_order=sorder).fit(disp=False); return self
+    def predict(self, h): return self.res.forecast(h).values
+
+class GBM:                                         # activate only when history is large (≥ 24 points)
+    name = "lightgbm"
+    def __init__(self, m=4): self.m = m
+    def fit(self, y):
+        import lightgbm as lgb
+        from features import build_features
+        d = build_features(y, self.m).dropna()
+        self.cols = [c for c in d.columns if c != "y"]
+        self.model = lgb.LGBMRegressor(n_estimators=300, learning_rate=0.03, num_leaves=8,
+                                       min_child_samples=3, verbose=-1).fit(d[self.cols], d["y"])
+        self.hist = y.copy(); return self
+    def predict(self, h):                          # recursive multi-step
+        from features import build_features
+        s, out = self.hist.copy(), []
+        for _ in range(h):
+            nxt = s.index[-1] + (s.index[-1] - s.index[-2])
+            s.loc[nxt] = np.nan
+            row = build_features(s.ffill(), self.m).iloc[[-1]][self.cols]
+            p = float(self.model.predict(row)[0]); s.loc[nxt] = p; out.append(p)
+        return np.array(out)
+
+def candidates(m, n_obs):
+    zoo = [Naive(), SeasonalNaive(m), Drift(), ETS(m)]
+    if n_obs &gt;= 8:  zoo.append(Sarimax(m))
+    if n_obs &gt;= 24: zoo.append(GBM(m))
+    return zoo</code></pre>
+<div class="card"><b>Data-size gating:</b> <code>candidates()</code> only enables complex models when there is enough history. With 4 quarters you get Naive / Seasonal-Naive / Drift / ETS – honest, stable, explainable.</div>
+
+<h2>8. Backtesting &amp; Model Selection</h2>
+<pre><code># src/backtest.py
+import numpy as np, pandas as pd
+
+def mase(y_true, y_pred, y_train, m=1):
+    scale = np.mean(np.abs(np.diff(y_train, n=m))) or 1.0
+    return np.mean(np.abs(y_true - y_pred)) / scale
+
+def wape(y_true, y_pred): return np.abs(y_true - y_pred).sum() / max(np.abs(y_true).sum(), 1e-9)
+
+def rolling_origin(y: pd.Series, model, min_train=3, step=1, h=1):
+    """Expanding-window CV. Never shuffles. Train strictly before test."""
+    rows = []
+    for end in range(min_train, len(y) - h + 1, step):
+        train, test = y.iloc[:end], y.iloc[end:end + h]
+        try:
+            pred = model.fit(train).predict(h)
+        except Exception as e:
+            continue
+        rows.append(dict(origin=train.index[-1], mase=mase(test.values, pred, train.values),
+                         wape=wape(test.values, pred), err=(test.values - pred).mean()))
+    return pd.DataFrame(rows)
+
+def leaderboard(y, models, cfg):
+    out = []
+    for m in models:
+        r = rolling_origin(y, m, cfg["backtest"]["min_train"], cfg["backtest"]["step"])
+        if len(r): out.append(dict(model=m.name, mase=r.mase.mean(), wape=r.wape.mean(), folds=len(r)))
+    return pd.DataFrame(out).sort_values(cfg["backtest"]["metric"]).reset_index(drop=True)</code></pre>
+<p class="mut">With 4 quarters you get ≈1 fold – treat the leaderboard as weak evidence and prefer the simplest model unless another wins consistently.</p>
+
+<h2>9. Training, Tracking &amp; Registry</h2>
+<pre><code># src/train.py
+import mlflow, mlflow.pyfunc, pandas as pd, joblib
+from data import load_config, load_raw, validate
+from models import candidates
+from backtest import leaderboard
+
+class Wrapper(mlflow.pyfunc.PythonModel):
+    def __init__(self, fitted): self.fitted = fitted
+    def predict(self, context, model_input):
+        return pd.DataFrame({"forecast": self.fitted.predict(int(model_input["horizon"].iloc[0]))})
+
+def main(conn_str):
+    cfg = load_config()
+    y = validate(load_raw(cfg, conn_str), cfg)["y"]
+    m = cfg["data"]["season_length"]
+    mlflow.set_tracking_uri(cfg["mlflow"]["tracking_uri"]); mlflow.set_experiment(cfg["mlflow"]["experiment"])
+
+    zoo = candidates(m, len(y))
+    lb = leaderboard(y, zoo, cfg)
+    champ_name = lb.iloc[0]["model"]
+    champ = next(z for z in zoo if z.name == champ_name).fit(y)    # refit on ALL data
+
+    with mlflow.start_run(run_name=f"train_{y.index[-1]:%Y%m%d}") as run:
+        mlflow.log_params({"champion": champ_name, "n_obs": len(y), "last_period": str(y.index[-1])})
+        mlflow.log_metrics({"cv_mase": float(lb.iloc[0].mase), "cv_wape": float(lb.iloc[0].wape)})
+        lb.to_csv("leaderboard.csv", index=False); mlflow.log_artifact("leaderboard.csv")
+        info = mlflow.pyfunc.log_model("model", python_model=Wrapper(champ),
+                                       registered_model_name=cfg["mlflow"]["model_name"])
+    # promote only if better than current champion
+    client = mlflow.MlflowClient()
+    client.set_registered_model_alias(cfg["mlflow"]["model_name"], "challenger", info.registered_model_version)
+    return champ_name, lb
+
+if __name__ == "__main__":
+    import os; print(main(os.environ["DB_URL"]))</code></pre>
+<p class="mut">Promotion rule: challenger becomes <code>champion</code> alias only if its backtest metric beats the current champion on the same folds, or after manual finance sign-off.</p>
+
+<h2>10. Forecasting with Prediction Intervals</h2>
+<pre><code># src/predict.py
+import numpy as np, pandas as pd
+
+def forecast_with_intervals(model, y, h=4, levels=(80, 95), n_boot=1000, seed=42):
+    """Bootstrap one-step residuals → fan-out intervals. Widens honestly with small data."""
+    rng = np.random.default_rng(seed)
+    point = model.predict(h)
+    fitted = np.array([model.__class__().fit(y.iloc[:i]).predict(1)[0] if False else np.nan for i in range(1)])
+    # residuals via in-sample naive differences (robust fallback for tiny series)
+    resid = np.diff(y.values) - np.mean(np.diff(y.values))
+    sigma = np.std(resid, ddof=1) if len(resid) &gt; 1 else 0.1 * abs(y.iloc[-1])
+    sims = np.array([point + np.cumsum(rng.choice(resid, h, replace=True)) if len(resid) &gt; 1
+                     else point + rng.normal(0, sigma, h) for _ in range(n_boot)])
+    idx = pd.date_range(y.index[-1], periods=h + 1, freq=y.index.freq)[1:]
+    out = pd.DataFrame({"forecast": point}, index=idx)
+    for lv in levels:
+        lo, hi = (100 - lv) / 2, 100 - (100 - lv) / 2
+        out[f"lo_{lv}"], out[f"hi_{lv}"] = np.percentile(sims, [lo, hi], axis=0)
+    return out</code></pre>
+<p class="mut">Always publish the range, not just the point. Finance should plan on the interval (base / downside / upside scenarios).</p>
+
+<h2>11. Serving – FastAPI</h2>
+<pre><code># src/api.py
+import mlflow, pandas as pd
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
+
+app = FastAPI(title="Revenue Forecast API", version="1.0")
+MODEL_URI = "models:/revenue_forecaster@champion"
+model = None
+
+class Req(BaseModel):
+    horizon: int = Field(4, ge=1, le=8)
+
+@app.on_event("startup")
+def load(): 
+    global model; model = mlflow.pyfunc.load_model(MODEL_URI)
+
+@app.get("/health")
+def health(): return {"status": "ok", "model_loaded": model is not None}
+
+@app.post("/forecast")
+def forecast(r: Req):
+    if model is None: raise HTTPException(503, "Model not loaded")
+    out = model.predict(pd.DataFrame({"horizon": [r.horizon]}))
+    return {"horizon": r.horizon, "forecast": out["forecast"].round(2).tolist()}</code></pre>
+
+<h2>12. Orchestration – Airflow DAG</h2>
+<pre><code># dags/forecast_dag.py
+from datetime import datetime, timedelta
+from airflow import DAG
+from airflow.operators.python import PythonOperator, ShortCircuitOperator
+import sys; sys.path.append("/opt/airflow/src")
+
+def ingest():   from data import load_config, load_raw; ...      # land raw snapshot
+def validate_(): from data import validate; ...                  # fail DAG on bad data
+def train():    from train import main; main(conn_str)
+def forecast(): from predict import forecast_with_intervals; ... # write to finance.revenue_forecast
+def monitor():  from monitor import run_checks; run_checks()
+def new_actuals(): ...                                           # True if a new quarter closed
+
+with DAG("revenue_forecast", start_date=datetime(2026, 1, 1),
+         schedule="0 6 5 1,4,7,10 *",                            # 5th day after quarter-end
+         catchup=False, default_args={"retries": 2, "retry_delay": timedelta(minutes=10),
+                                      "email_on_failure": True}) as dag:
+    gate = ShortCircuitOperator(task_id="new_actuals", python_callable=new_actuals)
+    t = [PythonOperator(task_id=f.__name__.strip("_"), python_callable=f)
+         for f in (ingest, validate_, train, forecast, monitor)]
+    gate &gt;&gt; t[0] &gt;&gt; t[1] &gt;&gt; t[2] &gt;&gt; t[3] &gt;&gt; t[4]</code></pre>
+
+<h2>13. Monitoring &amp; Drift</h2>
+<pre><code># src/monitor.py
+import numpy as np, pandas as pd
+
+def forecast_accuracy(forecast_df, actual_df):
+    j = forecast_df.join(actual_df, how="inner", rsuffix="_act")
+    if j.empty: return None
+    wape = np.abs(j.y - j.forecast).sum() / j.y.abs().sum()
+    bias = (j.forecast - j.y).sum() / j.y.sum()
+    cover95 = ((j.y &gt;= j.lo_95) &amp; (j.y &lt;= j.hi_95)).mean()
+    return dict(wape=wape, bias=bias, coverage_95=cover95)
+
+def drift_z(history: pd.Series, new_value: float, window=8):
+    h = history.iloc[-window:]
+    return (new_value - h.mean()) / (h.std(ddof=1) or 1)
+
+def run_checks(cfg, forecast_df, actual_df, history):
+    acc = forecast_accuracy(forecast_df, actual_df)
+    alerts = []
+    if acc and acc["wape"] &gt; cfg["monitoring"]["max_wape_alert"]: alerts.append(f"WAPE {acc['wape']:.1%}")
+    if acc and abs(acc["bias"]) &gt; 0.10: alerts.append(f"Bias {acc['bias']:.1%}")
+    if abs(drift_z(history, actual_df.y.iloc[-1])) &gt; cfg["monitoring"]["drift_z_alert"]:
+        alerts.append("Revenue level shift – review for structural break (M&amp;A, pricing, new product)")
+    return acc, alerts      # send alerts to Slack / email; trigger retrain</code></pre>
+<table>
+<tr><th>Signal</th><th>Check</th><th>Action</th></tr>
+<tr><td>Data freshness</td><td>Latest period = expected quarter</td><td>Block run, notify data owner</td></tr>
+<tr><td>Accuracy</td><td>WAPE, bias after each close</td><td>Alert &gt; threshold, retrain</td></tr>
+<tr><td>Interval coverage</td><td>95% interval should contain ~95% of actuals</td><td>Recalibrate intervals</td></tr>
+<tr><td>Structural break</td><td>Level shift z-score</td><td>Human review, add intervention dummy</td></tr>
+</table>
+
+<h2>14. Docker, Tests &amp; CI/CD</h2>
+<pre><code># Dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt . 
+RUN pip install --no-cache-dir -r requirements.txt
+COPY src/ src/
+COPY config/ config/
+ENV PYTHONPATH=/app/src
+EXPOSE 8000
+CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
+<pre><code># requirements.txt
+pandas==2.2.*  numpy==1.26.*  statsmodels==0.14.*  scikit-learn==1.5.*
+lightgbm==4.5.*  mlflow==2.16.*  fastapi==0.115.*  uvicorn==0.30.*
+pandera==0.20.*  sqlalchemy==2.0.*  pyyaml  pytest  joblib</code></pre>
+<pre><code># tests/test_pipeline.py
+import pandas as pd, numpy as np
+from src.models import SeasonalNaive, ETS
+from src.backtest import rolling_origin, mase
+
+def sample():
+    return pd.Series([100, 120, 110, 140, 105, 125], index=pd.date_range("2025-03-31", periods=6, freq="QE"))
+
+def test_seasonal_naive_repeats_last_year():
+    p = SeasonalNaive(4).fit(sample().iloc[:4]).predict(4)
+    assert list(p) == [100, 120, 110, 140]
+
+def test_no_leakage_in_backtest():
+    r = rolling_origin(sample(), SeasonalNaive(4), min_train=4)
+    assert (r.origin &lt; sample().index[-1]).all()
+
+def test_forecast_non_negative_length():
+    p = ETS(4).fit(sample()).predict(4)
+    assert len(p) == 4 and (p &gt; 0).all()</code></pre>
+<pre><code># .github/workflows/ci.yml
+name: ci
+on: [push, pull_request]
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -r requirements.txt
+      - run: pytest -q
+      - run: docker build -t revenue-forecast:${{ github.sha }} .
+      # - push image to registry, then deploy to k8s / ECS</code></pre>
+
+<h2>15. Quarterly Runbook</h2>
+<ol>
+<li><b>Quarter closes</b> → finance publishes actuals to <code>finance.revenue_quarterly</code>.</li>
+<li><b>Airflow DAG fires</b> (5th day) → ingest → validate (fails loudly on gaps / negatives).</li>
+<li><b>Monitor previous forecast</b> vs. actuals → WAPE, bias, interval coverage logged.</li>
+<li><b>Retrain + backtest</b> → leaderboard in MLflow → challenger registered.</li>
+<li><b>Review</b> → analyst approves promotion to <code>champion</code> (or auto if metric improves).</li>
+<li><b>Forecast next 4 quarters</b> with 80/95% intervals → written to table → dashboard refresh.</li>
+<li><b>Finance review</b> → adjustments stored separately (never overwrite model output).</li>
+</ol>
+
+<h2>16. Production Checklist</h2>
+<table>
+<tr><th>Area</th><th>Item</th></tr>
+<tr><td>Data</td><td>Monthly granularity added · schema + gap checks · outliers flagged not deleted · one-off events tagged (M&amp;A, COVID, price change)</td></tr>
+<tr><td>Modelling</td><td>Baselines always in leaderboard · rolling-origin CV only · no leakage · intervals published</td></tr>
+<tr><td>MLOps</td><td>Data + model versioned · champion/challenger aliases · reproducible Docker image · seeds fixed</td></tr>
+<tr><td>Governance</td><td>Audit trail of forecast versions · manual override logged · finance sign-off step</td></tr>
+<tr><td>Monitoring</td><td>WAPE/bias after each close · drift alerts · freshness alerts · on-call owner</td></tr>
+<tr><td>Upgrade path</td><td>≥8 points → add SARIMAX · ≥24 points → add LightGBM + drivers · many series → hierarchical reconciliation</td></tr>
+</table>
+
+<h2>17. Interview Q&amp;A – 50 Questions (Basic → Advanced)</h2>
+<style>details{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 14px;margin:8px 0}summary{cursor:pointer;font-weight:600}details p{margin:.5em 0 .2em}</style>
+<p class="mut">Click a question to open the answer. Q1–14 basic · Q15–28 intermediate · Q29–38 advanced · Q39–45 scenarios · Q46–50 tricky.</p>
+
+<h3>Basic (1–14)</h3>
+<details><summary>Q1. What is a time series?</summary><p>Data points recorded in time order at regular intervals (for example quarterly revenue). Order matters, so you cannot treat the rows as independent.</p></details>
+<details><summary>Q2. What are the components of a time series?</summary><p>Trend (long-term direction), seasonality (repeating pattern, such as a strong Q4), cycles (irregular long waves) and noise (random leftover).</p></details>
+<details><summary>Q3. What is stationarity and why does it matter?</summary><p>A stationary series has constant mean, variance and autocorrelation over time. ARIMA-type models assume it. Check with ADF or KPSS tests and fix with differencing or a log transform.</p></details>
+<details><summary>Q4. Why can't we split train and test randomly?</summary><p>A random split lets the model see the future while training (leakage), so the score looks better than reality. Always split by time: train on the past, test on the future.</p></details>
+<details><summary>Q5. What are Naive and Seasonal-Naive forecasts, and why use them?</summary><p>Naive repeats the last value. Seasonal-Naive repeats the value from the same period last year. They are the benchmark: any complex model must beat them to be worth using.</p></details>
+<details><summary>Q6. Additive vs multiplicative seasonality?</summary><p>Additive: the seasonal swing has constant size. Multiplicative: the swing grows with the level (a growing company has bigger Q4 spikes). A log transform turns multiplicative into additive.</p></details>
+<details><summary>Q7. MAE vs RMSE vs MAPE?</summary><p>MAE is the average absolute error. RMSE squares errors, so it punishes big misses more. MAPE is a percentage, easy to explain, but it breaks when actuals are near zero and favours under-forecasting.</p></details>
+<details><summary>Q8. What are WAPE and MASE?</summary><p>WAPE = total absolute error ÷ total actual (stable for revenue). MASE = your error ÷ the naive model's error; below 1 means you beat naive.</p></details>
+<details><summary>Q9. What are ACF and PACF?</summary><p>ACF shows the correlation of the series with its own past at each lag. PACF shows the direct correlation at a lag after removing the shorter lags. They help choose ARIMA orders and spot seasonality.</p></details>
+<details><summary>Q10. What is differencing?</summary><p>Subtracting the previous value (y<sub>t</sub> − y<sub>t−1</sub>) to remove trend. Seasonal differencing subtracts the value one season ago (lag 4 for quarters).</p></details>
+<details><summary>Q11. What is a lag feature?</summary><p>A past value used as an input, such as last quarter's revenue or revenue four quarters ago. It converts a time series into a normal tabular problem.</p></details>
+<details><summary>Q12. What is a forecast horizon?</summary><p>How many periods ahead you predict. Here it is 4 quarters. Accuracy usually drops as the horizon grows.</p></details>
+<details><summary>Q13. Point forecast vs interval forecast?</summary><p>A point forecast is one number. An interval gives a range (for example 80% or 95%) that should contain the actual value that often. Finance plans on the range.</p></details>
+<details><summary>Q14. Why are 4 quarters of data a problem?</summary><p>Too few points to learn trend and seasonality, so complex models overfit. Use simple models (Seasonal-Naive, Drift, ETS), widen intervals, and get more granular data (monthly, or by product and region).</p></details>
+
+<h3>Intermediate (15–28)</h3>
+<details><summary>Q15. What do p, d, q mean in ARIMA?</summary><p>p = number of autoregressive lags, d = number of differences to make the series stationary, q = number of past forecast errors (moving average terms).</p></details>
+<details><summary>Q16. SARIMA vs SARIMAX?</summary><p>SARIMA adds seasonal terms (P, D, Q, m). SARIMAX also accepts external drivers (the X), such as bookings or pricing.</p></details>
+<details><summary>Q17. How does ETS / Holt-Winters work?</summary><p>It keeps smoothed estimates of level, trend and seasonality, updating each with recent data using weights. Recent points count more. It is strong and stable on small data.</p></details>
+<details><summary>Q18. Rolling-origin CV vs k-fold CV?</summary><p>Rolling-origin trains on an expanding window and always tests on the period right after it, so the future is never used. K-fold shuffles time and leaks information.</p></details>
+<details><summary>Q19. Give examples of data leakage in time series.</summary><p>Scaling with statistics from the full dataset, rolling means that include the current row, using actual future drivers, and random splits. Fix: compute everything using only data before the forecast date.</p></details>
+<details><summary>Q20. Why do we shift before a rolling mean?</summary><p>Without <code>shift(1)</code> the rolling window includes today's value, which is the target, so the model secretly sees the answer.</p></details>
+<details><summary>Q21. How do you handle missing periods?</summary><p>First find out why (late data or truly zero). Reindex to a full calendar, then fill with interpolation or the seasonal value only if justified. Never fill with 0 blindly, and fail the pipeline if too much is missing.</p></details>
+<details><summary>Q22. How do you handle outliers?</summary><p>Flag them, find the business cause (one-off deal, acquisition), and use an indicator variable or adjust the value with approval. Do not silently delete data.</p></details>
+<details><summary>Q23. Why can't tree models (LightGBM, Random Forest) extrapolate a trend?</summary><p>They predict averages of values seen in training, so they cannot go beyond the training range. Fix: model growth or differences, or detrend first (linear or ETS) and let the tree model learn the residual.</p></details>
+<details><summary>Q24. What are the multi-step forecasting strategies?</summary><p>Recursive (one model, feed predictions back in), direct (separate model per horizon step) and multi-output (one model predicts all steps together).</p></details>
+<details><summary>Q25. Recursive vs direct: trade-offs?</summary><p>Recursive is simple but errors accumulate. Direct avoids error accumulation but needs more models and ignores links between steps. Direct is often better for longer horizons with enough data.</p></details>
+<details><summary>Q26. When is Prophet a good choice?</summary><p>Daily or weekly data with multiple seasonalities, holidays and missing values. It is not suitable for 4 quarterly points and tends to overfit short series.</p></details>
+<details><summary>Q27. What is the rule for exogenous variables?</summary><p>They must be known (or reliably forecast) at prediction time. Planned budget and price are fine; future actual sales of another product are not.</p></details>
+<details><summary>Q28. What is hierarchical forecasting?</summary><p>Forecasting at several levels (total → region → product) and reconciling so the parts add up to the total. Methods: bottom-up, top-down, and MinT optimal reconciliation. It also gives you many series to learn from.</p></details>
+
+<h3>Advanced (29–38)</h3>
+<details><summary>Q29. Global vs local models?</summary><p>A local model is fitted to one series. A global model (for example LightGBM on all products) learns shared patterns across many series. Global models win with many short series, but need good identifiers and scaling.</p></details>
+<details><summary>Q30. How do you build prediction intervals?</summary><p>Model-based (ARIMA/ETS variance), bootstrapping residuals, quantile regression (LightGBM with objective=quantile) or conformal prediction. Always check coverage against actuals.</p></details>
+<details><summary>Q31. What is conformal prediction?</summary><p>A distribution-free method that uses past backtest errors to size the interval around any model's forecast, with a coverage guarantee under mild assumptions. Time series versions adapt to drift.</p></details>
+<details><summary>Q32. Data drift vs concept drift?</summary><p>Data drift: input distribution changes (customer mix shifts). Concept drift: the relationship between inputs and revenue changes (a price change alters demand). Monitor both and retrain when error or drift alerts fire.</p></details>
+<details><summary>Q33. Why do forecast ensembles work?</summary><p>Different models make different errors, and averaging cancels part of them. A simple average of ETS, ARIMA and a tree model often beats the best single model and is more robust.</p></details>
+<details><summary>Q34. What is interval calibration?</summary><p>A 95% interval should contain about 95% of actuals. If it contains only 70%, intervals are too narrow and overconfident. Recalibrate using backtest errors.</p></details>
+<details><summary>Q35. How do you deal with a structural break?</summary><p>Detect it (CUSUM, Chow test, residual monitoring), explain it (M&amp;A, new pricing), then add an intervention dummy, train only on post-break data, or model the segments separately.</p></details>
+<details><summary>Q36. When are deep learning models (LSTM, N-BEATS, TFT) justified?</summary><p>With long histories, thousands of related series, or rich covariates. For small quarterly company data they usually lose to ETS or a simple ensemble and are harder to explain.</p></details>
+<details><summary>Q37. What is point-in-time correctness in a feature store?</summary><p>Each training row uses only feature values that were actually available on that date, including later restatements. It prevents leakage from revised data.</p></details>
+<details><summary>Q38. How do you deploy a new model safely?</summary><p>Champion-challenger: run the new model in shadow mode, compare with the champion on live actuals, promote only if better, keep rollback by version alias.</p></details>
+
+<h3>Scenarios (39–45)</h3>
+<details><summary>Q39. The CFO wants a forecast, but you have only 4 quarters. What do you do?</summary><p>Deliver Seasonal-Naive or ETS with wide intervals and base/downside/upside cases. State the limits openly. Start collecting monthly and segment-level data, and add drivers such as pipeline bookings. Revisit once you have 8+ points.</p></details>
+<details><summary>Q40. Actual revenue came 25% below forecast. What next?</summary><p>Check data first (was actual correct or late?). Then check whether it fell inside the interval, find the cause (lost customer, delayed deal, price change), compare against the naive model, and decide whether to retrain, add a driver or flag a structural break. Do not simply refit blindly.</p></details>
+<details><summary>Q41. One quarter has a huge one-time deal. How do you treat it?</summary><p>Tag it as non-recurring. Forecast the base revenue without it, and add the one-off back as a separate line. Otherwise the model will assume the spike repeats.</p></details>
+<details><summary>Q42. The company acquired another firm last quarter, so revenue jumped. What do you do?</summary><p>It is a level shift, not growth. Use an intervention dummy or restate history on a pro-forma (combined) basis, and avoid training on the old level alone.</p></details>
+<details><summary>Q43. Sales leadership wants to override the forecast. How do you handle it?</summary><p>Allow overrides, but store them in a separate column with owner and reason, never overwrite the model output. Track model vs override error each quarter to see who is more accurate.</p></details>
+<details><summary>Q44. The backtest looked great but live performance is poor. Why?</summary><p>Likely causes: leakage in features, tuning on the test period, too few folds, data revisions not reflected, or a regime change after training. Audit the features for point-in-time correctness and compare with the naive baseline.</p></details>
+<details><summary>Q45. Past revenue numbers get restated by finance. How does the pipeline cope?</summary><p>Version the raw snapshots, keep a "as-of" date for each load, retrain on the latest restated data, and evaluate past forecasts against the actuals as first reported and as restated.</p></details>
+
+<h3>Tricky (46–50)</h3>
+<details><summary>Q46. A model shows R² = 0.99 on a trending revenue series. Is it great?</summary><p>Not necessarily. Any trending series gives a high R² even for a poor model. Compare MASE or WAPE with Seasonal-Naive on out-of-time folds instead.</p></details>
+<details><summary>Q47. Model A has lower RMSE than B. Is A always better?</summary><p>No. Check bias (consistent over-forecasting hurts planning), interval coverage, performance versus naive, stability across folds, and the business cost of errors. RMSE is one number from limited folds.</p></details>
+<details><summary>Q48. After creating lag features, rows look independent. Can we shuffle for LightGBM CV?</summary><p>No. Neighbouring rows share overlapping information and the shuffled training set contains future periods, so the score is inflated. Use time-ordered splits.</p></details>
+<details><summary>Q49. Does a stationary series have no seasonality?</summary><p>Not exactly. Strict stationarity rules out predictable seasonal patterns in the mean, so seasonal series must be seasonally differenced or modelled. A series with a stable repeating pattern after differencing is handled by SARIMA.</p></details>
+<details><summary>Q50. Why can adding more features make a forecast worse?</summary><p>With little data the model fits noise (overfitting). Also, extra drivers must themselves be forecast, which adds error, and some leak future information. Add features one at a time and keep only those that improve rolling-origin error.</p></details>
+
+<h2>18. Ways to Build the Forecast in Production</h2>
+<p>There are <b>5 main ways</b> (plus a hybrid). Only the model step changes. The production workflow around it stays the same.</p>
+<svg viewBox="0 0 680 400" role="img" aria-label="Five approaches feeding one production workflow">
+<g><rect class="b" x="40" y="40" width="200" height="56" rx="8"/><text x="140" y="62" text-anchor="middle" font-weight="600">1. Spreadsheet / BI</text><text x="140" y="80" text-anchor="middle" font-size="11">Excel ETS, Power BI</text></g>
+<g><rect class="b" x="40" y="106" width="200" height="56" rx="8"/><text x="140" y="128" text-anchor="middle" font-weight="600">2. Custom code</text><text x="140" y="146" text-anchor="middle" font-size="11">statsmodels, LightGBM</text></g>
+<g><rect class="b" x="40" y="172" width="200" height="56" rx="8"/><text x="140" y="194" text-anchor="middle" font-weight="600">3. Forecast libraries</text><text x="140" y="212" text-anchor="middle" font-size="11">statsforecast, Darts, sktime</text></g>
+<g><rect class="b" x="40" y="238" width="200" height="56" rx="8"/><text x="140" y="260" text-anchor="middle" font-weight="600">4. Cloud AutoML</text><text x="140" y="278" text-anchor="middle" font-size="11">Vertex, Azure, Databricks</text></g>
+<g><rect class="b" x="40" y="304" width="200" height="56" rx="8"/><text x="140" y="326" text-anchor="middle" font-weight="600">5. Foundation models</text><text x="140" y="344" text-anchor="middle" font-size="11">Chronos, TimesFM</text></g>
+<path d="M240 68H270M240 134H270M240 200H270M240 266H270M240 332H270M270 68V332" stroke="#888780" stroke-width="1.5" fill="none"/>
+<path class="ar" d="M270 200H328"/>
+<rect class="b2" x="330" y="40" width="310" height="320" rx="16"/><text x="485" y="66" text-anchor="middle" font-weight="600">Same production workflow</text>
+<rect class="b2" x="350" y="84" width="270" height="44" rx="8"/><text x="485" y="111" text-anchor="middle">Ingest + validate data</text>
+<rect class="b2" x="350" y="150" width="270" height="44" rx="8"/><text x="485" y="177" text-anchor="middle">Train + backtest + select</text>
+<rect class="b2" x="350" y="216" width="270" height="44" rx="8"/><text x="485" y="243" text-anchor="middle">Register + serve forecast</text>
+<rect class="b2" x="350" y="282" width="270" height="44" rx="8"/><text x="485" y="309" text-anchor="middle">Monitor + retrain</text>
+<path class="ar" d="M485 128V148"/><path class="ar" d="M485 194V214"/><path class="ar" d="M485 260V280"/>
+</svg>
+<table>
+<tr><th>Way</th><th>Best when</th><th>Effort</th><th>Control</th></tr>
+<tr><td>1. Spreadsheet / BI (Excel ETS, Power BI)</td><td>Quick answer, tiny data, no engineers</td><td>Very low</td><td>Low</td></tr>
+<tr><td>2. Custom code (this pipeline)</td><td>You need audit trail, overrides, your own drivers</td><td>High</td><td>Full</td></tr>
+<tr><td>3. Forecast libraries (statsforecast, Darts, sktime)</td><td>You want many models with little code</td><td>Medium</td><td>High</td></tr>
+<tr><td>4. Cloud AutoML (Vertex AI, Azure, Databricks)</td><td>Many series, small ML team, managed hosting</td><td>Low to medium</td><td>Medium</td></tr>
+<tr><td>5. Foundation models (Chronos, TimesFM)</td><td>Very little history, want a strong zero-shot baseline</td><td>Low</td><td>Low</td></tr>
+</table>
+<p class="mut">Check each cloud service's current availability and pricing before committing, because these products change often.</p>
+<h3>Step-wise workflow (same for all five)</h3>
+<ol>
+<li><b>Ingest and validate.</b> Pull revenue from the source system and check gaps, negatives and duplicates.</li>
+<li><b>Train and backtest.</b> Run the chosen approach(es), test on past quarters, compare each against Seasonal-Naive.</li>
+<li><b>Select the champion.</b> Lowest error (MASE or WAPE), not the fanciest model.</li>
+<li><b>Register and serve.</b> Save the model with a version, publish the 4-quarter forecast with a range to a table or API.</li>
+<li><b>Monitor.</b> When the quarter closes, compare forecast with actuals; watch error, bias and drift.</li>
+<li><b>Retrain.</b> Every quarter, or sooner if an alert fires, then loop back to step 1.</li>
+</ol>
+<div class="card"><b>Recommendation for 4 quarters of data:</b>
+<ul>
+<li><b>Now:</b> way 1 or 3 (ETS or Seasonal-Naive) for a safe, simple forecast.</li>
+<li><b>For production:</b> keep way 2, because versions, overrides and monitoring are what finance needs.</li>
+<li><b>As a challenger:</b> add way 5 and let backtesting decide if it beats ETS.</li>
+<li><b>At 24+ points or many series:</b> add LightGBM, and consider way 4 for less maintenance.</li>
+</ul>
+Most companies end up with a <b>hybrid</b>: statistical model plus ML model, averaged, with the finance override stored separately.</div>
+
+<h2>19. LightGBM vs Random Forest</h2>
+<p><b>Neither is best on its own, but LightGBM usually beats Random Forest for time series.</b> Your data size matters more than the choice between them.</p>
+<table>
+<tr><th></th><th>LightGBM</th><th>Random Forest</th></tr>
+<tr><td>Accuracy</td><td>Usually higher (boosting corrects errors step by step)</td><td>Good, often slightly behind</td></tr>
+<tr><td>Extrapolating a trend</td><td>Cannot predict outside the range it has seen</td><td>Same problem, often worse</td></tr>
+<tr><td>Overfitting</td><td>Can overfit small data unless tuned (<code>num_leaves</code>, <code>min_child_samples</code>)</td><td>More robust with defaults</td></tr>
+<tr><td>Tuning effort</td><td>More hyperparameters</td><td>Works well almost out of the box</td></tr>
+<tr><td>Speed</td><td>Faster on large data</td><td>Slower, more memory</td></tr>
+</table>
+<div class="card warn"><b>Both tree models cannot extrapolate.</b> If revenue keeps growing past anything in the training data, the forecast flattens. Fixes: forecast growth or the difference (<code>y - lag_4</code>) instead of raw revenue, or detrend first (linear or ETS) and let the tree model predict the residual.</div>
+<table>
+<tr><th>History</th><th>Use</th></tr>
+<tr><td>Under about 20 points (your 4 quarters)</td><td>Seasonal-Naive, ETS or Drift. Neither tree model is suitable.</td></tr>
+<tr><td>About 24 to 100 points</td><td>Try Random Forest (safer) and LightGBM (more accurate) against ETS or SARIMAX.</td></tr>
+<tr><td>Hundreds of points, many series or drivers</td><td>LightGBM. Global models across many series are where it does best.</td></tr>
+</table>
+<p class="mut">Whichever you pick, run a rolling-origin backtest and keep the model that beats Seasonal-Naive on your own data.</p>
+
+<h2>20. Important Concepts – Focus Most Here</h2>
+<p class="mut">Grouped by priority. Master the "Must" group first: these decide whether a forecast is trustworthy and are asked most in interviews.</p>
+
+<h3>MUST master (highest focus)</h3>
+<table>
+<tr><th>Concept</th><th>Simple meaning</th><th>Why it matters</th><th>Common mistake</th></tr>
+<tr><td><b>1. Data leakage</b></td><td>The model secretly sees the future while training.</td><td>Gives great test scores that fail in real life.</td><td>Random split, rolling mean without <code>shift(1)</code>, scaling on all data, using future drivers.</td></tr>
+<tr><td><b>2. Time-based split and rolling-origin backtest</b></td><td>Train on the past, test on the next period, then move forward and repeat.</td><td>The only fair way to measure real accuracy.</td><td>Using k-fold or a single lucky test period.</td></tr>
+<tr><td><b>3. Baselines (Naive, Seasonal-Naive)</b></td><td>Simple forecast: repeat last value, or same quarter last year.</td><td>A complex model is only worth it if it beats these.</td><td>Skipping the baseline and trusting a fancy model.</td></tr>
+<tr><td><b>4. Trend and seasonality</b></td><td>Trend = long-term direction. Seasonality = repeating pattern (strong Q4).</td><td>Every model is built to capture these two.</td><td>Ignoring seasonality, or confusing it with trend.</td></tr>
+<tr><td><b>5. Error metrics (WAPE, MASE, bias)</b></td><td>WAPE = total error ÷ total actual. MASE = error ÷ naive error. Bias = consistent over or under forecast.</td><td>Choosing the champion and monitoring depend on them.</td><td>Using only MAPE, or only RMSE, and ignoring bias.</td></tr>
+<tr><td><b>6. Small-data risk</b></td><td>Few points means models memorise noise (overfitting).</td><td>You have only 4 quarters: this is your biggest risk.</td><td>Training LightGBM, LSTM or Prophet on 4 points.</td></tr>
+<tr><td><b>7. Prediction intervals</b></td><td>A range around the forecast (80%, 95%), not one number.</td><td>Finance plans for best, normal and worst cases.</td><td>Reporting only a point forecast with false precision.</td></tr>
+</table>
+
+<h3>SHOULD know (strong focus)</h3>
+<table>
+<tr><th>Concept</th><th>Simple meaning</th><th>Why it matters</th><th>Common mistake</th></tr>
+<tr><td><b>8. Stationarity and differencing</b></td><td>Stable mean and variance over time; differencing removes trend.</td><td>Needed for ARIMA-type models.</td><td>Applying ARIMA to a trending series without differencing.</td></tr>
+<tr><td><b>9. ETS / Holt-Winters</b></td><td>Smooths level, trend and seasonality, weighting recent data more.</td><td>Strong, stable and explainable on small data.</td><td>Forcing seasonal terms with less than 2 full cycles.</td></tr>
+<tr><td><b>10. Lag and rolling features</b></td><td>Past values as clues for the model.</td><td>Turns time series into a table for ML models.</td><td>Not shifting rolling features (leakage).</td></tr>
+<tr><td><b>11. Tree models cannot extrapolate</b></td><td>LightGBM and Random Forest cannot predict beyond values seen in training.</td><td>Growing revenue gets under-forecast.</td><td>Predicting raw revenue; fix by modelling growth or detrending first.</td></tr>
+<tr><td><b>12. Multi-step strategies</b></td><td>Recursive (feed predictions back), direct (one model per step), multi-output.</td><td>Decides how errors build up across 4 quarters.</td><td>Using recursive for long horizons without checking error growth.</td></tr>
+<tr><td><b>13. Structural breaks and one-offs</b></td><td>A sudden level change (acquisition, price change) or a one-time deal.</td><td>The model may treat it as normal growth or repeat it.</td><td>Training through the break without a dummy or pro-forma restatement.</td></tr>
+</table>
+
+<h3>GOOD to know (production and advanced)</h3>
+<table>
+<tr><th>Concept</th><th>Simple meaning</th><th>Why it matters</th></tr>
+<tr><td><b>14. Data drift vs concept drift</b></td><td>Inputs change vs the input-to-revenue relationship changes.</td><td>Triggers retraining and alerts.</td></tr>
+<tr><td><b>15. Champion-challenger</b></td><td>New model runs beside the current one; promote only if better.</td><td>Safe deployment with rollback.</td></tr>
+<tr><td><b>16. Hierarchical forecasting</b></td><td>Forecast by product and region, then reconcile so parts add up to the total.</td><td>Gives many series to learn from.</td></tr>
+<tr><td><b>17. Ensembles</b></td><td>Average several models.</td><td>Often beats the single best model and is more robust.</td></tr>
+<tr><td><b>18. Interval calibration and conformal prediction</b></td><td>Check that a 95% range holds about 95% of actuals.</td><td>Detects overconfident ranges.</td></tr>
+<tr><td><b>19. Point-in-time correctness</b></td><td>Use only data that was known on that date, including restatements.</td><td>Prevents hidden leakage from revised numbers.</td></tr>
+<tr><td><b>20. Global vs local models</b></td><td>One model per series vs one model across many series.</td><td>Global models shine with many short series.</td></tr>
+</table>
+
+<h3>Suggested focus order</h3>
+<ol>
+<li>Leakage and time-based backtesting (concepts 1–2). Everything else depends on these.</li>
+<li>Baselines, metrics and bias (3, 5), so you can judge any model honestly.</li>
+<li>Trend, seasonality, small-data risk (4, 6), then ETS and ARIMA basics (8, 9).</li>
+<li>Prediction intervals (7) and how to explain them to finance.</li>
+<li>Tree models for time series: lags, extrapolation, multi-step (10–12).</li>
+<li>Production topics: breaks, drift, champion-challenger, monitoring (13–15).</li>
+<li>Advanced: hierarchical, ensembles, conformal, global models (16–20).</li>
+</ol>
+<div class="card warn"><b>If you remember only 5 things:</b> (1) never leak the future, (2) always backtest in time order, (3) always beat the naive baseline, (4) with 4 quarters keep models simple, (5) publish a range, not one number.</div>
+
+<p class="mut" style="margin-top:2em">Note: code is a production-oriented template; adapt table names, connection handling and secrets management (use a vault, never hard-code credentials) before deploying.</p>
+</div></body></html>

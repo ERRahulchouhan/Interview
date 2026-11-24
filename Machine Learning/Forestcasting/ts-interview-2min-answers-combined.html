@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Time Series Interview: 2-Minute Answers (Complete)</title>
+<style>
+:root{--bg:#e6ebe4;--panel:#eef2ec;--text:#2a3330;--mute:#5d6b66;--line:#c9d2c8;--acc:#3b6b70;--tint:#dde6dc;--fs:18px}
+:root[data-theme=dark]{--bg:#1c2322;--panel:#232c2b;--text:#d3dad6;--mute:#93a29c;--line:#34413f;--acc:#8cc0c4;--tint:#2b3736}
+:root[data-theme=sepia]{--bg:#efe6d2;--panel:#f5eddb;--text:#3a3326;--mute:#7a6d55;--line:#d9ccb0;--acc:#6b5a2e;--tint:#e9dfc5}
+*{box-sizing:border-box}
+html{font-size:var(--fs)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif;line-height:1.75;}
+main{max-width:46rem;margin:0 auto;padding:1.5rem 1.2rem 4rem}
+h1{font-size:1.65rem;line-height:1.3;margin:1.2rem 0 .3rem}
+.sub{color:var(--mute);margin:0 0 1rem}
+.how{background:var(--tint);border-left:4px solid var(--acc);border-radius:6px;padding:.8rem 1rem;font-size:.95rem}
+.how ol{margin:.4rem 0 0;padding-left:1.2rem}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:.6rem 0;display:flex;gap:.5rem;flex-wrap:wrap;font-family:system-ui,sans-serif;font-size:.8rem}
+.bar button{padding:.45rem .7rem;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--text);font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+article{counter-increment:q;background:var(--panel);border:1px solid var(--line);border-radius:8px;margin:1.4rem 0;padding:1rem 1.2rem 1.1rem}
+h2{font-size:1.1rem;line-height:1.5;margin:0 0 .6rem}
+h2::before{content:"Q" counter(q) ". ";color:var(--acc)}
+.say{background:var(--tint);border-radius:6px;padding:.6rem .9rem;margin:.5rem 0;font-size:.95rem}
+h3{font-size:.95rem;margin:.9rem 0 .2rem;color:var(--acc)}
+ol.s{margin:.2rem 0;padding-left:1.3rem;font-size:.95rem}
+ol.s li{margin:.35rem 0}
+p{margin:.3rem 0;font-size:.95rem}
+@media print{.bar{display:none}article{break-inside:avoid}}
+h2.sec{font-size:1.2rem;margin:2.4rem 0 .4rem;color:var(--acc);border-bottom:1px solid var(--line);padding-bottom:.3rem}h2.sec::before{content:""}.toc{font-size:.95rem}.toc a{color:var(--acc)}html{scroll-behavior:smooth}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}</style>
+</head>
+<body>
+<main>
+<h1>Time Series Interview: 2-Minute Answers</h1>
+<p class="sub">Questions 1 to 10 and 51 to 60. Each answer is ready to speak.</p>
+<div class="how"><strong>How to present each answer (about 2 minutes):</strong>
+<ol><li>Open with one clear sentence (the "Say first" box).</li><li>Walk through the steps in order.</li><li>Give a quick real example.</li><li>End with one pitfall or trade-off to show experience.</li></ol></div>
+<p class="toc">Jump to: <a href="#s1">Data and validation (Q1-10)</a> · <a href="#s2">Features and preprocessing (Q51-60)</a></p>
+<div class="bar"><button id="fm">A−</button><button id="fp">A+</button><button id="th">Theme: Sage</button></div>
+<section id="s1" style="counter-reset:q 0"><h2 class="sec">Data understanding, validation and leakage (Q1-10)</h2><article><h2>You have daily sales data with missing dates. How do you handle it?</h2>
+<div class="say"><strong>Say first:</strong> I first ask why the dates are missing, because the cause decides the fix.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Diagnose.</b> A store closure or holiday means real "no sales". A logging or pipeline failure means the value is unknown.</li>
+<li><b>Reindex.</b> Build a full date range and reindex, so every gap shows up as an explicit missing value.</li>
+<li><b>Fill based on cause.</b> True closure: fill with 0. Short gap in a smooth series: interpolate. Seasonal data: use the average of the same weekday. Long gap: drop that window or use a model that handles missing data, like a state-space model.</li>
+<li><b>Flag it.</b> Add an <code>is_missing</code> column so the model knows the value was filled.</li>
+<li><b>Validate.</b> Hide some known values, fill them with each method, and pick the method with the lowest error.</li></ol>
+<h3>Example</h3><p>A shop is closed on Sundays, so Sunday gets 0. A server outage on a Tuesday gets the average of other Tuesdays.</p>
+<h3>Watch out</h3><p>Filling with the overall mean ignores seasonality. In real-time systems, use only past values to fill, never future ones.</p></article><article><h2>Your sensor data arrives at irregular intervals. How do you model it?</h2>
+<div class="say"><strong>Say first:</strong> Most models assume equal spacing, so I either make the data regular or use a model that accepts irregular timestamps.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Inspect the gaps.</b> Plot the time between readings. Is it small jitter, or bursts and outages?</li>
+<li><b>Resample to a fixed grid</b> (for example, every 1 minute). Aggregate by signal type: mean for temperature, sum for counts, last for status, max for alarms.</li>
+<li><b>Handle small gaps</b> by interpolation, and mark large gaps as missing.</li>
+<li><b>Add features:</b> time since last reading and number of readings per bucket, because the timing itself can carry information.</li>
+<li><b>If resampling loses detail,</b> use models that take real timestamps: Kalman filter, Gaussian process, Neural ODE, or time-aware attention.</li></ol>
+<h3>Example</h3><p>A factory sensor sends data only when the value changes. I carry the last value forward and keep "time since last change" as a feature.</p>
+<h3>Watch out</h3><p>Pick a bucket smaller than the fastest event you care about. Too coarse hides it, too fine creates many empty buckets.</p></article><article><h2>How do you check whether a series is stationary, and what do you do if it isn't?</h2>
+<div class="say"><strong>Say first:</strong> Stationary means the mean, variance and autocorrelation do not change over time. I test it, then fix it only if my model needs it.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Look first.</b> Plot the series and its rolling mean and standard deviation. A trend or growing spread is a warning.</li>
+<li><b>Run two tests.</b> ADF (null: not stationary), where p &lt; 0.05 suggests stationary. KPSS (null: stationary), where p &lt; 0.05 suggests not stationary. Using both is safer.</li>
+<li><b>Fix it.</b> Trend: first differencing. Seasonality: seasonal differencing (lag 7 or 12). Growing variance: log or Box-Cox first.</li>
+<li><b>Re-test</b> and avoid over-differencing (a strongly negative lag-1 autocorrelation is the sign).</li>
+<li><b>Invert</b> the transformations to get forecasts on the original scale.</li></ol>
+<h3>Example</h3><p>Monthly airline passengers: take the log, then difference at lag 1, then at lag 12.</p>
+<h3>Watch out</h3><p>ARIMA needs stationarity. Tree models and neural nets do not strictly need it, but differencing helps them extrapolate trends.</p></article><article><h2>ADF says stationary but KPSS says non-stationary. What now?</h2>
+<div class="say"><strong>Say first:</strong> A disagreement is useful information. It tells me what kind of non-stationarity I have.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Read the combination.</b> Both say stationary: fine. Both say non-stationary: difference. ADF stationary but KPSS not: likely difference-stationary, so difference. KPSS stationary but ADF not: likely trend-stationary, so detrend.</li>
+<li><b>Apply the fix</b> and run both tests again.</li>
+<li><b>Check for a structural break</b> (Zivot-Andrews test). A break can fool ADF.</li>
+<li><b>Check sample size.</b> Short series give low test power.</li>
+<li><b>Decide by results.</b> Compare the forecast error of both treatments on a validation set.</li></ol>
+<h3>Example</h3><p>Sales with a steady upward drift: KPSS flags the trend, and differencing makes both tests agree.</p>
+<h3>Watch out</h3><p>Never trust one test or one p-value. Combine tests, the plot and out-of-sample results.</p></article><article><h2>Your series has huge outliers from a one-off event, such as a viral promotion. What do you do?</h2>
+<div class="say"><strong>Say first:</strong> I ask two questions: is it a data error, and will it happen again?</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Verify.</b> Rule out logging errors and confirm the cause with the business team.</li>
+<li><b>One-off event:</b> cap it (winsorize at the 1st and 99th percentile) or replace it with a model estimate, and add an event dummy so the model does not learn it as normal.</li>
+<li><b>Recurring event</b> (Black Friday, Diwali): keep it and add holiday features, including days before and after.</li>
+<li><b>Use robust tools:</b> detect outliers with STL residuals and MAD (median-based) instead of mean and standard deviation, and train with MAE or Huber loss.</li>
+<li><b>Compare</b> model performance with and without cleaning.</li></ol>
+<h3>Example</h3><p>A celebrity post makes one product spike 20x for a day. I cap it and flag it, rather than let the forecast assume a spike every week.</p>
+<h3>Watch out</h3><p>Clean only the training data. Evaluate on real, uncleaned data.</p></article><article><h2>Variance grows with the level of the series. How do you handle it?</h2>
+<div class="say"><strong>Say first:</strong> Growing spread means the effects are multiplicative: the seasonal swing is a percentage of the level.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Confirm.</b> Plot it, or plot rolling standard deviation against rolling mean. A rising relationship confirms it.</li>
+<li><b>Transform.</b> Use log (or log1p if zeros exist) or Box-Cox, which finds the best power automatically.</li>
+<li><b>Model</b> on the transformed scale with ARIMA, ETS or a GBM.</li>
+<li><b>Back-transform</b> the forecasts. Remember exp of a log forecast gives the median, so apply bias correction if you need the mean.</li>
+<li><b>Alternatives:</b> multiplicative decomposition, or Poisson or Tweedie models with a log link for counts.</li></ol>
+<h3>Example</h3><p>Ice cream sales where summer peaks grow as the business grows. After the log, the peaks have equal height.</p>
+<h3>Watch out</h3><p>Always report metrics on the original scale, since that is what the business sees.</p></article><article><h2>How do you handle multiple seasonalities (daily, weekly, yearly) in hourly electricity demand?</h2>
+<div class="say"><strong>Say first:</strong> Hourly demand has several cycles at once, so I model each one explicitly.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Detect.</b> Look at the ACF peaks at lag 24 and 168, and at a periodogram.</li>
+<li><b>Decompose</b> with MSTL using periods 24 and 168 to see trend and each seasonal part.</li>
+<li><b>Statistical route:</b> Fourier terms for each period plus ARIMA errors (dynamic harmonic regression), TBATS, or Prophet.</li>
+<li><b>ML route:</b> features like hour, day of week, month, holiday flag, sin/cos encodings, lag 24, lag 168 and temperature.</li>
+<li><b>Deep route:</b> N-BEATS or Temporal Fusion Transformer can learn the cycles directly.</li>
+<li><b>Validate</b> with rolling origins that cover both summer and winter.</li></ol>
+<h3>Example</h3><p>Demand peaks at 8 pm daily, is lower on weekends, and rises in summer for air conditioning. Each has its own feature.</p>
+<h3>Watch out</h3><p>Use cyclical encoding so hour 23 and hour 0 are treated as neighbors.</p></article><article><h2>How would you handle a structural break, such as COVID, in your training data?</h2>
+<div class="say"><strong>Say first:</strong> A break means old patterns may not describe the future, so I detect it, understand it, then decide how to treat it.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Detect</b> with plots and change-point methods (PELT, Bayesian change-point) or a Chow test.</li>
+<li><b>Understand</b> the cause. Is the shift temporary or permanent?</li>
+<li><b>Temporary shock:</b> add an intervention dummy or mask the period as missing.</li>
+<li><b>Permanent shift:</b> train mainly on post-break data, weight recent data more, or add a regime indicator.</li>
+<li><b>Combine:</b> use long pre-break history for the seasonal shape and post-break data for the level.</li>
+<li><b>Validate</b> on a post-break holdout and keep monitoring for drift.</li></ol>
+<h3>Example</h3><p>Travel bookings collapsed in 2020. I mask 2020-21 for a recovery-focused model, and keep 2018-19 only to learn seasonality.</p>
+<h3>Watch out</h3><p>Dropping all pre-break data can leave too little history for seasonality. Balance both.</p></article><article><h2>Why can't you use random K-fold cross-validation on time series?</h2>
+<div class="say"><strong>Say first:</strong> Time order matters. Random folds let the model train on the future and predict the past.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Explain leakage.</b> Neighboring points are correlated, so a test point on day 100 has training points on day 99 and 101. The model memorizes instead of forecasting.</li>
+<li><b>Use walk-forward validation.</b> Train Jan-Jun, test Jul. Then train Jan-Jul, test Aug, and so on (expanding window), or slide a fixed window (rolling).</li>
+<li><b>Tools:</b> scikit-learn <code>TimeSeriesSplit</code>, with a <code>gap</code> when features look back over a window.</li>
+<li><b>Keep a final holdout</b> of the most recent period, untouched until the end.</li>
+<li><b>Report</b> the average error across folds and its spread.</li></ol>
+<h3>Example</h3><p>Random K-fold gives 5% error. Walk-forward gives 14%. The 14% is the honest number.</p>
+<h3>Watch out</h3><p>Fit scalers and imputers inside each fold, using training data only.</p></article><article><h2>Your model has 98% accuracy offline but fails in production. What could be wrong?</h2>
+<div class="say"><strong>Say first:</strong> A gap this large usually means the offline setup did not match production, so I audit in a fixed order.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Leakage check.</b> Look for centered rolling windows, scalers fit on all data, target encoding across time, shuffled splits, or joins that pull in later data.</li>
+<li><b>Availability check.</b> Is every feature available at prediction time with the same delay? Yesterday's sales may arrive late in production.</li>
+<li><b>Train/serve skew.</b> Compare feature code paths and distributions between training and serving.</li>
+<li><b>Drift check.</b> Compare production inputs against training data (PSI, KS test) and watch for concept drift.</li>
+<li><b>Metric check.</b> Compare with a naive baseline. If "same as yesterday" scores 97%, then 98% is not impressive.</li>
+<li><b>Fix.</b> Rebuild validation with walk-forward splits and run the model in shadow mode before launch.</li></ol>
+<h3>Example</h3><p>A feature used the full-day average, which is only known at midnight, but predictions were needed at 9 am.</p>
+<h3>Watch out</h3><p>When results look too good, suspect leakage before celebrating.</p></article></section>
+<section id="s2" style="counter-reset:q 50"><h2 class="sec">Features and preprocessing (Q51-60)</h2><article><h2>How do you choose lag features?</h2>
+<div class="say"><strong>Say first:</strong> Lags let a tabular model see the past, and I pick them from the data and the forecast horizon, not by guessing.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Find strong lags</b> with the ACF and PACF plots.</li>
+<li><b>Add seasonal lags:</b> for daily data, 7, 14 and 28; for yearly patterns, 365.</li>
+<li><b>Respect the horizon.</b> For a 7-day direct forecast, use lags of at least 7 days, because newer values won't exist at prediction time.</li>
+<li><b>Test on walk-forward folds</b> and drop lags with low importance or high overlap.</li>
+<li><b>Combine</b> lags with rolling statistics for a fuller picture.</li></ol>
+<h3>Example</h3><p>For daily store sales, lag 7 and lag 14 capture the weekly rhythm, and lag 28 captures the monthly one.</p>
+<h3>Watch out</h3><p>Too many correlated lags cause overfitting and noise.</p></article><article><h2>How do you pick rolling window sizes?</h2>
+<div class="say"><strong>Say first:</strong> Rolling windows summarize recent behavior, so I match their size to the business cycle and use more than one.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Match the cycle:</b> 7 days covers a week, 28 days covers a month.</li>
+<li><b>Use short and long windows together.</b> Short windows show momentum; long windows show the baseline.</li>
+<li><b>Add several statistics:</b> mean, standard deviation, min, max.</li>
+<li><b>Shift first.</b> Compute <code>y.shift(1).rolling(7).mean()</code> so today's value is never included.</li>
+<li><b>Validate</b> window choices with walk-forward folds.</li></ol>
+<h3>Example</h3><p>The 7-day mean tells me recent level; the 28-day mean tells me whether that level is unusual.</p>
+<h3>Watch out</h3><p>A centered window uses future values and leaks the answer.</p></article><article><h2>How do you encode cyclical features like hour or month?</h2>
+<div class="say"><strong>Say first:</strong> Hour 23 and hour 0 are neighbors, so I encode time on a circle instead of a line.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Identify the cycle length:</b> 24 for hour, 7 for weekday, 12 for month.</li>
+<li><b>Create two features:</b> <code>sin(2π·x/period)</code> and <code>cos(2π·x/period)</code>.</li>
+<li><b>Use both together.</b> Sine alone gives the same value for two different times.</li>
+<li><b>Choose by model:</b> linear and neural models need this encoding; tree models can use the raw integer or categorical value.</li></ol>
+<h3>Example</h3><p>With raw hour, 23 and 0 look far apart. With sin/cos, they sit next to each other.</p>
+<h3>Watch out</h3><p>Fourier terms with several harmonics are better for longer, smoother seasonal shapes.</p></article><article><h2>How do you scale series for neural networks?</h2>
+<div class="say"><strong>Say first:</strong> Neural nets train badly on raw values, and large series would dominate small ones, so I scale per series using training data only.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Choose a scaler:</b> standardization or min-max, or a log transform for skewed data.</li>
+<li><b>Fit per series</b> (or per window with instance normalization such as RevIN).</li>
+<li><b>Fit on the training period only</b>, then apply to validation and test.</li>
+<li><b>Train and predict</b> on scaled values.</li>
+<li><b>Invert the scaling</b> on outputs to get real units.</li></ol>
+<h3>Example</h3><p>A store selling 10,000 units and a kiosk selling 10 get comparable ranges, so the model learns both.</p>
+<h3>Watch out</h3><p>Fitting the scaler on all data leaks future statistics.</p></article><article><h2>How do you handle holidays that move every year, like Diwali or Eid?</h2>
+<div class="say"><strong>Say first:</strong> Fixed calendar features can't catch moving dates, so I use an explicit holiday calendar with windows around each date.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Get exact dates</b> for past and future years from a holiday library or calendar.</li>
+<li><b>Add a flag</b> for the holiday itself.</li>
+<li><b>Add window features:</b> days before and after, since demand often builds up and tails off.</li>
+<li><b>Add interactions,</b> such as holiday × weekday.</li>
+<li><b>Check each holiday's error</b> separately in validation.</li></ol>
+<h3>Example</h3><p>Sweet shop sales rise 5 days before Diwali, peak the day before, and drop after. A single flag would miss that shape.</p>
+<h3>Watch out</h3><p>With only a few years of history, each holiday has few examples, so keep the features simple.</p></article><article><h2>What are the pitfalls when resampling hourly data to daily?</h2>
+<div class="say"><strong>Say first:</strong> Resampling changes meaning, so I choose the aggregation, time zone and edge handling carefully.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Pick the right aggregation:</b> sum for sales or counts, mean for temperature, max for peaks, last for state.</li>
+<li><b>Align time zones</b> so a "day" matches the business day.</li>
+<li><b>Handle partial days</b> at the start and end, or drop them.</li>
+<li><b>Check missing hours.</b> A day with 20 hours of data is not comparable to one with 24.</li>
+<li><b>Confirm the target granularity</b> with the business before aggregating.</li></ol>
+<h3>Example</h3><p>Summing hourly temperature would give a meaningless number; the mean or max is right.</p>
+<h3>Watch out</h3><p>Aggregating hides intraday patterns you may need later.</p></article><article><h2>How do you handle daylight saving time?</h2>
+<div class="say"><strong>Say first:</strong> DST creates days with 23 or 25 hours, so I keep storage in UTC and convert only when building features.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Store timestamps in UTC.</b> UTC has no jumps and no duplicates.</li>
+<li><b>Convert to local time</b> only to create features like local hour and weekday.</li>
+<li><b>Handle the odd days:</b> in spring one local hour is missing, in autumn one repeats.</li>
+<li><b>Check demand patterns</b> in local time, since people follow the clock.</li>
+<li><b>Test around the change dates</b> specifically.</li></ol>
+<h3>Example</h3><p>Morning peak demand moves one hour in UTC when clocks change, but stays at 8 am local. Local-hour features capture that.</p>
+<h3>Watch out</h3><p>Local timestamps in storage create duplicate and missing hours that silently corrupt joins.</p></article><article><h2>What do you do about long gaps in sensor data?</h2>
+<div class="say"><strong>Say first:</strong> Short gaps can be filled, but long gaps are unknown, so I don't invent data across them.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Measure gap lengths</b> and find the cause (outage, maintenance, sensor fault).</li>
+<li><b>Fill short gaps</b> by interpolation or forward fill.</li>
+<li><b>Mark long gaps as missing</b> and add a flag feature.</li>
+<li><b>Split into segments</b> so windows never span a long gap, or use models that accept missing values (state-space, GBMs).</li>
+<li><b>Validate</b> by masking known stretches and checking how well your method recovers them.</li></ol>
+<h3>Example</h3><p>A 3-day outage on a wind turbine should not be linearly interpolated, since wind varies a lot in 3 days.</p>
+<h3>Watch out</h3><p>Interpolating long gaps creates fake smooth data that makes the model look better than it is.</p></article><article><h2>How do you do feature selection for time series?</h2>
+<div class="say"><strong>Say first:</strong> I select features with time-aware validation, so I never reward features that only work because of leakage.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Start with domain knowledge:</b> list features that make business sense.</li>
+<li><b>Remove leakage risks:</b> anything unavailable at prediction time.</li>
+<li><b>Drop redundant features,</b> such as highly correlated lags.</li>
+<li><b>Measure importance</b> with permutation importance on walk-forward folds.</li>
+<li><b>Regularize</b> (L1, or tree-model feature limits) and keep the simplest set that holds accuracy.</li></ol>
+<h3>Example</h3><p>Lags 1 to 14 are all correlated; keeping lag 1, 7 and 14 gives the same accuracy with fewer features.</p>
+<h3>Watch out</h3><p>Selecting features with random cross-validation can keep leaky ones.</p></article><article><h2>Monthly macro data is joined to daily sales. What is the risk?</h2>
+<div class="say"><strong>Say first:</strong> The risk is look-ahead leakage: the data describes a month but was published later.</div>
+<h3>Steps</h3><ol class="s">
+<li><b>Find the release date,</b> not just the reference month.</li>
+<li><b>Join on the release date:</b> a value for March published on April 15 only exists for rows on or after April 15.</li>
+<li><b>Forward-fill</b> the value across days until the next release.</li>
+<li><b>Account for revisions.</b> Use the first-published value that was known then, not the revised one.</li>
+<li><b>Test it:</b> check no feature uses information dated after the prediction time.</li></ol>
+<h3>Example</h3><p>An unemployment rate for March joined to every March day lets the model "know" a number the real world didn't have yet.</p>
+<h3>Watch out</h3><p>This leak makes offline accuracy great and production accuracy poor.</p></article></section>
+</main>
+<script>
+(function(){var r=document.documentElement,T=[["","Sage"],["sepia","Sepia"],["dark","Dark"]],t=0,f=18;
+try{t=+localStorage.getItem("tc")||0;f=+localStorage.getItem("fc")||18}catch(e){}
+function a(){r.setAttribute("data-theme",T[t][0]);r.style.setProperty("--fs",f+"px");document.getElementById("th").textContent="Theme: "+T[t][1];try{localStorage.setItem("tc",t);localStorage.setItem("fc",f)}catch(e){}}
+a();
+document.getElementById("th").onclick=function(){t=(t+1)%3;a()};
+document.getElementById("fp").onclick=function(){f=Math.min(26,f+1);a()};
+document.getElementById("fm").onclick=function(){f=Math.max(14,f-1);a()};})();
+</script>
+</body>
+</html>

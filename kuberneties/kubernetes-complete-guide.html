@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kubernetes Complete Guide – Brief Topics, Code &amp; Interview</title>
+<style>
+:root{--bg:#f4efe4;--card:#fbf8f1;--tx:#2e2a24;--mu:#6b6458;--ac:#2f6f6a;--cb:#2b2f33;--ct:#e6e1d6;--bd:#ddd5c3}
+@media(prefers-color-scheme:dark){:root{--bg:#1e2124;--card:#262a2e;--tx:#dcd8cf;--mu:#9a958a;--ac:#6fc2b9;--cb:#15181a;--ct:#d8d4c8;--bd:#383d42}}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,Segoe UI,sans-serif}
+main{max-width:920px;margin:auto;padding:18px}
+h1{color:var(--ac);margin:4px 0}.s{color:var(--mu);margin-top:0}
+details{background:var(--card);border:1px solid var(--bd);border-radius:10px;margin:10px 0;padding:2px 16px}
+summary{cursor:pointer;font-weight:600;padding:10px 0;color:var(--ac);font-size:1.07em}
+ul{padding-left:20px}li{margin:3px 0}
+pre{background:var(--cb);color:var(--ct);padding:11px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.45}
+.q{border-left:3px solid var(--ac);padding-left:10px;margin:6px 0}
+.t{background:var(--bg);border-radius:8px;padding:6px 12px}
+h4{margin:12px 0 2px;color:var(--mu);text-transform:uppercase;font-size:.78em;letter-spacing:.05em}
+</style></head><body><main>
+<h1>Kubernetes – Complete Guide</h1>
+<p class="s">Har topic short Hinglish me · code · interview Q&amp;A · Windows 11 + Minikube + FastAPI</p>
+
+<details open><summary>1. Fundamentals</summary>
+<ul>
+<li><b>Kubernetes:</b> containers ko cluster me auto deploy, scale, heal karne wala orchestrator (restaurant manager; containers = cooks).</li>
+<li><b>Why:</b> self-healing, auto scaling, zero-downtime update, load balancing, config management.</li>
+<li><b>Docker vs K8s:</b> Docker = container banata/chalata (1 machine). K8s = bahut machines par containers manage karta hai.</li>
+<li><b>Orchestration:</b> scheduling, networking, scaling, health check, update ka automatic control.</li>
+<li><b>Control Plane:</b> brain (decisions). <b>Worker Node:</b> muscle (Pods chalte hain).</li>
+<li><b>API Server:</b> front door; auth, RBAC, validation, etcd se akela baat karta hai.</li>
+<li><b>etcd:</b> key-value DB; cluster ka poora state (Raft, quorum).</li>
+<li><b>Scheduler:</b> Pod ke liye best node: Filter, Score, Bind.</li>
+<li><b>Controller Manager:</b> reconcile loop: desired state = actual state.</li>
+<li><b>Kubelet:</b> node agent; containers start, probes, status report.</li>
+<li><b>Kube-proxy:</b> Service ke network rules (iptables/IPVS).</li>
+<li><b>Container Runtime:</b> containerd/CRI-O; container actually chalata hai.</li></ul>
+<pre>kubectl apply -> API Server -> etcd (save)
+   -> Scheduler (node choose) -> Kubelet -> Runtime (container start)
+   -> Controllers (replicas maintain)
+
+Control Plane: [API Server][etcd][Scheduler][Controller Mgr]
+Worker Node  : [Kubelet][Kube-proxy][Runtime] -> [Pod][Pod]</pre>
+<div class="q"><b>Q:</b> Control plane down ho to apps band? <b>A:</b> Nahi, running Pods chalte hain; naye changes ruk jaate hain.</div>
+<div class="q"><b>Q:</b> Pod Pending kyu? <b>A:</b> Scheduler ko fit node nahi mila (resources/taint/PVC).</div>
+</details>
+
+<details><summary>2. Installation &amp; Environment</summary>
+<ul><li><b>Docker Desktop:</b> container engine. <b>kubectl:</b> cluster CLI. <b>Minikube:</b> local single-node cluster.</li>
+<li><b>Context:</b> cluster + user + namespace. <b>Namespace:</b> logical separation. <b>Dashboard:</b> web UI.</li></ul>
+<pre># PowerShell (Admin)
+winget install Docker.DockerDesktop
+winget install Kubernetes.kubectl
+winget install Kubernetes.minikube
+minikube start --driver=docker --cpus=2 --memory=4096
+minikube status ; kubectl get nodes      # minikube  Ready  control-plane
+minikube dashboard
+minikube stop ; minikube delete
+kubectl create namespace dev
+kubectl config get-contexts
+kubectl config use-context minikube
+kubectl config set-context --current --namespace=dev</pre>
+<div class="q"><b>Q:</b> Minikube vs production? <b>A:</b> Minikube 1 node local; production multi-node HA + cloud LB.</div>
+</details>
+
+<details><summary>3. Core Objects</summary>
+<p class="t"><b>Mandatory:</b> Pod, Deployment, Service. <b>Optional:</b> baaki need ke hisaab se.</p>
+<ul>
+<li><b>Pod:</b> smallest unit; 1+ containers, shared IP/storage.</li>
+<li><b>ReplicaSet:</b> N Pods hamesha chalu rakhta hai.</li>
+<li><b>Deployment:</b> ReplicaSet + rolling update + rollback (stateless apps).</li>
+<li><b>StatefulSet:</b> stable name (db-0) + apna storage (databases).</li>
+<li><b>DaemonSet:</b> har node par 1 Pod (log/monitor agent).</li>
+<li><b>Job / CronJob:</b> ek baar / schedule par kaam.</li>
+<li><b>Namespace:</b> isolation. <b>Labels/Selectors:</b> tags se objects jodna. <b>Annotations:</b> extra metadata.</li>
+<li><b>ConfigMap:</b> normal config. <b>Secret:</b> sensitive data (base64, encrypted nahi).</li>
+<li><b>ServiceAccount:</b> Pod ki identity. <b>ResourceQuota:</b> namespace ki total limit. <b>LimitRange:</b> per-Pod default/limit.</li></ul>
+<pre>apiVersion: apps/v1
+kind: Deployment
+metadata: {name: web}
+spec:
+  replicas: 3                          # kitne Pods
+  selector: {matchLabels: {app: web}}  # kin Pods ko manage kare
+  template:                            # Pod blueprint
+    metadata: {labels: {app: web}}     # selector se match zaroori
+    spec:
+      containers:
+      - {name: web, image: "nginx:1.27", ports: [{containerPort: 80}]}
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata: {name: q, namespace: dev}
+spec: {hard: {pods: "10", requests.cpu: "2", requests.memory: 4Gi}}
+---
+apiVersion: v1
+kind: LimitRange
+metadata: {name: lr, namespace: dev}
+spec: {limits: [{type: Container, default: {cpu: 500m, memory: 256Mi}, defaultRequest: {cpu: 100m, memory: 128Mi}}]}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata: {name: hello}
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate: {spec: {template: {spec: {restartPolicy: OnFailure, containers: [{name: h, image: busybox, command: ["echo","hi"]}]}}}}</pre>
+<pre>kubectl apply -f web.yaml ; kubectl get deploy,rs,pods
+kubectl describe pod NAME ; kubectl logs NAME ; kubectl exec -it NAME -- sh
+kubectl get pods -l app=web ; kubectl delete -f web.yaml</pre>
+<div class="q"><b>Q:</b> Deployment vs StatefulSet? <b>A:</b> Interchangeable Pods vs fixed identity + PVC.</div>
+<div class="q"><b>Q:</b> Pod delete kiya wapas aaya, kyu? <b>A:</b> ReplicaSet desired count maintain karta hai.</div>
+</details>
+
+<details><summary>4. Networking</summary>
+<ul>
+<li><b>Cluster networking:</b> har Pod ka apna IP, bina NAT ke Pod-to-Pod/Node-to-Pod communication.</li>
+<li><b>ClusterIP:</b> sirf andar (default). <b>NodePort:</b> NodeIP:30000-32767. <b>LoadBalancer:</b> cloud LB (Minikube: <code>minikube tunnel</code>).</li>
+<li><b>Headless:</b> <code>clusterIP: None</code>, DNS se direct Pod IPs (StatefulSet).</li>
+<li><b>Ingress:</b> host/path routing + TLS; <b>Ingress Controller</b> (nginx) iske rules chalata hai.</li>
+<li><b>CoreDNS:</b> <code>svc.ns.svc.cluster.local</code> resolve. <b>NetworkPolicy:</b> Pod-level firewall. <b>CNI (Calico/Cilium):</b> Pod network banata hai.</li></ul>
+<p class="t"><b>Ingress kab:</b> 1 domain par kai services/HTTPS. <b>Service kaafi kab:</b> ek app, internal ya testing.</p>
+<pre>apiVersion: v1
+kind: Service
+metadata: {name: web-svc}
+spec: {type: ClusterIP, selector: {app: web}, ports: [{port: 80, targetPort: 80}]}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: {name: web-ing}
+spec:
+  ingressClassName: nginx
+  rules: [{host: app.local, http: {paths: [{path: /, pathType: Prefix, backend: {service: {name: web-svc, port: {number: 80}}}}]}}]
+# minikube addons enable ingress</pre>
+<div class="q"><b>Q:</b> Service Pods kaise dhundhta hai? <b>A:</b> Label selector, Endpoints, kube-proxy routing.</div>
+</details>
+
+<details><summary>5. Storage</summary>
+<ul><li><b>Volume:</b> Pod ke andar shared storage. <b>emptyDir:</b> Pod ke saath temporary. <b>hostPath:</b> node folder (sirf test).</li>
+<li><b>PV:</b> actual storage. <b>PVC:</b> app ki request. <b>StorageClass + Dynamic Provisioning:</b> PVC aate hi PV auto.</li>
+<li><b>Stateful storage:</b> StatefulSet + volumeClaimTemplates. <b>Troubleshoot:</b> PVC Pending to <code>describe pvc</code> Events.</li></ul>
+<pre>apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: data-pvc}
+spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 1Gi}}}   # Minikube "standard" class
+---
+apiVersion: v1
+kind: Pod
+metadata: {name: app}
+spec:
+  containers: [{name: a, image: busybox, command: ["sleep","3600"], volumeMounts: [{name: d, mountPath: /data}]}]
+  volumes: [{name: d, persistentVolumeClaim: {claimName: data-pvc}}]
+# kubectl get pv,pvc,sc</pre>
+<div class="q"><b>Q:</b> PVC Pending kyu? <b>A:</b> StorageClass missing, size/accessMode mismatch, provisioner issue.</div>
+</details>
+
+<details><summary>6. FastAPI Deployment (Project)</summary>
+<pre># main.py
+import os
+from fastapi import FastAPI
+app = FastAPI()
+@app.get("/")
+def root(): return {"msg": "Hello K8s", "env": os.getenv("APP_ENV", "dev")}
+@app.get("/health")
+def health(): return {"status": "ok"}
+
+# requirements.txt:  fastapi  uvicorn[standard]
+
+# Dockerfile
+FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY main.py .
+EXPOSE 8000
+CMD ["uvicorn","main:app","--host","0.0.0.0","--port","8000"]</pre>
+<pre>docker build -t fastapi-k8s:1.0 .
+docker run -p 8000:8000 fastapi-k8s:1.0
+minikube image load fastapi-k8s:1.0</pre>
+<pre># k8s.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: app-config}
+data: {APP_ENV: production}
+---
+apiVersion: v1
+kind: Secret
+metadata: {name: app-secret}
+stringData: {API_KEY: abc123}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: fastapi}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: fastapi}}
+  strategy: {rollingUpdate: {maxUnavailable: 0, maxSurge: 1}}
+  template:
+    metadata: {labels: {app: fastapi}}
+    spec:
+      containers:
+      - name: api
+        image: fastapi-k8s:1.0
+        imagePullPolicy: IfNotPresent
+        ports: [{containerPort: 8000}]
+        envFrom: [{configMapRef: {name: app-config}}, {secretRef: {name: app-secret}}]
+        readinessProbe: {httpGet: {path: /health, port: 8000}, initialDelaySeconds: 3}
+        livenessProbe: {httpGet: {path: /health, port: 8000}, initialDelaySeconds: 10}
+        resources: {requests: {cpu: 100m, memory: 128Mi}, limits: {cpu: 500m, memory: 256Mi}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: fastapi-svc}
+spec: {type: NodePort, selector: {app: fastapi}, ports: [{port: 80, targetPort: 8000, nodePort: 30080}]}</pre>
+<pre>kubectl apply -f k8s.yaml
+minikube service fastapi-svc --url ; curl.exe URL/health
+kubectl scale deploy fastapi --replicas=4
+kubectl set image deploy/fastapi api=fastapi-k8s:2.0      # rolling update
+kubectl rollout status deploy/fastapi
+kubectl rollout undo deploy/fastapi                       # rollback</pre>
+<ul><li><b>Readiness:</b> traffic ke liye ready? <b>Liveness:</b> zinda hai, nahi to restart. <b>requests:</b> guaranteed. <b>limits:</b> max (memory cross = OOMKilled).</li></ul>
+<div class="q"><b>Q:</b> Zero-downtime update kaise? <b>A:</b> maxUnavailable 0 + readiness probe.</div>
+</details>
+
+<details><summary>7. Scaling &amp; Availability</summary>
+<ul><li><b>Manual:</b> <code>kubectl scale</code>. <b>HPA:</b> CPU/memory par Pods auto. <b>VPA:</b> requests/limits auto. <b>Cluster Autoscaler:</b> nodes add/remove (cloud).</li>
+<li><b>Metrics Server:</b> <code>kubectl top</code> + HPA ka data. <b>Load balancing/Self-healing/HA:</b> Service + replicas + multiple nodes.</li>
+<li><b>PDB:</b> maintenance me minimum Pods. <b>Affinity/Anti-affinity:</b> Pods saath/alag. <b>Taints/Tolerations:</b> node Pod ko reject/allow. <b>nodeSelector:</b> label wala node. <b>Topology spread:</b> zones me barabar.</li></ul>
+<pre>minikube addons enable metrics-server
+kubectl autoscale deploy fastapi --cpu-percent=60 --min=2 --max=8
+kubectl get hpa ; kubectl top pods
+# PDB
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata: {name: api-pdb}
+spec: {minAvailable: 1, selector: {matchLabels: {app: fastapi}}}
+# Anti-affinity (spread across nodes) inside Pod spec
+affinity: {podAntiAffinity: {preferredDuringSchedulingIgnoredDuringExecution: [{weight: 100, podAffinityTerm: {topologyKey: kubernetes.io/hostname, labelSelector: {matchLabels: {app: fastapi}}}}]}}
+# Taint node, tolerate in Pod
+kubectl taint nodes NODE key=gpu:NoSchedule
+tolerations: [{key: key, operator: Equal, value: gpu, effect: NoSchedule}]</pre>
+<div class="q"><b>Q:</b> HPA kaam nahi kar raha? <b>A:</b> Metrics Server missing ya CPU requests set nahi.</div>
+</details>
+
+<details><summary>8. Security</summary>
+<ul><li><b>RBAC:</b> Role/ClusterRole = permissions; RoleBinding/ClusterRoleBinding = kisko do. <b>ServiceAccount:</b> Pod identity.</li>
+<li><b>Secrets:</b> RBAC + etcd encryption + Vault/External Secrets. <b>Pod Security Standards:</b> privileged/baseline/restricted.</li>
+<li><b>SecurityContext:</b> non-root, read-only FS. <b>NetworkPolicy:</b> default deny. <b>Image security:</b> trusted base, Trivy scan, fixed tag. <b>Least privilege:</b> sirf zaroori access.</li></ul>
+<pre>apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: {name: pod-reader}
+rules: [{apiGroups: [""], resources: [pods], verbs: [get, list]}]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: read-pods}
+subjects: [{kind: ServiceAccount, name: api-sa}]
+roleRef: {kind: Role, name: pod-reader, apiGroup: rbac.authorization.k8s.io}
+---
+# container securityContext
+securityContext: {runAsNonRoot: true, runAsUser: 1000, allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: deny-all}
+spec: {podSelector: {}, policyTypes: [Ingress]}
+# kubectl auth can-i list pods --as=system:serviceaccount:default:api-sa</pre>
+<div class="q"><b>Q:</b> Secret safe hai? <b>A:</b> Default sirf base64; encryption + RBAC zaroori.</div>
+</details>
+
+<details><summary>9. Helm</summary>
+<ul><li><b>Helm:</b> K8s ka package manager. <b>Chart:</b> package. <b>Release:</b> installed chart. <b>Chart.yaml:</b> name/version. <b>values.yaml:</b> defaults. <b>templates/:</b> YAML + <code>{{ }}</code>.</li></ul>
+<pre>winget install Helm.Helm
+helm create fastapi-chart
+# values.yaml:  replicaCount: 2   image: {repository: fastapi-k8s, tag: "1.0"}
+# templates/deployment.yaml:
+#   replicas: {{ .Values.replicaCount }}
+#   image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+helm install api ./fastapi-chart
+helm upgrade api ./fastapi-chart --set image.tag=2.0
+helm history api ; helm rollback api 1 ; helm uninstall api
+helm template api ./fastapi-chart</pre>
+<div class="q"><b>Q:</b> Helm vs kubectl apply? <b>A:</b> Templating + versioned releases + rollback.</div>
+</details>
+
+<details><summary>10. CI/CD</summary>
+<ul><li>Flow: Git push, test, docker build, registry push, helm/kubectl deploy, verify, auto rollback. Env-specific config: <code>values-dev.yaml</code>, <code>values-prod.yaml</code>.</li>
+<li><b>Rolling:</b> dheere replace. <b>Blue-Green:</b> 2 envs, Service selector switch. <b>Canary:</b> pehle 5-10% traffic. <b>Auto rollback:</b> <code>helm --atomic</code>.</li></ul>
+<pre># .github/workflows/deploy.yml
+name: ci-cd
+on: {push: {branches: [main]}}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: docker/login-action@v3
+      with: {username: "${{ secrets.DOCKER_USER }}", password: "${{ secrets.DOCKER_PASS }}"}
+    - run: |
+        docker build -t ${{ secrets.DOCKER_USER }}/fastapi-k8s:${{ github.sha }} .
+        docker push ${{ secrets.DOCKER_USER }}/fastapi-k8s:${{ github.sha }}
+    - run: |
+        echo "${{ secrets.KUBECONFIG }}" > kube.conf
+        KUBECONFIG=kube.conf helm upgrade --install api ./fastapi-chart --set image.tag=${{ github.sha }} --atomic --timeout 2m
+
+// Jenkinsfile
+pipeline { agent any; stages {
+ stage('Build'){ steps { sh 'docker build -t user/api:${BUILD_NUMBER} .' } }
+ stage('Push'){ steps { sh 'docker push user/api:${BUILD_NUMBER}' } }
+ stage('Deploy'){ steps { sh 'helm upgrade --install api ./fastapi-chart --set image.tag=${BUILD_NUMBER} --atomic' } } } }</pre>
+<div class="q"><b>Q:</b> <code>latest</code> tag kyu bura? <b>A:</b> Traceability/rollback nahi; commit SHA use karo.</div>
+</details>
+
+<details><summary>11. Monitoring &amp; Logging</summary>
+<ul><li><b>Events:</b> cluster ki ghatnayein. <b>Logs:</b> container output. <b>Metrics Server:</b> live CPU/memory.</li>
+<li><b>Prometheus:</b> metrics collect. <b>Grafana:</b> dashboards. <b>Alertmanager:</b> alerts. <b>Loki:</b> logs. <b>OpenTelemetry:</b> traces/metrics standard.</li>
+<li><b>Health &amp; resource monitoring:</b> node/Pod CPU, memory, restarts. <b>App monitoring:</b> FastAPI <code>/metrics</code>.</li></ul>
+<pre>kubectl get events --sort-by=.lastTimestamp
+kubectl logs -f POD --previous ; kubectl top nodes
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm install mon prometheus-community/kube-prometheus-stack -n monitoring --create-namespace
+kubectl port-forward -n monitoring svc/mon-grafana 3000:80
+# FastAPI: pip install prometheus-fastapi-instrumentator
+# Instrumentator().instrument(app).expose(app)</pre>
+<div class="q"><b>Q:</b> Metrics vs Logs vs Traces? <b>A:</b> Numbers / events text / request ka poora path.</div>
+</details>
+
+<details><summary>12. Troubleshooting</summary>
+<p class="t"><b>Flow:</b> <code>get pods</code>, <code>describe pod</code> (Events), <code>logs --previous</code>, <code>get events</code>.</p>
+<ul>
+<li><b>CrashLoopBackOff:</b> app start par crash. Cause: bug, galat env/command, probe fail. Fix: logs --previous.</li>
+<li><b>ImagePullBackOff / ErrImagePull:</b> image nahi mila. Cause: galat naam/tag, private registry. Fix: naam check, imagePullSecret, <code>minikube image load</code>.</li>
+<li><b>Pending / FailedScheduling:</b> resources kam, taint, PVC unbound. Fix: describe pod, requests kam.</li>
+<li><b>OOMKilled:</b> memory limit cross. Fix: limit badhao/leak fix.</li>
+<li><b>CreateContainerConfigError:</b> ConfigMap/Secret/key missing.</li>
+<li><b>Node NotReady:</b> kubelet/network/disk. <code>describe node</code>.</li>
+<li><b>Service not accessible:</b> <code>get endpoints</code> khali? selector mismatch ya readiness fail.</li>
+<li><b>DNS failure:</b> <code>kubectl run t --rm -it --image=busybox -- nslookup web-svc</code>; CoreDNS check.</li>
+<li><b>PV mount error:</b> PVC Pending, galat claimName, accessMode.</li>
+<li><b>App networking:</b> NetworkPolicy block, galat targetPort, <code>port-forward</code> se test.</li></ul>
+<pre>kubectl describe pod P ; kubectl logs P --previous
+kubectl get endpoints ; kubectl get events -A --sort-by=.lastTimestamp
+kubectl debug -it P --image=busybox</pre>
+<div class="q"><b>Scenario:</b> Deploy ke baad 503. Check: Pods Ready? endpoints empty? selector? Turant recover: <code>rollout undo</code>.</div>
+</details>
+
+<details><summary>13. Advanced</summary>
+<ul><li><b>CRD:</b> apna resource type. <b>Operator/Custom Controller:</b> CRD + code jo reconcile kare. <b>Admission Controller:</b> save se pehle validate/modify.</li>
+<li><b>Service Mesh/Istio:</b> mTLS, retries, traffic split. <b>Argo CD/GitOps:</b> Git = source of truth, auto sync.</li>
+<li><b>Multi-cluster/Federation:</b> kai clusters ek saath. <b>DR:</b> etcd snapshot + Velero. <b>Production architecture:</b> 3 control-plane, multi-AZ workers, Ingress+TLS, HPA, monitoring, GitOps, backups.</li></ul>
+<pre>apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata: {name: fastapi, namespace: argocd}
+spec:
+  project: default
+  source: {repoURL: "https://github.com/you/repo", path: fastapi-chart, targetRevision: main}
+  destination: {server: "https://kubernetes.default.svc", namespace: prod}
+  syncPolicy: {automated: {prune: true, selfHeal: true}}
+# etcd backup: etcdctl snapshot save backup.db</pre>
+<div class="q"><b>Q:</b> GitOps fayda? <b>A:</b> Audit trail, git revert se rollback, drift auto-correct.</div>
+</details>
+
+<details><summary>14. Practical Projects</summary>
+<ol><li>Nginx + Service. 2. FastAPI (Section 6). 3. FastAPI + PostgreSQL. 4. FastAPI + Redis. 5. Microservices. 6. Ingress + TLS. 7. Helm. 8. Jenkins CI/CD. 9. Argo CD GitOps. 10. Prometheus + Grafana.</li></ol>
+<pre># Project 3: PostgreSQL (StatefulSet)
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: {name: postgres}
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector: {matchLabels: {app: postgres}}
+  template:
+    metadata: {labels: {app: postgres}}
+    spec:
+      containers:
+      - name: pg
+        image: postgres:16
+        env: [{name: POSTGRES_PASSWORD, valueFrom: {secretKeyRef: {name: app-secret, key: DB_PASS}}}]
+        volumeMounts: [{name: data, mountPath: /var/lib/postgresql/data}]
+  volumeClaimTemplates: [{metadata: {name: data}, spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 1Gi}}}}]
+# FastAPI DB URL: postgresql://user:pass@postgres:5432/db   (Service name = DNS)
+# Redis: Deployment redis:7 + ClusterIP Service; URL redis://redis:6379
+# TLS: kubectl create secret tls app-tls --cert=tls.crt --key=tls.key  -> Ingress spec.tls</pre>
+</details>
+
+<details><summary>15. Interview Preparation</summary>
+<h4>Beginner</h4><div class="q">Pod vs Container? Pod = 1+ containers, shared network/storage.</div><div class="q">Namespace kyu? Isolation + quota.</div>
+<h4>Intermediate</h4><div class="q">Liveness vs Readiness vs Startup? Restart / traffic / slow-start protection.</div><div class="q">ClusterIP vs NodePort vs LB? Internal / node port / cloud LB.</div>
+<h4>Advanced</h4><div class="q">Scheduler kaise decide karta hai? Filter, Score, Bind.</div><div class="q">Operator pattern? CRD + reconcile loop.</div>
+<h4>Scenario</h4><div class="q">Worker node down: Node controller NotReady mark karta hai, ~5 min baad Pods evict, naye nodes par reschedule.</div>
+<h4>Production</h4><div class="q">Traffic spike: HPA, resource requests, Metrics Server, DB bottleneck, PDB + replicas.</div><div class="q">Secret git me leak: turant rotate, Sealed/External Secrets ya Vault.</div><div class="q">Zero-downtime deploy: rolling + readiness + maxUnavailable 0 + graceful shutdown.</div>
+</details>
+<p class="s">Tip: Section 1 se shuru karo, har section ka code Minikube me khud chalao, phir agla section.</p>
+</main></body></html>
